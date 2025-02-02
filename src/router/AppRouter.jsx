@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import { AuthRoutes } from "../auth/routes/AuthRoutes";
 import { InitialPage } from "../virtualLibrary/pages/InitialPage";
 import { VirtualLibraryRoutes } from "../virtualLibrary/routes/VirtualLibraryRoutes";
 import { PrivateRouter } from "./PrivateRouter";
@@ -11,10 +12,7 @@ export const AppRouter = () => {
         path="auth/*"
         element={
           <PublicRouter>
-            <Routes>
-              <Route path="login" element={<div>Login</div>} />
-              <Route path="register" element={<div>Register</div>} />
-            </Routes>
+            <AuthRoutes />
           </PublicRouter>
         }
       />
