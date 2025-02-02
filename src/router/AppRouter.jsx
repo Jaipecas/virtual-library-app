@@ -1,4 +1,6 @@
 import { Routes, Route } from "react-router-dom";
+import { InitialPage } from "../virtualLibrary/pages/InitialPage";
+import { VirtualLibraryRoutes } from "../virtualLibrary/routes/VirtualLibraryRoutes";
 import { PrivateRouter } from "./PrivateRouter";
 import { PublicRouter } from "./PublicRouter";
 
@@ -20,9 +22,7 @@ export const AppRouter = () => {
         path="/*"
         element={
           <PrivateRouter>
-            <Routes>
-              <Route path="/" element={<div>Init Page</div>} />
-            </Routes>
+            <VirtualLibraryRoutes />
           </PrivateRouter>
         }
       />
