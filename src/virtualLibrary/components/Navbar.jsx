@@ -15,11 +15,25 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import AdbIcon from "@mui/icons-material/Adb";
 import { useState } from "react";
+import { useContext } from "react";
+import { AuthContext } from "../../auth/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const pages = ["Inicio", "Tableros", "Salas"];
 const settings = ["Perfil", "Tableros", "Salas", "Logout"];
 
 export const Navbar = () => {
+  const { authState, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const pages = authState.isAuthenticated
+    ? ["Inicio", "Tableros", "Salas"]
+    : [];
+
+  const settings = authState.isAuthenticated
+    ? ["Perfil", "Tableros", "Salas", "Logout"]
+    : [];
+
   const [anchorElNav, setAnchorElNav] = useState();
   const [anchorElUser, setAnchorElUser] = useState();
 
@@ -34,8 +48,17 @@ export const Navbar = () => {
     setAnchorElNav();
   };
 
-  const handleCloseUserMenu = () => {
+  const handleCloseUserMenu = ({ target }) => {
     setAnchorElUser();
+
+    switch (target.textContent) {
+      case "Logout":
+        logout();
+        break;
+
+      default:
+        break;
+    }
   };
 
   return (
@@ -125,8 +148,35 @@ export const Navbar = () => {
               </Button>
             ))}
           </Box>
-          <Box sx={{ flexGrow: 0 }}></Box>
-          <Box sx={{ flexGrow: 0 }}>
+          <Box
+            sx={{
+              flexGrow: 0,
+              display: authState.isAuthenticated ? "none" : "flex",
+            }}
+          >
+            <Typography
+              variant="h5"
+              noWrap
+              component="a"
+              href="#app-bar-with-responsive-menu"
+              sx={{
+                fontFamily: "monospace",
+                fontWeight: 700,
+                letterSpacing: ".3rem",
+                color: "inherit",
+                textDecoration: "none",
+              }}
+              onClick={() => navigate("/auth/login")}
+            >
+              LOGIN
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              flexGrow: 0,
+              display: !authState.isAuthenticated ? "none" : "flex",
+            }}
+          >
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
