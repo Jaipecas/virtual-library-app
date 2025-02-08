@@ -1,7 +1,25 @@
 import { AuthLayout } from "../layouts/AuthLayout";
 import { Grid2, Button, TextField, Typography } from "@mui/material";
+import { useForm } from "../../hooks/useForm";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export const RegisterPage = () => {
+  const { formState, onInputChange } = useForm();
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const onLogin = () => {
+    login({
+      id: 1,
+      email: formState.email,
+      password: formState.password,
+    });
+
+    navigate("/library");
+  };
+
   return (
     <AuthLayout isLogin={false}>
       <Grid2 container spacing={2} size={{ md: 6 }} margin={2}>
@@ -10,30 +28,36 @@ export const RegisterPage = () => {
         </Typography>
         <Grid2 size={{ xs: 12 }} sx={{ mt: 2 }}>
           <TextField
-            label="Nombre completo"
-            type="text"
-            placeholder="John Doe"
+            name="email"
+            label="Correo"
+            type="email"
+            placeholder="user@email.com"
+            onChange={onInputChange}
             fullWidth
           />
         </Grid2>
         <Grid2 size={{ xs: 12 }} sx={{ mt: 2 }}>
           <TextField
+            name="password"
             label="Contraseña"
             type="password"
             placeholder="Contraseña"
+            onChange={onInputChange}
             fullWidth
           />
         </Grid2>
         <Grid2 size={{ xs: 12 }} sx={{ mt: 2 }}>
           <TextField
+            name="confirmPassword"
             label="Confirmar contraseña"
             type="password"
             placeholder="Contraseña"
+            onChange={onInputChange}
             fullWidth
           />
         </Grid2>
         <Grid2 size={{ xs: 12 }} sx={{ mt: 2, px: 0.5 }}>
-          <Button variant="contained" fullWidth>
+          <Button onClick={onLogin} variant="contained" fullWidth>
             Registrar
           </Button>
         </Grid2>

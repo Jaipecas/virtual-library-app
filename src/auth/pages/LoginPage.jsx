@@ -20,7 +20,7 @@ export const LoginPage = () => {
 
     login(user);
 
-    navigate("/")
+    navigate("/library")
   };
 
   return (

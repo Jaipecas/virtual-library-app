@@ -1,13 +1,11 @@
 import { Routes, Route } from "react-router-dom";
-import { Navbar } from "../components/Navbar";
-import { InitialPage } from "../pages/InitialPage";
+import { ChatPage } from "../pages/chatPage";
 
 export const VirtualLibraryRoutes = () => {
   return (
     <>
-      <Navbar />
       <Routes>
-        <Route path="/" element={<InitialPage />} />
+        <Route path="/chat" element={<ChatPage />} />
       </Routes>
     </>
   );
