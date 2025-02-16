@@ -23,7 +23,7 @@ const pages = ["Inicio", "Tableros", "Salas"];
 const settings = ["Perfil", "Tableros", "Salas", "Logout"];
 
 export const Navbar = () => {
-  const { authState, logout } = useContext(AuthContext);
+  const { authState, userLogout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const pages = authState.isAuthenticated
@@ -53,7 +53,7 @@ export const Navbar = () => {
 
     switch (target.textContent) {
       case "Logout":
-        logout();
+        userLogout();
         break;
 
       default:

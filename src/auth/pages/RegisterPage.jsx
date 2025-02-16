@@ -1,32 +1,48 @@
 import { AuthLayout } from "../layouts/AuthLayout";
-import { Grid2, Button, TextField, Typography } from "@mui/material";
+import { Grid2, Button, TextField, Typography, Alert } from "@mui/material";
 import { useForm } from "../../hooks/useForm";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 export const RegisterPage = () => {
-  const { formState, onInputChange } = useForm();
-  const { login } = useContext(AuthContext);
+  const { formState, onInputChange, onFormSubmitted } = useForm({}, "SignUp");
+  const { authState, register } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const onLogin = () => {
-    login({
-      id: 1,
+  const onregister = () => {
+    register({
+      userName: formState.userName,
       email: formState.email,
       password: formState.password,
     });
 
-    navigate("/library");
+    if (authState.isAuthenticated) navigate("/library");
+  };
+
+  const onregisterFormSubmitted = (event) => {
+    const isSubmitted = onFormSubmitted(event);
+
+    if (isSubmitted) onregister();
   };
 
   return (
-    <form>
+    <form onSubmit={onregisterFormSubmitted}>
       <AuthLayout isLogin={false}>
         <Grid2 container spacing={2} size={{ md: 6 }} margin={2}>
           <Typography variant="h4" fontWeight="bold">
             Registro
           </Typography>
+          <Grid2 size={{ xs: 12 }} sx={{ mt: 2 }}>
+            <TextField
+              name="userName"
+              label="UserName"
+              type="text"
+              placeholder="userName"
+              onChange={onInputChange}
+              fullWidth
+            />
+          </Grid2>
           <Grid2 size={{ xs: 12 }} sx={{ mt: 2 }}>
             <TextField
               name="email"
@@ -35,6 +51,8 @@ export const RegisterPage = () => {
               placeholder="user@email.com"
               onChange={onInputChange}
               fullWidth
+              error={formState.emailError}
+              helperText={formState.emailError ? formState.emailError : ""}
             />
           </Grid2>
           <Grid2 size={{ xs: 12 }} sx={{ mt: 2 }}>
@@ -45,6 +63,8 @@ export const RegisterPage = () => {
               placeholder="Contraseña"
               onChange={onInputChange}
               fullWidth
+              error={formState.passwordError ? true : false}
+              helperText={formState.passwordError ? formState.passwordError : ""}
             />
           </Grid2>
           <Grid2 size={{ xs: 12 }} sx={{ mt: 2 }}>
@@ -55,10 +75,13 @@ export const RegisterPage = () => {
               placeholder="Contraseña"
               onChange={onInputChange}
               fullWidth
+              error={formState.confirmPasswordError ? true : false}
+              helperText={formState.confirmPasswordError ? formState.confirmPasswordError : ""}
             />
           </Grid2>
+          {authState.error && <Alert severity="error">{authState.error}</Alert>}
           <Grid2 size={{ xs: 12 }} sx={{ mt: 2, px: 0.5 }}>
-            <Button onClick={onLogin} variant="contained" fullWidth>
+            <Button type="submit" variant="contained" fullWidth>
               Registrar
             </Button>
           </Grid2>
