@@ -27,9 +27,7 @@ export const AuthLayout = ({ children, isLogin }) => {
           alignItems: "center",
         }}
       >
-        <form style={{ display: "flex", justifyContent: "center" }}>
-          {children}
-        </form>
+        {children}
       </Grid2>
       <Grid2
         size={{ xs: 12, md: 4 }}

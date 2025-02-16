@@ -13,21 +13,47 @@ const init = () => {
   };
 };
 
+const fetchLogin = async (user) => {
+  const credentials = { email: user.email, password: user.password };
+
+  try {
+    const response = await fetch("https://localhost:44347/api/auth/signin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(credentials),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        type: authTypes.error,
+        payload: data.errorMessage,
+      };
+    }
+
+    localStorage.setItem("user", JSON.stringify(user));
+
+    return {
+      type: authTypes.login,
+      payload: data,
+    };
+  } catch (error) {
+    return {
+      type: authTypes.error,
+      payload: error,
+    };
+  }
+};
+
 export const AuthProvider = ({ children }) => {
   const [authState, dispatch] = useReducer(authReducer, {}, init);
 
-  const login = (user = {}) => {
-    //Aqui se deberia hacer la autenticación con la API
-    localStorage.setItem("user", JSON.stringify(user));
-
-    //controlar errores de autenticación
-    //type: login o error dependiendo del resultado de la autenticación
-
-    const action = {
-      type: authTypes.login,
-      payload: user,
-    };
-
+  const login = async (user = {}) => {
+    const action = await fetchLogin(user);
     dispatch(action);
   };
 
