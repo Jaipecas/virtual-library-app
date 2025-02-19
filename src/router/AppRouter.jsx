@@ -21,14 +21,10 @@ export const AppRouter = () => {
         path="library/*"
         element={
           <>
-            <Navbar />
-
-            <PublicRouter>
+            <Navbar />        
               <Routes>
                 <Route path="/" element={<InitialPage />} />
-              </Routes>
-            </PublicRouter>
-            
+              </Routes>                
             <PrivateRouter>
               <VirtualLibraryRoutes/>
             </PrivateRouter>
