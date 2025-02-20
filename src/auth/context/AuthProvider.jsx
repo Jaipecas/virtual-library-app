@@ -1,4 +1,3 @@
-import React, { useEffect } from "react";
 import { useReducer } from "react";
 import { logout, signIn, signUp } from "../../services/apiService";
 import { authTypes } from "../types/authTypes";
