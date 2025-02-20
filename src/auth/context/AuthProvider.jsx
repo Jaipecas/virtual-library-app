@@ -81,7 +81,9 @@ export const AuthProvider = ({ children }) => {
   const updateUser = async (user = {}) => {
     let action = {};
     try {
-      await updateUser(user);
+      const data = await updateUser(user);
+
+      localStorage.setItem("user", JSON.stringify(data));
 
       action = {
         type: authTypes.updateUser,
