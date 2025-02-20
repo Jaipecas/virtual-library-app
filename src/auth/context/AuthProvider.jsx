@@ -77,6 +77,25 @@ export const AuthProvider = ({ children }) => {
     dispatch(action);
   };
 
+  const updateUser = async (user = {}) => {
+    let action = {};
+    try {
+      await updateUser(user);
+
+      action = {
+        type: authTypes.updateUser,
+        payload: data,
+      };
+    } catch (error) {
+      action = {
+        type: authTypes.error,
+        payload: error.message,
+      };
+    }
+
+    dispatch(action);
+  };
+
   return (
     <AuthContext.Provider value={{ authState, login, userLogout, register }}>
       {children}

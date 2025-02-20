@@ -6,16 +6,26 @@ import next from "../../assets/images/next.png";
 import { useContext, useEffect, useState } from "react";
 import { useForm } from "../../hooks/useForm";
 import { AuthContext } from "../../auth/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const logos = [profileMan, profileWoman];
 
 export const UserPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [selectedLogo, setSelectedLogo] = useState(0);
-  const { formState, onInputChange, onFormSubmitted } = useForm(
-    {},
-    true
-  );
+  const { formState, onInputChange, onFormSubmitted } = useForm({}, true);
+  const { authState, updateUser } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const onregister = () => {
+    updateUser({
+      userName: formState.userName,
+      email: formState.email,
+      password: formState.password,
+    });
+
+    if (authState.isAuthenticated) navigate("/library");
+  };
 
   const onUpdateUserFormSubmitted = (event) => {
     const isSubmitted = onFormSubmitted(event);
@@ -167,6 +177,7 @@ export const UserPage = () => {
               }
             />
           </Grid2>
+          {authState.error && <Alert severity="error">{authState.error}</Alert>}
           <Grid2 size={{ xs: 10 }} sx={{ mt: 2 }}>
             <Button type="submit" variant="contained" fullWidth>
               Actualizar

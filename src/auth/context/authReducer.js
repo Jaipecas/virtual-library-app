@@ -16,6 +16,13 @@ export const authReducer = (state = {}, action) => {
         user: null,
         error: null,
       };
+    case authTypes.updateUser:
+      return {
+        ...state,
+        isAuthenticated: true,
+        user: action.payload,
+        error: null,
+      };
     case authTypes.error:
       return {
         ...state,
