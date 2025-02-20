@@ -3,7 +3,7 @@ import profileMan from "../../assets/images/profileMan.png";
 import profileWoman from "../../assets/images/profileWoman.png";
 import previous from "../../assets/images/previous.png";
 import next from "../../assets/images/next.png";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { useForm } from "../../hooks/useForm";
 import { AuthContext } from "../../auth/context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -13,11 +13,19 @@ const logos = [profileMan, profileWoman];
 export const UserPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [selectedLogo, setSelectedLogo] = useState(0);
-  const { formState, onInputChange, onFormSubmitted } = useForm({}, true);
   const { authState, updateUser } = useContext(AuthContext);
+  const { formState, onInputChange, onFormSubmitted } = useForm(
+    {
+      userName: authState.user.userName || "",
+      email: authState.user.email || "",
+      password: "",
+      confirmPassword: "",
+    },
+    true
+  );
   const navigate = useNavigate();
 
-  const onregister = () => {
+  const onUpdateUser = () => {
     updateUser({
       userName: formState.userName,
       email: formState.email,
@@ -30,7 +38,7 @@ export const UserPage = () => {
   const onUpdateUserFormSubmitted = (event) => {
     const isSubmitted = onFormSubmitted(event);
 
-    if (isSubmitted) onregister();
+    if (isSubmitted) onUpdateUser();
   };
 
   const onClickShowPass = () => setShowPassword((prev) => !prev);
@@ -123,8 +131,10 @@ export const UserPage = () => {
               label="UserName"
               type="text"
               placeholder="userName"
+              value={formState.userName}
               onChange={onInputChange}
               fullWidth
+              InputLabelProps={{ shrink: true }}
             />
           </Grid2>
           <Grid2 size={{ xs: 10 }}>
@@ -133,10 +143,12 @@ export const UserPage = () => {
               label="Correo"
               type="email"
               placeholder="user@email.com"
+              value={formState.email}
               onChange={onInputChange}
               fullWidth
               error={formState.emailError}
               helperText={formState.emailError ? formState.emailError : ""}
+              InputLabelProps={{ shrink: true }}
             />
           </Grid2>
           <Typography

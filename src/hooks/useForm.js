@@ -43,8 +43,7 @@ export const useForm = (initialForm = {}, confirmPassword = false) => {
           "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.";
 
       if (formState.confirmPassword !== formState.password) {
-        confirmPasswordError =
-          "Las contraseñas no coinciden";
+        confirmPasswordError = "Las contraseñas no coinciden";
       }
     }
 
@@ -63,6 +62,6 @@ export const useForm = (initialForm = {}, confirmPassword = false) => {
   return {
     formState,
     onInputChange,
-    onFormSubmitted
+    onFormSubmitted,
   };
 };
