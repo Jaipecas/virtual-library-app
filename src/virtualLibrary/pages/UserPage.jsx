@@ -8,7 +8,9 @@ import { useForm } from "../../hooks/useForm";
 import { AuthContext } from "../../auth/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
+//TODO: cambiar la forma en la que se manejan los logos
 const logos = [profileMan, profileWoman];
+const logosNames = ["profileMan", "profileWoman"];
 
 export const UserPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -30,6 +32,7 @@ export const UserPage = () => {
       userName: formState.userName,
       email: formState.email,
       password: formState.password,
+      logo: logosNames[selectedLogo],
     });
 
     if (authState.isAuthenticated) navigate("/library");
