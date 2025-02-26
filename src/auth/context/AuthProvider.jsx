@@ -6,13 +6,10 @@ import { authReducer } from "./authReducer";
 
 const init = () => {
   const user = localStorage.getItem("user");
-  try {
-    return user
-      ? { isAuthenticated: true, user: JSON.parse(user) }
-      : { isAuthenticated: false, user: null };
-  } catch {
-    return { isAuthenticated: false, user: null };
-  }
+
+  return user
+    ? { isAuthenticated: true, user: JSON.parse(user) }
+    : { isAuthenticated: false, user: null };
 };
 
 export const AuthProvider = ({ children }) => {
