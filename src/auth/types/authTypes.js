@@ -3,4 +3,5 @@ export const authTypes = {
   logout: "[Auth] Logout",
   error: "[Auth] Error",
   updateUser: "[Auth] Update User",
+  updateError: "[Auth] Update User Error",
 };

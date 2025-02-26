@@ -30,6 +30,12 @@ export const authReducer = (state = {}, action) => {
         user: null,
         error: action.payload,
       };
+    case authTypes.updateError:
+      return {
+        ...state,
+        isAuthenticated: true,
+        error: action.payload,
+      };
     default:
       return state;
   }

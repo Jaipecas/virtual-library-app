@@ -1,4 +1,4 @@
-import { Grid2, Typography, Box, TextField, Button } from "@mui/material";
+import { Grid2, Typography, Box, TextField, Button, Alert } from "@mui/material";
 import profileMan from "../../assets/images/profileMan.png";
 import profileWoman from "../../assets/images/profileWoman.png";
 import previous from "../../assets/images/previous.png";
@@ -9,13 +9,14 @@ import { AuthContext } from "../../auth/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 //TODO: cambiar la forma en la que se manejan los logos
+// tambien await en register y el login
 const logos = [profileMan, profileWoman];
 const logosNames = ["profileMan", "profileWoman"];
 
 export const UserPage = () => {
-  const [showPassword, setShowPassword] = useState(false);
   const [selectedLogo, setSelectedLogo] = useState(0);
-  const { authState, updateUser } = useContext(AuthContext);
+  const { authState, updateUserData } = useContext(AuthContext);
+  const [showPassword, setShowPassword] = useState(false);
   const { formState, onInputChange, onFormSubmitted } = useForm(
     {
       userName: authState.user.userName || "",
@@ -23,19 +24,21 @@ export const UserPage = () => {
       password: "",
       confirmPassword: "",
     },
-    true
+    showPassword
   );
   const navigate = useNavigate();
 
-  const onUpdateUser = () => {
-    updateUser({
-      userName: formState.userName,
-      email: formState.email,
-      password: formState.password,
+  const onUpdateUser = async () => {
+    const errorUpdate = await updateUserData({
+      CurrentUserName: authState.user.userName,
+      CurrentEmail: authState.user.email,
+      NewUserName: formState.userName,
+      NewEmail: formState.email,
+      NewPassword: formState.password,
       logo: logosNames[selectedLogo],
     });
 
-    if (authState.isAuthenticated) navigate("/library");
+    if (!errorUpdate) navigate("/library");
   };
 
   const onUpdateUserFormSubmitted = (event) => {

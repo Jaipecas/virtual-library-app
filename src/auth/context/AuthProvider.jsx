@@ -1,15 +1,18 @@
 import { useReducer } from "react";
-import { logout, signIn, signUp } from "../../services/apiService";
+import { logout, signIn, signUp, updateUser } from "../../services/apiService";
 import { authTypes } from "../types/authTypes";
 import { AuthContext } from "./AuthContext";
 import { authReducer } from "./authReducer";
 
 const init = () => {
   const user = localStorage.getItem("user");
-
-  return user
-    ? { isAuthenticated: true, user: JSON.parse(user) }
-    : { isAuthenticated: false, user: null };
+  try {
+    return user
+      ? { isAuthenticated: true, user: JSON.parse(user) }
+      : { isAuthenticated: false, user: null };
+  } catch {
+    return { isAuthenticated: false, user: null };
+  }
 };
 
 export const AuthProvider = ({ children }) => {
@@ -74,7 +77,7 @@ export const AuthProvider = ({ children }) => {
     dispatch(action);
   };
 
-  const updateUser = async (user = {}) => {
+  const updateUserData = async (user = {}) => {
     let action = {};
     try {
       const data = await updateUser(user);
@@ -85,19 +88,25 @@ export const AuthProvider = ({ children }) => {
         type: authTypes.updateUser,
         payload: data,
       };
+      dispatch(action);
+
+      return null;
+
     } catch (error) {
       action = {
-        type: authTypes.error,
+        type: authTypes.updateError,
         payload: error.message,
       };
-    }
 
-    dispatch(action);
+      dispatch(action);
+
+      return error.message;
+    }
   };
 
   return (
     <AuthContext.Provider
-      value={{ authState, login, userLogout, register, updateUser }}
+      value={{ authState, login, userLogout, register, updateUserData }}
     >
       {children}
     </AuthContext.Provider>

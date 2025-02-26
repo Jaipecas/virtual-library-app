@@ -33,13 +33,13 @@ export const useForm = (initialForm = {}, confirmPassword = false) => {
     if (!emailValidation(formState.email))
       emailError = "Formato email no válido";
 
-    if (!validatePassword(formState.password))
-      passwordError =
-        "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.";
-
     if (confirmPassword) {
       if (!validatePassword(formState.confirmPassword))
         confirmPasswordError =
+          "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.";
+
+      if (!validatePassword(formState.password))
+        passwordError =
           "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.";
 
       if (formState.confirmPassword !== formState.password) {
