@@ -1,17 +1,18 @@
-import React from "react";
 import { useReducer } from "react";
-import { logout, signIn, signUp } from "../../services/apiService";
+import { logout, signIn, signUp, updateUser } from "../../services/apiService";
 import { authTypes } from "../types/authTypes";
 import { AuthContext } from "./AuthContext";
 import { authReducer } from "./authReducer";
 
 const init = () => {
   const user = localStorage.getItem("user");
-
-  return {
-    isAuthenticated: !!user,
-    user: !user ? JSON.parse(user) : null,
-  };
+  try {
+    return user
+      ? { isAuthenticated: true, user: JSON.parse(user) }
+      : { isAuthenticated: false, user: null };
+  } catch {
+    return { isAuthenticated: false, user: null };
+  }
 };
 
 export const AuthProvider = ({ children }) => {
@@ -62,11 +63,10 @@ export const AuthProvider = ({ children }) => {
     try {
       await logout();
 
+      localStorage.removeItem("user");
       action = {
         type: authTypes.logout,
       };
-
-      localStorage.removeItem("user");
     } catch (error) {
       action = {
         type: authTypes.error,
@@ -77,8 +77,37 @@ export const AuthProvider = ({ children }) => {
     dispatch(action);
   };
 
+  const updateUserData = async (user = {}) => {
+    let action = {};
+    try {
+      const data = await updateUser(user);
+
+      localStorage.setItem("user", JSON.stringify(data));
+
+      action = {
+        type: authTypes.updateUser,
+        payload: data,
+      };
+      dispatch(action);
+
+      return null;
+
+    } catch (error) {
+      action = {
+        type: authTypes.updateError,
+        payload: error.message,
+      };
+
+      dispatch(action);
+
+      return error.message;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ authState, login, userLogout, register }}>
+    <AuthContext.Provider
+      value={{ authState, login, userLogout, register, updateUserData }}
+    >
       {children}
     </AuthContext.Provider>
   );

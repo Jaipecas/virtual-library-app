@@ -55,7 +55,9 @@ export const Navbar = () => {
       case "Logout":
         userLogout();
         break;
-
+      case "Perfil":
+        navigate("/library/user")
+        break;
       default:
         break;
     }

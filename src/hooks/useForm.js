@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export const useForm = (initialForm = {}, formType = "") => {
+export const useForm = (initialForm = {}, confirmPassword = false) => {
   const [formState, setFormState] = useState(initialForm);
 
   const emailValidation = (email) => {
@@ -33,18 +33,17 @@ export const useForm = (initialForm = {}, formType = "") => {
     if (!emailValidation(formState.email))
       emailError = "Formato email no válido";
 
-    if (!validatePassword(formState.password))
-      passwordError =
-        "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.";
-
-    if (formType === "SignUp") {
+    if (confirmPassword) {
       if (!validatePassword(formState.confirmPassword))
         confirmPasswordError =
           "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.";
 
+      if (!validatePassword(formState.password))
+        passwordError =
+          "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.";
+
       if (formState.confirmPassword !== formState.password) {
-        confirmPasswordError =
-          "Las contraseñas no coinciden";
+        confirmPasswordError = "Las contraseñas no coinciden";
       }
     }
 

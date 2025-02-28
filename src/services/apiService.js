@@ -56,3 +56,7 @@ export const signUp = async (data) => {
 export const logout = async () => {
   return await apiPost(AuthRoutes.logout, {});
 };
+
+export const updateUser = async (data) => {
+  return await apiPost(AuthRoutes.updateUser, data);
+};

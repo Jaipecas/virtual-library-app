@@ -6,7 +6,7 @@ import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 export const RegisterPage = () => {
-  const { formState, onInputChange, onFormSubmitted } = useForm({}, "SignUp");
+  const { formState, onInputChange, onFormSubmitted } = useForm({}, true);
   const { authState, register } = useContext(AuthContext);
   const navigate = useNavigate();
 
