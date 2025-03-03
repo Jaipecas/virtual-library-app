@@ -26,13 +26,15 @@ const studyrooms = ["Sala 1", "Sala 2", "Sala 3", "Sala 4", "Sala 7", "Sala 8"];
 const users = ["japerez@gmail.com", "pepe@gmail.com"];
 
 export const StudyRoomPage = () => {
-  const [open, setOpen] = useState(false);
-  const [selectedUsers, setselectedUsers] = useState([]);
-  const { formState, onInputChange } = useForm({}, false);
   const [searchError, setSearchError] = useState(false);
+  const [open, setOpen] = useState(false);
+  const { formState, onInputChange, resetForm } = useForm({}, false);
+  const [selectedUsers, setselectedUsers] = useState([]);
 
   const onOpenDialog = () => {
     setOpen((prev) => !prev);
+    setselectedUsers([]);
+    resetForm()
   };
 
   const onSearchUser = (event) => {

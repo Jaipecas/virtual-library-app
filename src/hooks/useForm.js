@@ -23,6 +23,10 @@ export const useForm = (initialForm = {}, confirmPassword = false) => {
     });
   };
 
+  const resetForm = () => {
+    setFormState({});
+  };
+
   const onFormSubmitted = (event) => {
     event.preventDefault();
 
@@ -63,5 +67,6 @@ export const useForm = (initialForm = {}, confirmPassword = false) => {
     formState,
     onInputChange,
     onFormSubmitted,
+    resetForm,
   };
 };
