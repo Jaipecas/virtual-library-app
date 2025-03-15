@@ -22,19 +22,27 @@ import { useForm } from "../../hooks/useForm";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 //TODO borrar
-const studyrooms = ["Sala 1", "Sala 2", "Sala 3", "Sala 4", "Sala 7", "Sala 8"];
+//TODO se podría sacar el Dialog a un componente
+let studyrooms = [];
 const users = ["japerez@gmail.com", "pepe@gmail.com"];
 
 export const StudyRoomPage = () => {
   const [searchError, setSearchError] = useState(false);
   const [open, setOpen] = useState(false);
-  const { formState, onInputChange, resetForm } = useForm({}, false);
   const [selectedUsers, setselectedUsers] = useState([]);
+  const [selectedRoom, setSelectedRoom] = useState({});
+  const { formState, onInputChange, resetForm, setFormState } = useForm(selectedRoom, false);
 
-  const onOpenDialog = () => {
+  const onOpenDialog = (room) => {
+    setOpen((prev) => !prev);
+    setSelectedRoom(room);
+    //setFormState(selectedRoom)
+  };
+
+  const onCloseDialog = () => {
     setOpen((prev) => !prev);
     setselectedUsers([]);
-    resetForm()
+    resetForm();
   };
 
   const onSearchUser = (event) => {
@@ -57,10 +65,25 @@ export const StudyRoomPage = () => {
     setselectedUsers((prev) => prev.filter((user) => user !== userEmail));
   };
 
+  const onCreateRoom = (event) => {
+    event.preventDefault();
+
+    //TODO llamar ADD del backend
+    studyrooms = [...studyrooms, formState];
+
+    onCloseDialog();
+  };
+
+  const onDeleteRoom = () => {
+    //TODO tiene que buscar por Id no por name
+
+    const room = studyrooms.find((room) => room.name === formState.name);
+  };
+
   return (
     <Grid2 container spacing={2}>
       <Grid2 size={{ xs: 12 }}>
-        <Button type="button" variant="outlined">
+        <Button type="button" variant="outlined" onClick={onOpenDialog}>
           Añadir Sala
         </Button>
       </Grid2>
@@ -70,14 +93,14 @@ export const StudyRoomPage = () => {
       </Grid2>
       <Grid2 container size={{ xs: 12 }} spacing={2}>
         {studyrooms.map((room) => (
-          //TODO cambiar key
+          //TODO cambiar key por Id
           <Button
-            key={room}
+            key={room.name}
             variant="outlined"
             startIcon={<MenuBookIcon />}
-            onClick={onOpenDialog}
+            onClick={() => onOpenDialog(room)}
           >
-            {room}
+            {room.name}
           </Button>
         ))}
       </Grid2>
@@ -86,11 +109,12 @@ export const StudyRoomPage = () => {
         <DialogTitle>Sala de estudio</DialogTitle>
 
         <DialogContent>
-          <form>
+          <form onSubmit={onCreateRoom}>
             <TextField
               margin="dense"
               name="name"
               label="Nombre"
+              value={formState.name}
               onChange={onInputChange}
               fullWidth
             />
@@ -101,6 +125,7 @@ export const StudyRoomPage = () => {
               type="text"
               multiline
               rows={4}
+              value={formState.description}
               onChange={onInputChange}
               fullWidth
             />
@@ -110,6 +135,7 @@ export const StudyRoomPage = () => {
               type="time"
               label="Tiempo del pomodoro"
               defaultValue="00:00"
+              value={formState.time}
               InputLabelProps={{
                 shrink: true,
               }}
@@ -118,10 +144,11 @@ export const StudyRoomPage = () => {
             />
             <TextField
               margin="dense"
-              name="brackTime"
+              name="breackTime"
               type="time"
               label="Tiempo de descanso"
               defaultValue="00:00"
+              value={formState.breackTime}
               InputLabelProps={{
                 shrink: true,
               }}
@@ -168,19 +195,24 @@ export const StudyRoomPage = () => {
                 </ListItem>
               ))}
             </List>
+            <DialogActions>
+              <Button type="submit" color="primary">
+                Entrar
+              </Button>
+              <Button onClick={onCloseDialog} color="primary">
+                Cancelar
+              </Button>
+              <Button
+                onClick={onDeleteRoom}
+                type="button"
+                variant="contained"
+                color="error"
+              >
+                borrar
+              </Button>
+            </DialogActions>
           </form>
         </DialogContent>
-        <DialogActions>
-          <Button type="submit" color="primary">
-            Entrar
-          </Button>
-          <Button onClick={onOpenDialog} color="primary">
-            Cancelar
-          </Button>
-          <Button type="button" variant="contained" color="error">
-            borrar
-          </Button>
-        </DialogActions>
       </Dialog>
     </Grid2>
   );

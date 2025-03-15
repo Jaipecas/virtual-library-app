@@ -68,5 +68,6 @@ export const useForm = (initialForm = {}, confirmPassword = false) => {
     onInputChange,
     onFormSubmitted,
     resetForm,
+    setFormState,
   };
 };

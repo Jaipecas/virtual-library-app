@@ -13,7 +13,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { StudyRoomPage } from "./StudyRoomPage";
 import { NotificationsPage } from "./NotificationsPage";
 
