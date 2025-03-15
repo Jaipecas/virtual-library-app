@@ -8,4 +8,9 @@ export const AuthRoutes = {
   updateUser: `${API_BASE_URL}/Auth/updateUser`,
 };
 
+export const StudyRoomRoutes = {
+  getStudyRooms: `${API_BASE_URL}/studyroom/getStudyRoomsByOwner`,
+  studyRoom: `${API_BASE_URL}/studyroom`,
+};
+
 

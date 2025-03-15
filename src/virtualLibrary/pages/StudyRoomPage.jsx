@@ -16,14 +16,16 @@ import {
   Alert,
 } from "@mui/material";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import { useForm } from "../../hooks/useForm";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { AuthContext } from "../../auth/context/AuthContext";
+import { useDispatch, useSelector } from 'react-redux';
+import { getStudyRooms } from "../../store/thunks/studyRoomThunks";
 
 //TODO borrar
 //TODO se podría sacar el Dialog a un componente
-let studyrooms = [];
 const users = ["japerez@gmail.com", "pepe@gmail.com"];
 
 export const StudyRoomPage = () => {
@@ -31,12 +33,25 @@ export const StudyRoomPage = () => {
   const [open, setOpen] = useState(false);
   const [selectedUsers, setselectedUsers] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState({});
-  const { formState, onInputChange, resetForm, setFormState } = useForm(selectedRoom, false);
+  const { formState, onInputChange, resetForm, setFormState } = useForm({}, false);
+
+  const { authState } = useContext(AuthContext);
+
+  const dispatch = useDispatch();
+  const { studyRooms, loading, apiError } = useSelector((state) => state.studyRoom);
+
+  useEffect(() => {
+    dispatch(getStudyRooms(authState.user.id));
+  }, []);
+
+  useEffect(() => {
+    setFormState(selectedRoom);
+  }, [selectedRoom]);
+  
 
   const onOpenDialog = (room) => {
-    setOpen((prev) => !prev);
     setSelectedRoom(room);
-    //setFormState(selectedRoom)
+    setOpen((prev) => !prev);
   };
 
   const onCloseDialog = () => {
@@ -65,19 +80,37 @@ export const StudyRoomPage = () => {
     setselectedUsers((prev) => prev.filter((user) => user !== userEmail));
   };
 
-  const onCreateRoom = (event) => {
+  const onCreateRoom = async (event) => {
     event.preventDefault();
 
-    //TODO llamar ADD del backend
-    studyrooms = [...studyrooms, formState];
+    const room = {
+      name: formState.name,
+      description: formState.description,
+      //TODO cambiar por busqueda de user
+      usersIds: ["26213fac-098b-4b93-9f67-0b3a57c45e9a"],
+      pomodoro: {
+        name: "",
+        PomodoroTime: new Date(),
+        BreakTime: new Date(),
+      },
+      ownerId: authState.user.id,
+    }
 
-    onCloseDialog();
+    try {
+       //llamar a la api 
+
+      onCloseDialog();
+    } catch (error) {
+      setSearchError(true);
+    } finally {
+      setSearchError(false);
+    }
   };
 
   const onDeleteRoom = () => {
     //TODO tiene que buscar por Id no por name
 
-    const room = studyrooms.find((room) => room.name === formState.name);
+    const room = studyRooms.find((room) => room.name === formState.name);
   };
 
   return (
@@ -92,10 +125,10 @@ export const StudyRoomPage = () => {
         <Divider />
       </Grid2>
       <Grid2 container size={{ xs: 12 }} spacing={2}>
-        {studyrooms.map((room) => (
+        {studyRooms.map((room) => (
           //TODO cambiar key por Id
           <Button
-            key={room.name}
+            key={room.id}
             variant="outlined"
             startIcon={<MenuBookIcon />}
             onClick={() => onOpenDialog(room)}
@@ -212,6 +245,9 @@ export const StudyRoomPage = () => {
               </Button>
             </DialogActions>
           </form>
+          {apiError && (
+            <Alert severity="error">Error en la api</Alert>
+          )}
         </DialogContent>
       </Dialog>
     </Grid2>
