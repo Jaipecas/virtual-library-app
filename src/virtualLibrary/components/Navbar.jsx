@@ -44,8 +44,15 @@ export const Navbar = () => {
     setAnchorElUser(event.currentTarget);
   };
 
-  const handleCloseNavMenu = () => {
+  const handleCloseNavMenu = ({ target }) => {
     setAnchorElNav();
+    switch (target.textContent) {
+      case "Tableros":
+        navigate("/library/studyroomdashboard");
+        break;
+      default:
+        break;
+    }
   };
 
   const handleCloseUserMenu = ({ target }) => {
@@ -56,7 +63,7 @@ export const Navbar = () => {
         userLogout();
         break;
       case "Perfil":
-        navigate("/library/user")
+        navigate("/library/user");
         break;
       default:
         break;
