@@ -22,7 +22,7 @@ import { useForm } from "../../hooks/useForm";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { AuthContext } from "../../auth/context/AuthContext";
 import { useDispatch, useSelector } from 'react-redux';
-import { getStudyRooms } from "../../store/thunks/studyRoomThunks";
+import { createStudyRoom, deleteStudyRoom, getStudyRooms } from "../../store/thunks/studyRoomThunks";
 
 //TODO borrar
 //TODO se podría sacar el Dialog a un componente
@@ -38,7 +38,7 @@ export const StudyRoomPage = () => {
   const { authState } = useContext(AuthContext);
 
   const dispatch = useDispatch();
-  const { studyRooms, loading, apiError } = useSelector((state) => state.studyRoom);
+  const { studyRooms, loading, error } = useSelector(state => state.studyRoom);
 
   useEffect(() => {
     dispatch(getStudyRooms(authState.user.id));
@@ -46,8 +46,9 @@ export const StudyRoomPage = () => {
 
   useEffect(() => {
     setFormState(selectedRoom);
+    setselectedUsers(selectedRoom.users)
   }, [selectedRoom]);
-  
+
 
   const onOpenDialog = (room) => {
     setSelectedRoom(room);
@@ -90,27 +91,22 @@ export const StudyRoomPage = () => {
       usersIds: ["26213fac-098b-4b93-9f67-0b3a57c45e9a"],
       pomodoro: {
         name: "",
-        PomodoroTime: new Date(),
-        BreakTime: new Date(),
+        PomodoroTime: formState.time,
+        BreakTime: formState.breakTime,
       },
       ownerId: authState.user.id,
     }
 
-    try {
-       //llamar a la api 
+    //TODO esto no funciona
+    dispatch(createStudyRoom(room));
 
-      onCloseDialog();
-    } catch (error) {
-      setSearchError(true);
-    } finally {
-      setSearchError(false);
-    }
+    onCloseDialog();
+
   };
 
   const onDeleteRoom = () => {
-    //TODO tiene que buscar por Id no por name
-
-    const room = studyRooms.find((room) => room.name === formState.name);
+    dispatch(deleteStudyRoom(selectedRoom.id));
+    onCloseDialog();
   };
 
   return (
@@ -125,8 +121,7 @@ export const StudyRoomPage = () => {
         <Divider />
       </Grid2>
       <Grid2 container size={{ xs: 12 }} spacing={2}>
-        {studyRooms.map((room) => (
-          //TODO cambiar key por Id
+        {studyRooms?.map((room) => (
           <Button
             key={room.id}
             variant="outlined"
@@ -165,29 +160,32 @@ export const StudyRoomPage = () => {
             <TextField
               margin="dense"
               name="time"
-              type="time"
-              label="Tiempo del pomodoro"
-              defaultValue="00:00"
+              type="number"
+              label="Tiempo del pomodoro (minutos)"
               value={formState.time}
-              InputLabelProps={{
-                shrink: true,
-              }}
               onChange={onInputChange}
+              inputProps={{
+                min: 1,
+                max: 120,
+                step: 1,
+              }}
               fullWidth
             />
             <TextField
               margin="dense"
-              name="breackTime"
-              type="time"
-              label="Tiempo de descanso"
-              defaultValue="00:00"
-              value={formState.breackTime}
-              InputLabelProps={{
-                shrink: true,
-              }}
+              name="breakTime"
+              type="number"
+              label="Tiempo de descanso (minutos)"
+              value={formState.breakTime}
               onChange={onInputChange}
+              inputProps={{
+                min: 1,
+                max: 60,
+                step: 1,
+              }}
               fullWidth
             />
+
             <TextField
               margin="dense"
               name="searchUser"
@@ -210,13 +208,12 @@ export const StudyRoomPage = () => {
               <Alert severity="error">Usuario no encontrado</Alert>
             )}
             <List>
-              {/* TODO PONER IDS */}
-              {selectedUsers.map((user, index) => (
+              {selectedUsers?.map((user) => (
                 <ListItem
-                  key={index}
+                  key={user.id}
                   sx={{ backgroundColor: "#e0f7fa", marginBottom: "8px" }}
                 >
-                  <ListItemText primary={user} />
+                  <ListItemText primary={user.email} />
 
                   <IconButton
                     edge="end"
@@ -245,8 +242,8 @@ export const StudyRoomPage = () => {
               </Button>
             </DialogActions>
           </form>
-          {apiError && (
-            <Alert severity="error">Error en la api</Alert>
+          {error && (
+            <Alert severity="error">{error}</Alert>
           )}
         </DialogContent>
       </Dialog>

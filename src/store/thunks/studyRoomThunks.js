@@ -1,37 +1,31 @@
-import { getStudyRoomsAsync } from "../../services/apiService";
+import { createStudyRoomAsync, deleteStudyRoomsAsync, getStudyRoomsAsync } from "../../services/apiService";
 import { addStudyRoom, removeStudyRoom, setError, setIdle, setLoading, setStudyRooms } from "../slices/studyRoomSlice";
 
 export const getStudyRooms = (userId) => async (dispatch) => {
 
-  dispatch(setLoading()); 
-
+  dispatch(setLoading());
+  dispatch(setError(''));
   try {
     const rooms = await getStudyRoomsAsync(userId)
 
-    dispatch(setStudyRooms(rooms));  
+    dispatch(setStudyRooms(rooms));
   } catch (error) {
-    dispatch(setError('Error al obtener las study rooms')); 
+    dispatch(setError(error.message));
   } finally {
-    dispatch(setIdle()); 
+    dispatch(setIdle());
   }
 };
 
 export const createStudyRoom = (newRoom) => async (dispatch) => {
   dispatch(setLoading());
-
+  dispatch(setError(''));
   try {
-    const response = await fetch('/api/studyrooms', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newRoom),
-    });
-    const data = await response.json();
 
-    dispatch(addStudyRoom(data));  
+    await createStudyRoomAsync(newRoom)
+
+    dispatch(addStudyRoom(newRoom));
   } catch (error) {
-    dispatch(setError('Error al crear la study room'));
+    dispatch(setError(error.message));
   } finally {
     dispatch(setIdle());
   }
@@ -39,7 +33,7 @@ export const createStudyRoom = (newRoom) => async (dispatch) => {
 
 export const updateStudyRoom = (updatedRoom) => async (dispatch) => {
   dispatch(setLoading());
-
+  dispatch(setError(''));
   try {
     const response = await fetch(`/api/studyrooms/${updatedRoom.id}`, {
       method: 'PUT',
@@ -50,9 +44,9 @@ export const updateStudyRoom = (updatedRoom) => async (dispatch) => {
     });
     const data = await response.json();
 
-    dispatch(updateStudyRoom(data));  
+    dispatch(updateStudyRoom(data));
   } catch (error) {
-    dispatch(setError('Error al actualizar la study room'));
+    dispatch(setError(error.message));
   } finally {
     dispatch(setIdle());
   }
@@ -60,15 +54,13 @@ export const updateStudyRoom = (updatedRoom) => async (dispatch) => {
 
 export const deleteStudyRoom = (id) => async (dispatch) => {
   dispatch(setLoading());
-
+  dispatch(setError(''));
   try {
-    await fetch(`/api/studyrooms/${id}`, {
-      method: 'DELETE',
-    });
+    await deleteStudyRoomsAsync(id)
 
-    dispatch(removeStudyRoom(id));  
+    dispatch(removeStudyRoom(id));
   } catch (error) {
-    dispatch(setError('Error al eliminar la study room'));
+    dispatch(setError(error.message));
   } finally {
     dispatch(setIdle());
   }
