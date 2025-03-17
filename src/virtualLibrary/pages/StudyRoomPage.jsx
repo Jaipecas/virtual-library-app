@@ -22,7 +22,7 @@ import { useForm } from "../../hooks/useForm";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { AuthContext } from "../../auth/context/AuthContext";
 import { useDispatch, useSelector } from 'react-redux';
-import { createStudyRoom, deleteStudyRoom, getStudyRooms } from "../../store/thunks/studyRoomThunks";
+import { createStudyRoom, deleteStudyRoom, getStudyRooms, updateStudyRoom } from "../../store/thunks/studyRoomThunks";
 
 //TODO borrar
 //TODO se podría sacar el Dialog a un componente
@@ -81,24 +81,29 @@ export const StudyRoomPage = () => {
     setselectedUsers((prev) => prev.filter((user) => user !== userEmail));
   };
 
-  const onCreateRoom = async (event) => {
+  const onSetRoom = async (event) => {
     event.preventDefault();
 
-    const room = {
-      name: formState.name,
-      description: formState.description,
-      //TODO cambiar por busqueda de user
-      usersIds: ["26213fac-098b-4b93-9f67-0b3a57c45e9a"],
-      pomodoro: {
-        name: "",
-        PomodoroTime: formState.time,
-        BreakTime: formState.breakTime,
-      },
-      ownerId: authState.user.id,
-    }
+    if (selectedRoom) {
+      dispatch(updateStudyRoom(selectedRoom))
+    } else {
+      const room = {
+        name: formState.name,
+        description: formState.description,
+        //TODO cambiar por busqueda de user
+        usersIds: ["26213fac-098b-4b93-9f67-0b3a57c45e9a"],
+        pomodoro: {
+          name: "",
+          PomodoroTime: formState.time,
+          BreakTime: formState.breakTime,
+        },
+        ownerId: authState.user.id,
+      }
 
-    //TODO esto no funciona
-    dispatch(createStudyRoom(room));
+      //TODO revisar si da error al crear
+
+      dispatch(createStudyRoom(room));
+    }
 
     onCloseDialog();
 
@@ -112,7 +117,7 @@ export const StudyRoomPage = () => {
   return (
     <Grid2 container spacing={2}>
       <Grid2 size={{ xs: 12 }}>
-        <Button type="button" variant="outlined" onClick={onOpenDialog}>
+        <Button type="button" variant="outlined" onClick={() => onOpenDialog({})}>
           Añadir Sala
         </Button>
       </Grid2>
@@ -137,7 +142,7 @@ export const StudyRoomPage = () => {
         <DialogTitle>Sala de estudio</DialogTitle>
 
         <DialogContent>
-          <form onSubmit={onCreateRoom}>
+          <form onSubmit={onSetRoom}>
             <TextField
               margin="dense"
               name="name"

@@ -1,5 +1,5 @@
-import { createStudyRoomAsync, deleteStudyRoomsAsync, getStudyRoomsAsync } from "../../services/apiService";
-import { addStudyRoom, removeStudyRoom, setError, setIdle, setLoading, setStudyRooms } from "../slices/studyRoomSlice";
+import { createStudyRoomAsync, deleteStudyRoomsAsync, getStudyRoomsAsync, updateStudyRoomAsync } from "../../services/apiService";
+import { addStudyRoom, removeStudyRoom, setError, setIdle, setLoading, setStudyRooms, updateRoom } from "../slices/studyRoomSlice";
 
 export const getStudyRooms = (userId) => async (dispatch) => {
 
@@ -34,17 +34,12 @@ export const createStudyRoom = (newRoom) => async (dispatch) => {
 export const updateStudyRoom = (updatedRoom) => async (dispatch) => {
   dispatch(setLoading());
   dispatch(setError(''));
-  try {
-    const response = await fetch(`/api/studyrooms/${updatedRoom.id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(updatedRoom),
-    });
-    const data = await response.json();
 
-    dispatch(updateStudyRoom(data));
+  try {
+
+    await updateStudyRoomAsync(updatedRoom)
+
+    dispatch(updateRoom(updatedRoom));
   } catch (error) {
     dispatch(setError(error.message));
   } finally {

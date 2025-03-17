@@ -16,7 +16,7 @@ export const studyRoomSlice = createSlice({
         addStudyRoom(state, action) {
             state.studyRooms.push(action.payload);
         },
-        updateStudyRoom(state, action) {
+        updateRoom(state, action) {
             const index = state.studyRooms.findIndex(room => room.id === action.payload.id);
             if (index !== -1) {
                 state.studyRooms[index] = action.payload;
@@ -37,5 +37,5 @@ export const studyRoomSlice = createSlice({
     },
 });
 
-export const { setStudyRooms, addStudyRoom, updateStudyRoom, removeStudyRoom, setLoading, setError, setIdle } = studyRoomSlice.actions;
+export const { setStudyRooms, addStudyRoom, updateRoom, removeStudyRoom, setLoading, setError, setIdle } = studyRoomSlice.actions;
 

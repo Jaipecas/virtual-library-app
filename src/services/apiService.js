@@ -66,6 +66,30 @@ const apiDelete = async (url) => {
   }
 };
 
+const apiPut = async (url, body) => {
+  try {
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+      credentials: "include",
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.errorMessage);
+    }
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
 
 export const signIn = async (credentials) => {
   return await apiPost(AuthRoutes.signIn, credentials);
@@ -89,6 +113,10 @@ export const createStudyRoomAsync = async (data) => {
 
 export const deleteStudyRoomsAsync = async (id) => {
   return await apiDelete(`${StudyRoomRoutes.studyRoom}?StudyRoomId=${id}`);
+};
+
+export const updateStudyRoomAsync = async (data) => {
+  return await apiPut(StudyRoomRoutes.studyRoom, data);
 };
 
 export const getStudyRoomsAsync = async (userId) => {
