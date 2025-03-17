@@ -45,8 +45,20 @@ export const StudyRoomPage = () => {
   }, []);
 
   useEffect(() => {
-    setFormState(selectedRoom);
-    setselectedUsers(selectedRoom.users)
+    if (Object.keys(selectedRoom).length) {
+
+      const form = {
+        name: selectedRoom.name,
+        description: selectedRoom.description,
+        time: selectedRoom.pomodoro.pomodoroTime,
+        breakTime: selectedRoom.pomodoro.breakTime
+      }
+      setFormState(form);
+      setselectedUsers(selectedRoom.users)
+    } else {
+      setFormState({});
+      setselectedUsers([])
+    }
   }, [selectedRoom]);
 
 
@@ -56,9 +68,8 @@ export const StudyRoomPage = () => {
   };
 
   const onCloseDialog = () => {
+    setSelectedRoom({});
     setOpen((prev) => !prev);
-    setselectedUsers([]);
-    resetForm();
   };
 
   const onSearchUser = (event) => {
@@ -84,24 +95,34 @@ export const StudyRoomPage = () => {
   const onSetRoom = async (event) => {
     event.preventDefault();
 
-    if (selectedRoom) {
-      dispatch(updateStudyRoom(selectedRoom))
+    if (Object.keys(selectedRoom).length) {
+      const room = {
+        id: selectedRoom.id,
+        name: formState.name,
+        description: formState.description,
+        //TODO cambiar por busqueda de user
+        usersIds: ["f8c22f37-185f-4c1f-b01e-ca6e218d4d78"],
+        pomodoro: {
+          name: "",
+          pomodoroTime: formState.time,
+          breakTime: formState.breakTime,
+        }
+      }
+      dispatch(updateStudyRoom(room))
     } else {
       const room = {
         name: formState.name,
         description: formState.description,
         //TODO cambiar por busqueda de user
-        usersIds: ["26213fac-098b-4b93-9f67-0b3a57c45e9a"],
+        usersIds: ["f8c22f37-185f-4c1f-b01e-ca6e218d4d78"],
         pomodoro: {
           name: "",
-          PomodoroTime: formState.time,
-          BreakTime: formState.breakTime,
+          pomodoroTime: formState.time,
+          breakTime: formState.breakTime,
         },
         ownerId: authState.user.id,
       }
-
       //TODO revisar si da error al crear
-
       dispatch(createStudyRoom(room));
     }
 
