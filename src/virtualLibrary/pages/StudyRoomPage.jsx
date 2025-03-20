@@ -16,14 +16,16 @@ import {
   Alert,
 } from "@mui/material";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import { useForm } from "../../hooks/useForm";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { AuthContext } from "../../auth/context/AuthContext";
+import { useDispatch, useSelector } from 'react-redux';
+import { createStudyRoom, deleteStudyRoom, getStudyRooms, updateStudyRoom } from "../../store/thunks/studyRoomThunks";
 
 //TODO borrar
 //TODO se podría sacar el Dialog a un componente
-let studyrooms = [];
 const users = ["japerez@gmail.com", "pepe@gmail.com"];
 
 export const StudyRoomPage = () => {
@@ -31,18 +33,43 @@ export const StudyRoomPage = () => {
   const [open, setOpen] = useState(false);
   const [selectedUsers, setselectedUsers] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState({});
-  const { formState, onInputChange, resetForm, setFormState } = useForm(selectedRoom, false);
+  const { formState, onInputChange, resetForm, setFormState } = useForm({}, false);
+
+  const { authState } = useContext(AuthContext);
+
+  const dispatch = useDispatch();
+  const { studyRooms, loading, error } = useSelector(state => state.studyRoom);
+
+  useEffect(() => {
+    dispatch(getStudyRooms(authState.user.id));
+  }, []);
+
+  useEffect(() => {
+    if (Object.keys(selectedRoom).length) {
+
+      const form = {
+        name: selectedRoom.name,
+        description: selectedRoom.description,
+        time: selectedRoom.pomodoro.pomodoroTime,
+        breakTime: selectedRoom.pomodoro.breakTime
+      }
+      setFormState(form);
+      setselectedUsers(selectedRoom.users)
+    } else {
+      setFormState({});
+      setselectedUsers([])
+    }
+  }, [selectedRoom]);
+
 
   const onOpenDialog = (room) => {
-    setOpen((prev) => !prev);
     setSelectedRoom(room);
-    //setFormState(selectedRoom)
+    setOpen((prev) => !prev);
   };
 
   const onCloseDialog = () => {
+    setSelectedRoom({});
     setOpen((prev) => !prev);
-    setselectedUsers([]);
-    resetForm();
   };
 
   const onSearchUser = (event) => {
@@ -65,25 +92,53 @@ export const StudyRoomPage = () => {
     setselectedUsers((prev) => prev.filter((user) => user !== userEmail));
   };
 
-  const onCreateRoom = (event) => {
+  const onSetRoom = async (event) => {
     event.preventDefault();
 
-    //TODO llamar ADD del backend
-    studyrooms = [...studyrooms, formState];
+    if (Object.keys(selectedRoom).length) {
+      const room = {
+        id: selectedRoom.id,
+        name: formState.name,
+        description: formState.description,
+        //TODO cambiar por busqueda de user
+        usersIds: ["f8c22f37-185f-4c1f-b01e-ca6e218d4d78"],
+        pomodoro: {
+          name: "",
+          pomodoroTime: formState.time,
+          breakTime: formState.breakTime,
+        }
+      }
+      dispatch(updateStudyRoom(room))
+    } else {
+      const room = {
+        name: formState.name,
+        description: formState.description,
+        //TODO cambiar por busqueda de user
+        usersIds: ["f8c22f37-185f-4c1f-b01e-ca6e218d4d78"],
+        pomodoro: {
+          name: "",
+          pomodoroTime: formState.time,
+          breakTime: formState.breakTime,
+        },
+        ownerId: authState.user.id,
+      }
+      //TODO revisar si da error al crear
+      dispatch(createStudyRoom(room));
+    }
 
     onCloseDialog();
+
   };
 
   const onDeleteRoom = () => {
-    //TODO tiene que buscar por Id no por name
-
-    const room = studyrooms.find((room) => room.name === formState.name);
+    dispatch(deleteStudyRoom(selectedRoom.id));
+    onCloseDialog();
   };
 
   return (
     <Grid2 container spacing={2}>
       <Grid2 size={{ xs: 12 }}>
-        <Button type="button" variant="outlined" onClick={onOpenDialog}>
+        <Button type="button" variant="outlined" onClick={() => onOpenDialog({})}>
           Añadir Sala
         </Button>
       </Grid2>
@@ -92,10 +147,9 @@ export const StudyRoomPage = () => {
         <Divider />
       </Grid2>
       <Grid2 container size={{ xs: 12 }} spacing={2}>
-        {studyrooms.map((room) => (
-          //TODO cambiar key por Id
+        {studyRooms?.map((room) => (
           <Button
-            key={room.name}
+            key={room.id}
             variant="outlined"
             startIcon={<MenuBookIcon />}
             onClick={() => onOpenDialog(room)}
@@ -109,7 +163,7 @@ export const StudyRoomPage = () => {
         <DialogTitle>Sala de estudio</DialogTitle>
 
         <DialogContent>
-          <form onSubmit={onCreateRoom}>
+          <form onSubmit={onSetRoom}>
             <TextField
               margin="dense"
               name="name"
@@ -132,29 +186,32 @@ export const StudyRoomPage = () => {
             <TextField
               margin="dense"
               name="time"
-              type="time"
-              label="Tiempo del pomodoro"
-              defaultValue="00:00"
+              type="number"
+              label="Tiempo del pomodoro (minutos)"
               value={formState.time}
-              InputLabelProps={{
-                shrink: true,
-              }}
               onChange={onInputChange}
+              inputProps={{
+                min: 1,
+                max: 120,
+                step: 1,
+              }}
               fullWidth
             />
             <TextField
               margin="dense"
-              name="breackTime"
-              type="time"
-              label="Tiempo de descanso"
-              defaultValue="00:00"
-              value={formState.breackTime}
-              InputLabelProps={{
-                shrink: true,
-              }}
+              name="breakTime"
+              type="number"
+              label="Tiempo de descanso (minutos)"
+              value={formState.breakTime}
               onChange={onInputChange}
+              inputProps={{
+                min: 1,
+                max: 60,
+                step: 1,
+              }}
               fullWidth
             />
+
             <TextField
               margin="dense"
               name="searchUser"
@@ -177,13 +234,12 @@ export const StudyRoomPage = () => {
               <Alert severity="error">Usuario no encontrado</Alert>
             )}
             <List>
-              {/* TODO PONER IDS */}
-              {selectedUsers.map((user, index) => (
+              {selectedUsers?.map((user) => (
                 <ListItem
-                  key={index}
+                  key={user.id}
                   sx={{ backgroundColor: "#e0f7fa", marginBottom: "8px" }}
                 >
-                  <ListItemText primary={user} />
+                  <ListItemText primary={user.email} />
 
                   <IconButton
                     edge="end"
@@ -212,6 +268,9 @@ export const StudyRoomPage = () => {
               </Button>
             </DialogActions>
           </form>
+          {error && (
+            <Alert severity="error">{error}</Alert>
+          )}
         </DialogContent>
       </Dialog>
     </Grid2>
