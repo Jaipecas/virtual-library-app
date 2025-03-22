@@ -1,4 +1,4 @@
-import { AuthRoutes, StudyRoomRoutes } from "./apiRoutes";
+import { AuthRoutes, StudyRoomRoutes, UserRoutes } from "./apiRoutes";
 
 const apiGet = async (url) => {
   try {
@@ -121,4 +121,12 @@ export const updateStudyRoomAsync = async (data) => {
 
 export const getStudyRoomsAsync = async (userId) => {
   return await apiGet(`${StudyRoomRoutes.getStudyRooms}?UserId=${userId}`);
+};
+
+export const getUserByNameAsync = async (userName) => {
+  return await apiGet(`${UserRoutes.user}?UserName=${userName}`);
+};
+
+export const createFriendAsync = async (friend) => {
+  return await apiPost(UserRoutes.friend, friend);
 };

@@ -1,5 +1,5 @@
 
-const API_BASE_URL = "https://localhost:44347/api"; 
+const API_BASE_URL = "https://localhost:44347/api";
 
 export const AuthRoutes = {
   signIn: `${API_BASE_URL}/Auth/signIn`,
@@ -11,6 +11,11 @@ export const AuthRoutes = {
 export const StudyRoomRoutes = {
   getStudyRooms: `${API_BASE_URL}/studyroom/getStudyRoomsByOwner`,
   studyRoom: `${API_BASE_URL}/studyroom`,
+};
+
+export const UserRoutes = {
+  user: `${API_BASE_URL}/user`,
+  friend: `${API_BASE_URL}/user/friends`,
 };
 
 
