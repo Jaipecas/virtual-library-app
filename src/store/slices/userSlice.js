@@ -16,8 +16,8 @@ export const userSlice = createSlice({
     name: 'user',
     initialState,
     reducers: {
-        setFriends(state, action) {
-            state.userData.friends = action.payload;
+        setUser(state, action) {
+            state.userData = action.payload;
         },
         setLoading(state) {
             state.loading = true;
@@ -31,5 +31,5 @@ export const userSlice = createSlice({
     },
 });
 
-export const { setFriends, setLoading, setError, setIdle } = userSlice.actions;
+export const { setUser, setLoading, setError, setIdle } = userSlice.actions;
 
