@@ -15,6 +15,7 @@ export const StudyRoomRoutes = {
 
 export const UserRoutes = {
   user: `${API_BASE_URL}/user`,
+  friend: `${API_BASE_URL}/user/friends`,
 };
 
 

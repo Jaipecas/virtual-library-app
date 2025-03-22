@@ -126,3 +126,7 @@ export const getStudyRoomsAsync = async (userId) => {
 export const getUserByNameAsync = async (userName) => {
   return await apiGet(`${UserRoutes.user}?UserName=${userName}`);
 };
+
+export const createFriendAsync = async (friend) => {
+  return await apiPost(UserRoutes.friend, friend);
+};

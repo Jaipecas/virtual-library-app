@@ -1,9 +1,10 @@
-import { Avatar, Box, Card, CardHeader, CardMedia, IconButton, InputAdornment, Paper, TextField, Typography } from '@mui/material'
+import { Alert, Avatar, Box, Card, CardHeader, CardMedia, IconButton, InputAdornment, Paper, TextField, Typography } from '@mui/material'
 import SearchIcon from "@mui/icons-material/Search";
 import { useState } from 'react';
+import profileMan from "../../assets/images/profileMan.png";
 import profileWoman from "../../assets/images/profileWoman.png";
 import { useDispatch, useSelector } from 'react-redux';
-import { getUserData } from '../../store/thunks/userThunks';
+import { getUserData, updateFriend } from '../../store/thunks/userThunks';
 
 export const FriendsPage = () => {
     const [search, setSearch] = useState("");
@@ -13,13 +14,7 @@ export const FriendsPage = () => {
     const onSearchUser = (event) => {
         event.preventDefault();
 
-        //TODO buscar al user by name
-
-        dispatch(getUserData(search));
-
-        
-
-        //TODO agregar como amigo al user
+        dispatch(updateFriend({ userId: userData.id, friendName: search }));
     }
 
     const onSetSearch = (event) => {
@@ -30,7 +25,7 @@ export const FriendsPage = () => {
         <>
             <form onSubmit={onSearchUser}>
                 <TextField
-                    label="Buscar usuario"
+                    label="Agregar amigos"
                     variant="outlined"
                     value={search}
                     onChange={onSetSearch}
@@ -47,10 +42,13 @@ export const FriendsPage = () => {
                 />
             </form>
 
+            {error && <Alert sx={{ marginTop: 1 }} severity="error">{error}</Alert>}
+
             <Box marginTop={2} display="flex" flexWrap="wrap" gap={3}>
                 {userData.friends.map(friend => (
                     <Card key={friend.id}>
-                        <CardHeader avatar={<Avatar src={profileWoman} alt="logo" />}
+                        {/* TODO repasar la forma en que se manejan los logos */}
+                        <CardHeader avatar={<Avatar src={friend.logo !== null ? friend.logo : profileMan} alt="logo" />}
                             title={friend.userName}
                             subheader={friend.email} />
                     </Card>
