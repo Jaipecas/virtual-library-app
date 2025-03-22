@@ -2,9 +2,8 @@ import { Alert, Avatar, Box, Card, CardHeader, CardMedia, IconButton, InputAdorn
 import SearchIcon from "@mui/icons-material/Search";
 import { useState } from 'react';
 import profileMan from "../../assets/images/profileMan.png";
-import profileWoman from "../../assets/images/profileWoman.png";
 import { useDispatch, useSelector } from 'react-redux';
-import { getUserData, updateFriend } from '../../store/thunks/userThunks';
+import { updateFriend } from '../../store/thunks/userThunks';
 
 export const FriendsPage = () => {
     const [search, setSearch] = useState("");
