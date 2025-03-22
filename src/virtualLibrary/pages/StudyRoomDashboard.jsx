@@ -16,6 +16,7 @@ import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
 import { useState } from "react";
 import { StudyRoomPage } from "./StudyRoomPage";
 import { NotificationsPage } from "./NotificationsPage";
+import { FriendsPage } from "./FriendsPage";
 
 const drawerWidth = 240;
 const marginTop = 69.4;
@@ -25,6 +26,7 @@ const menuItems = {
   Amigos: <GroupIcon />,
 };
 
+//TODO valorar llamar a BD desde el dashboard y pasar los datos como props
 export const StudyRoomDashboard = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [selectedPage, setSelectedPage] = useState("Salas");
@@ -43,6 +45,8 @@ export const StudyRoomDashboard = () => {
         return <StudyRoomPage />;
       case "Notificaciones":
         return <NotificationsPage />;
+      case "Amigos":
+        return <FriendsPage />;
       default:
         break;
     }
