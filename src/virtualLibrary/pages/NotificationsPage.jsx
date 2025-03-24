@@ -19,8 +19,6 @@ export const NotificationsPage = () => {
   const dispatch = useDispatch();
   const { notifications, loading, error } = useSelector(state => state.notifications);
   const { userData } = useSelector(state => state.user);
-
-  const apiRef = useGridApiRef();
   const selectedRowsRef = useRef([]);
 
   useEffect(() => {
@@ -51,7 +49,6 @@ export const NotificationsPage = () => {
         />
       </Box>
       <DataGrid
-        apiRef={apiRef}
         rows={notifications}
         columns={columns}
         initialState={{ pagination: { paginationModel } }}
