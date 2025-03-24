@@ -18,4 +18,8 @@ export const UserRoutes = {
   friend: `${API_BASE_URL}/user/friends`,
 };
 
+export const NotificationRoutes = {
+  notification: `${API_BASE_URL}/notification`,
+};
+
 

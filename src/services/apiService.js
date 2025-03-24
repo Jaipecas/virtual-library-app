@@ -1,4 +1,4 @@
-import { AuthRoutes, StudyRoomRoutes, UserRoutes } from "./apiRoutes";
+import { AuthRoutes, StudyRoomRoutes, UserRoutes, NotificationRoutes } from "./apiRoutes";
 
 const apiGet = async (url) => {
   try {
@@ -129,4 +129,16 @@ export const getUserByNameAsync = async (userName) => {
 
 export const createFriendAsync = async (friend) => {
   return await apiPost(UserRoutes.friend, friend);
+};
+
+export const getNotificationsAsync = async (userId) => {
+  return await apiGet(`${NotificationRoutes.notification}?UserId=${userId}`);
+};
+
+export const createNotificationAsync = async (notification) => {
+  return await apiPost(NotificationRoutes.notification, notification);
+};
+
+export const deleteNotificationAsync = async (id, isAccepted, notificationType) => {
+  return await apiDelete(`${NotificationRoutes.notification}?id=${id}&isAccepted=${isAccepted}&notificationType=${notificationType}`);
 };
