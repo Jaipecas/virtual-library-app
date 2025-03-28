@@ -1,4 +1,4 @@
-import { DataGrid, useGridApiRef } from '@mui/x-data-grid';
+import { DataGrid } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
 import { Button, Box } from '@mui/material';
 import { useEffect, useRef } from 'react';
