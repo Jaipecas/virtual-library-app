@@ -9,8 +9,8 @@ import { VirtualLibraryApp } from "./VirtualLibraryApp";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
-      <CssBaseline />
       <Provider store={store}>
+        <CssBaseline />
         <VirtualLibraryApp />
       </Provider>
     </BrowserRouter>
