@@ -142,3 +142,7 @@ export const createNotificationAsync = async (notification) => {
 export const deleteNotificationAsync = async (id, isAccepted, notificationType) => {
   return await apiDelete(`${NotificationRoutes.notification}?id=${id}&isAccepted=${isAccepted}&notificationType=${notificationType}`);
 };
+
+export const sendNotificationAsync = async (notificationData) => {
+  return await apiPost(NotificationRoutes.notification, notificationData);  
+};

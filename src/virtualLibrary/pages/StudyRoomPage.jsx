@@ -22,24 +22,27 @@ import { useForm } from "../../hooks/useForm";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useDispatch, useSelector } from 'react-redux';
 import { createStudyRoom, deleteStudyRoom, getStudyRooms, updateStudyRoom } from "../../store/thunks/studyRoomThunks";
+import { getUserData } from "../../store/thunks/userThunks";
+import { sendNotificationsThunk } from "../../store/thunks/notificationThunks";
 
 //TODO borrar
 //TODO se podría sacar el Dialog a un componente
-const users = ["japerez@gmail.com", "pepe@gmail.com"];
 
 export const StudyRoomPage = () => {
   const [searchError, setSearchError] = useState(false);
   const [open, setOpen] = useState(false);
   const [selectedUsers, setselectedUsers] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState({});
-  const { formState, onInputChange, resetForm, setFormState } = useForm({}, false);
+  const { formState, onInputChange, setFormState } = useForm({}, false);
   const { user } = useSelector(state => state.auth);
+  const { userData } = useSelector(state => state.user);
 
   const dispatch = useDispatch();
   const { studyRooms, loading, error } = useSelector(state => state.studyRoom);
 
   useEffect(() => {
     dispatch(getStudyRooms(user.id));
+    dispatch(getUserData(user.id));
   }, []);
 
   useEffect(() => {
@@ -75,7 +78,7 @@ export const StudyRoomPage = () => {
       if (selectedUsers.includes(formState.searchUser)) return;
 
       //TODO hacer llamada a Backend
-      const user = users.find((email) => formState.searchUser === email);
+      const user = userData.friends.find((user) => formState.searchUser === user.userName);
 
       if (user != null) {
         setselectedUsers((prev) => [...prev, user]);
@@ -98,8 +101,7 @@ export const StudyRoomPage = () => {
         id: selectedRoom.id,
         name: formState.name,
         description: formState.description,
-        //TODO cambiar por busqueda de user
-        usersIds: ["f8c22f37-185f-4c1f-b01e-ca6e218d4d78"],
+        usersIds: selectedUsers?.map(user => user.id),
         pomodoro: {
           name: "",
           pomodoroTime: formState.time,
@@ -107,19 +109,27 @@ export const StudyRoomPage = () => {
         }
       }
       dispatch(updateStudyRoom(room))
+      //TODO falta enviar notificaciones a los nuevos users
     } else {
       const room = {
         name: formState.name,
         description: formState.description,
-        //TODO cambiar por busqueda de user
-        usersIds: ["f8c22f37-185f-4c1f-b01e-ca6e218d4d78"],
+        usersIds: selectedUsers?.map(user => user.id),
         pomodoro: {
           name: "",
           pomodoroTime: formState.time,
           breakTime: formState.breakTime,
         },
         ownerId: user.id,
-      }
+        notifications: selectedUsers?.map(userDest => {
+          return {
+            senderId: user.id,
+            recipientId: userDest.id,
+            title: `Invitación Sala: ${formState.name}`,
+            message: `${formState.description}`,
+          };
+        })
+      };
       //TODO revisar si da error al crear
       dispatch(createStudyRoom(room));
     }
@@ -237,7 +247,7 @@ export const StudyRoomPage = () => {
                   key={user.id}
                   sx={{ backgroundColor: "#e0f7fa", marginBottom: "8px" }}
                 >
-                  <ListItemText primary={user.email} />
+                  <ListItemText primary={user.userName} />
 
                   <IconButton
                     edge="end"
