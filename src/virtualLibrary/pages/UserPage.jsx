@@ -3,24 +3,25 @@ import profileMan from "../../assets/images/profileMan.png";
 import profileWoman from "../../assets/images/profileWoman.png";
 import previous from "../../assets/images/previous.png";
 import next from "../../assets/images/next.png";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { useForm } from "../../hooks/useForm";
-import { AuthContext } from "../../auth/context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from 'react-redux';
+import { updateUserThunk } from "../../store/thunks/authThunks";
 
 //TODO: cambiar la forma en la que se manejan los logos
-// tambien await en register y el login
 const logos = [profileMan, profileWoman];
 const logosNames = ["profileMan", "profileWoman"];
 
 export const UserPage = () => {
+  const { user, error } = useSelector(state => state.auth);
+  const dispatch = useDispatch();
   const [selectedLogo, setSelectedLogo] = useState(0);
-  const { authState, updateUserData } = useContext(AuthContext);
   const [showPassword, setShowPassword] = useState(false);
   const { formState, onInputChange, onFormSubmitted } = useForm(
     {
-      userName: authState.user.userName || "",
-      email: authState.user.email || "",
+      userName: user.userName || "",
+      email: user.email || "",
       password: "",
       confirmPassword: "",
     },
@@ -28,23 +29,25 @@ export const UserPage = () => {
   );
   const navigate = useNavigate();
 
-  const onUpdateUser = async () => {
-    const errorUpdate = await updateUserData({
-      CurrentUserName: authState.user.userName,
-      CurrentEmail: authState.user.email,
-      NewUserName: formState.userName,
-      NewEmail: formState.email,
-      NewPassword: formState.password,
-      logo: logosNames[selectedLogo],
-    });
-
-    if (!errorUpdate) navigate("/library");
-  };
-
   const onUpdateUserFormSubmitted = (event) => {
     const isSubmitted = onFormSubmitted(event);
 
     if (isSubmitted) onUpdateUser();
+  };
+
+  const onUpdateUser = async () => {
+
+    dispatch(updateUserThunk({
+      CurrentUserName: user.userName,
+      CurrentEmail: user.email,
+      NewUserName: formState.userName,
+      NewEmail: formState.email,
+      NewPassword: formState.password,
+      logo: logosNames[selectedLogo],
+    }));
+
+    //TODO falta controlar el error
+    navigate("/library")
   };
 
   const onClickShowPass = () => setShowPassword((prev) => !prev);
@@ -195,7 +198,7 @@ export const UserPage = () => {
               }
             />
           </Grid2>
-          {authState.error && <Alert severity="error">{authState.error}</Alert>}
+          {error && <Alert severity="error">{error}</Alert>}
           <Grid2 size={{ xs: 10 }} sx={{ mt: 2 }}>
             <Button type="submit" variant="contained" fullWidth>
               Actualizar

@@ -103,7 +103,7 @@ export const logoutAsync = async () => {
   return await apiPost(AuthRoutes.logout, {});
 };
 
-export const updateUser = async (data) => {
+export const updateUserAsync = async (data) => {
   return await apiPost(AuthRoutes.updateUser, data);
 };
 

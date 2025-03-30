@@ -1,6 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-
 const getInitialState = () => {
     const user = localStorage.getItem("user");
     try {
@@ -8,7 +7,7 @@ const getInitialState = () => {
             ? {
                 user: JSON.parse(user),
                 error: null,
-                isAuthenticated: true
+                isAuthenticated: true,
             }
             : {
                 user: null,
@@ -38,11 +37,14 @@ export const authSlice = createSlice({
             state.user = null;
             state.isAuthenticated = false;
         },
+        updateUser(state, action) {
+            state.user = action.payload;
+        },
         setError(state, action) {
             state.error = action.payload;
         },
     },
 });
 
-export const { login, logout, setError } = authSlice.actions;
+export const { login, logout, updateUser, setError } = authSlice.actions;
 

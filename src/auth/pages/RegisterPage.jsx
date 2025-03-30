@@ -1,30 +1,35 @@
 import { AuthLayout } from "../layouts/AuthLayout";
 import { Grid2, Button, TextField, Typography, Alert } from "@mui/material";
 import { useForm } from "../../hooks/useForm";
-import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from 'react-redux';
+import { registerThunk } from "../../store/thunks/authThunks";
+import { useEffect } from "react";
 
 export const RegisterPage = () => {
+  const { error, isAuthenticated } = useSelector(state => state.auth);
+  const dispatch = useDispatch();
   const { formState, onInputChange, onFormSubmitted } = useForm({}, true);
-  const { authState, register } = useContext(AuthContext);
   const navigate = useNavigate();
-
-  const onregister = () => {
-    register({
-      userName: formState.userName,
-      email: formState.email,
-      password: formState.password,
-    });
-
-    if (authState.isAuthenticated) navigate("/library");
-  };
 
   const onregisterFormSubmitted = (event) => {
     const isSubmitted = onFormSubmitted(event);
 
     if (isSubmitted) onregister();
   };
+
+  const onregister = () => {
+    dispatch(registerThunk({
+      userName: formState.userName,
+      email: formState.email,
+      password: formState.password,
+    }));
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) navigate("/library");
+
+  }, [isAuthenticated, navigate]);
 
   return (
     <form onSubmit={onregisterFormSubmitted}>
@@ -79,7 +84,7 @@ export const RegisterPage = () => {
               helperText={formState.confirmPasswordError ? formState.confirmPasswordError : ""}
             />
           </Grid2>
-          {authState.error && <Alert severity="error">{authState.error}</Alert>}
+          {error && <Alert severity="error">{error}</Alert>}
           <Grid2 size={{ xs: 12 }} sx={{ mt: 2, px: 0.5 }}>
             <Button type="submit" variant="contained" fullWidth>
               Registrar
