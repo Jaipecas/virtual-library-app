@@ -1,5 +1,5 @@
 import { useReducer } from "react";
-import { logout, signIn, signUp, updateUser } from "../../services/apiService";
+import { logoutAsync, signIn, signUp, updateUser } from "../../services/apiService";
 import { authTypes } from "../types/authTypes";
 import { AuthContext } from "./AuthContext";
 import { authReducer } from "./authReducer";
@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
   const userLogout = async () => {
     let action = {};
     try {
-      await logout();
+      await logoutAsync();
 
       localStorage.removeItem("user");
       action = {

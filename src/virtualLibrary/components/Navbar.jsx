@@ -14,27 +14,27 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import AdbIcon from "@mui/icons-material/Adb";
-import { useState } from "react";
-import { useContext } from "react";
-import { AuthContext } from "../../auth/context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from 'react-redux';
-
-const pages = ["Inicio", "Tableros", "Salas"];
-const settings = ["Perfil", "Tableros", "Salas", "Logout"];
+import { useSelector, useDispatch } from 'react-redux';
+import { logoutThunk } from "../../store/thunks/authThunks";
+import { useEffect, useState } from "react";
 
 export const Navbar = () => {
   const { isAuthenticated } = useSelector(state => state.auth);
-  const { userLogout } = useContext(AuthContext);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [pages, setPages] = useState([])
+  const [settings, setSettings] = useState([])
 
-  const pages = isAuthenticated
-    ? ["Inicio", "Tableros", "Salas"]
-    : [];
-
-  const settings = isAuthenticated
-    ? ["Perfil", "Tableros", "Salas", "Logout"]
-    : [];
+  useEffect(() => {
+    if (isAuthenticated) {
+      setPages(["Inicio", "Tableros", "Salas"]);
+      setSettings(["Perfil", "Tableros", "Salas", "Logout"])
+    } else {
+      setPages([]);
+      setSettings([]);
+    };
+  }, [isAuthenticated]);
 
   const [anchorElNav, setAnchorElNav] = useState();
   const [anchorElUser, setAnchorElUser] = useState();
@@ -62,7 +62,7 @@ export const Navbar = () => {
 
     switch (target.textContent) {
       case "Logout":
-        userLogout();
+        dispatch(logoutThunk());
         break;
       case "Perfil":
         navigate("/library/user");
