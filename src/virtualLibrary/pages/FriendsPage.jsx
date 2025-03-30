@@ -3,17 +3,23 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useState } from 'react';
 import profileMan from "../../assets/images/profileMan.png";
 import { useDispatch, useSelector } from 'react-redux';
-import { updateFriend } from '../../store/thunks/userThunks';
+import { getUserData, updateFriend } from '../../store/thunks/userThunks';
+import { useEffect } from 'react';
 
 export const FriendsPage = () => {
     const [search, setSearch] = useState("");
     const dispatch = useDispatch();
     const { userData, loading, error } = useSelector(state => state.user);
+    const { user } = useSelector(state => state.auth);
+
+    useEffect(() => {
+        dispatch(getUserData(user.id));
+      }, [])
 
     const onSearchUser = (event) => {
         event.preventDefault();
 
-        dispatch(updateFriend({ userId: userData.id, friendName: search }));
+        dispatch(updateFriend({ userId: user.id, friendName: search }));
     }
 
     const onSetSearch = (event) => {

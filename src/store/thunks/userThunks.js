@@ -1,12 +1,12 @@
-import { createFriendAsync, getUserByNameAsync } from "../../services/apiService";
+import { createFriendAsync, getUserByIdAsync } from "../../services/apiService";
 import { addFriend, setError, setIdle, setLoading, setUser } from "../slices/userSlice";
 
-export const getUserData = (userName) => async (dispatch) => {
+export const getUserData = (userId) => async (dispatch) => {
 
   dispatch(setLoading());
   dispatch(setError(''));
   try {
-    const user = await getUserByNameAsync(userName)
+    const user = await getUserByIdAsync(userId)
 
     dispatch(setUser(user));
   } catch (error) {

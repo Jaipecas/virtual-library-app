@@ -13,12 +13,10 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
-import { useContext, useEffect, useState } from "react";
+import { useState } from "react";
 import { StudyRoomPage } from "./StudyRoomPage";
 import { NotificationsPage } from "./NotificationsPage";
 import { FriendsPage } from "./FriendsPage";
-import { getUserData } from "../../store/thunks/userThunks";
-import { useDispatch, useSelector } from 'react-redux';
 
 const drawerWidth = 240;
 const marginTop = 69.4;
@@ -32,13 +30,6 @@ const menuItems = {
 export const StudyRoomDashboard = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [selectedPage, setSelectedPage] = useState("Salas");
-  const { user } = useSelector(state => state.auth);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(getUserData(user.userName));
-  }, [])
-
 
   const onDrawerToggle = () => {
     setMobileOpen(!mobileOpen);

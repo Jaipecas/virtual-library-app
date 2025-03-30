@@ -123,8 +123,8 @@ export const getStudyRoomsAsync = async (userId) => {
   return await apiGet(`${StudyRoomRoutes.getStudyRooms}?UserId=${userId}`);
 };
 
-export const getUserByNameAsync = async (userName) => {
-  return await apiGet(`${UserRoutes.user}?UserName=${userName}`);
+export const getUserByIdAsync = async (userId) => {
+  return await apiGet(`${UserRoutes.user}?UserId=${userId}`);
 };
 
 export const createFriendAsync = async (friend) => {
