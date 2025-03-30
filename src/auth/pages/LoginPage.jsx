@@ -13,6 +13,12 @@ export const LoginPage = () => {
   const { formState, onInputChange, onFormSubmitted } = useForm();
   const navigate = useNavigate();
 
+  const onLoginFormSubmitted = (event) => {
+    const isSubmitted = onFormSubmitted(event);
+
+    if (isSubmitted) onLogin();
+  };
+  
   const onLogin = () => {
     const user = {
       email: formState.email,
@@ -26,12 +32,6 @@ export const LoginPage = () => {
     if (isAuthenticated) navigate("/library");
 
   }, [isAuthenticated, navigate]);
-
-  const onLoginFormSubmitted = (event) => {
-    const isSubmitted = onFormSubmitted(event);
-
-    if (isSubmitted) onLogin();
-  };
 
   return (
     <form onSubmit={onLoginFormSubmitted}>
