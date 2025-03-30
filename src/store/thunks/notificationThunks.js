@@ -1,4 +1,4 @@
-import { deleteNotificationAsync, getNotificationsAsync } from "../../services/apiService";
+import { deleteNotificationAsync, getNotificationsAsync, sendNotificationAsync } from "../../services/apiService";
 import { removeNotification, setError, setIdle, setLoading, setNotifications } from "../slices/notificationSlice";
 
 //TODO simplificar codigo con CreateThunk
@@ -31,4 +31,15 @@ export const deleteNotification = (id, isAccepted, notificationType) => async (d
   } finally {
     dispatch(setIdle());
   }
+};
+
+export const sendNotificationsThunk = (notificationData) => async (dispatch) => {
+
+  dispatch(setError(''));
+  try {
+    await sendNotificationAsync(notificationData)
+
+  } catch (error) {
+    dispatch(setError(error.message));
+  } 
 };

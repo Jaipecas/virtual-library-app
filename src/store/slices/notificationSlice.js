@@ -13,9 +13,6 @@ export const notificationSlice = createSlice({
         setNotifications(state, action) {
             state.notifications = action.payload;
         },
-        addNotification(state, action) {
-            state.notifications.push(action.payload);
-        },
         removeNotification(state, action) {
             state.notifications = state.notifications.filter(notification => notification.id !== action.payload);
         },

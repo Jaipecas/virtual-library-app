@@ -23,6 +23,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useDispatch, useSelector } from 'react-redux';
 import { createStudyRoom, deleteStudyRoom, getStudyRooms, updateStudyRoom } from "../../store/thunks/studyRoomThunks";
 import { getUserData } from "../../store/thunks/userThunks";
+import { sendNotificationsThunk } from "../../store/thunks/notificationThunks";
 
 //TODO borrar
 //TODO se podría sacar el Dialog a un componente
@@ -108,6 +109,7 @@ export const StudyRoomPage = () => {
         }
       }
       dispatch(updateStudyRoom(room))
+      //TODO falta enviar notificaciones a los nuevos users
     } else {
       const room = {
         name: formState.name,
@@ -119,7 +121,15 @@ export const StudyRoomPage = () => {
           breakTime: formState.breakTime,
         },
         ownerId: user.id,
-      }
+        notifications: selectedUsers?.map(userDest => {
+          return {
+            senderId: user.id,
+            recipientId: userDest.id,
+            title: `Invitación Sala: ${formState.name}`,
+            message: `${formState.description}`,
+          };
+        })
+      };
       //TODO revisar si da error al crear
       dispatch(createStudyRoom(room));
     }
