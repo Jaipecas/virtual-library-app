@@ -18,8 +18,7 @@ import { StudyRoomPage } from "./StudyRoomPage";
 import { NotificationsPage } from "./NotificationsPage";
 import { FriendsPage } from "./FriendsPage";
 import { getUserData } from "../../store/thunks/userThunks";
-import { AuthContext } from "../../auth/context/AuthContext";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 const drawerWidth = 240;
 const marginTop = 69.4;
@@ -33,14 +32,11 @@ const menuItems = {
 export const StudyRoomDashboard = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [selectedPage, setSelectedPage] = useState("Salas");
-
+  const { user } = useSelector(state => state.auth);
   const dispatch = useDispatch();
 
-  //TODO eliminar cunando se modifque la parte de auth
-  const { authState } = useContext(AuthContext);
-
   useEffect(() => {
-    dispatch(getUserData(authState.user.userName));
+    dispatch(getUserData(user.userName));
   }, [])
 
 

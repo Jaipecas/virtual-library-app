@@ -1,9 +1,8 @@
-import { useContext } from "react";
 import { Navigate } from "react-router-dom";
-import { AuthContext } from "../auth/context/AuthContext";
+import { useSelector } from 'react-redux';
 
 export const PrivateRouter = ({ children }) => {
-  const { authState } = useContext(AuthContext);
+  const { isAuthenticated } = useSelector(state => state.auth);
 
-  return authState.isAuthenticated ? children : <Navigate to={"/library"}/>
+  return isAuthenticated ? children : <Navigate to={"/library"} />
 };

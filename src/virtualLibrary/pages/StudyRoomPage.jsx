@@ -16,11 +16,10 @@ import {
   Alert,
 } from "@mui/material";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import { useForm } from "../../hooks/useForm";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { AuthContext } from "../../auth/context/AuthContext";
 import { useDispatch, useSelector } from 'react-redux';
 import { createStudyRoom, deleteStudyRoom, getStudyRooms, updateStudyRoom } from "../../store/thunks/studyRoomThunks";
 
@@ -34,14 +33,13 @@ export const StudyRoomPage = () => {
   const [selectedUsers, setselectedUsers] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState({});
   const { formState, onInputChange, resetForm, setFormState } = useForm({}, false);
-
-  const { authState } = useContext(AuthContext);
+  const { user } = useSelector(state => state.auth);
 
   const dispatch = useDispatch();
   const { studyRooms, loading, error } = useSelector(state => state.studyRoom);
 
   useEffect(() => {
-    dispatch(getStudyRooms(authState.user.id));
+    dispatch(getStudyRooms(user.id));
   }, []);
 
   useEffect(() => {
@@ -120,7 +118,7 @@ export const StudyRoomPage = () => {
           pomodoroTime: formState.time,
           breakTime: formState.breakTime,
         },
-        ownerId: authState.user.id,
+        ownerId: user.id,
       }
       //TODO revisar si da error al crear
       dispatch(createStudyRoom(room));

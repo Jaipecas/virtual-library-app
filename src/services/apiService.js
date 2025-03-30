@@ -99,11 +99,11 @@ export const signUp = async (data) => {
   return await apiPost(AuthRoutes.signUp, data);
 };
 
-export const logout = async () => {
+export const logoutAsync = async () => {
   return await apiPost(AuthRoutes.logout, {});
 };
 
-export const updateUser = async (data) => {
+export const updateUserAsync = async (data) => {
   return await apiPost(AuthRoutes.updateUser, data);
 };
 
