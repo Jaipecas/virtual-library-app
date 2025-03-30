@@ -1,14 +1,16 @@
 import { Google } from "@mui/icons-material";
 import { Grid2, Typography, Button, TextField, Alert } from "@mui/material";
-import { useContext } from "react";
 import { useForm } from "../../hooks/useForm";
-import { AuthContext } from "../context/AuthContext";
 import { AuthLayout } from "../layouts/AuthLayout";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from 'react-redux';
+import { loginThunk } from "../../store/thunks/authThunks";
+import { useEffect } from "react";
 
 export const LoginPage = () => {
+  const { error, isAuthenticated } = useSelector(state => state.auth);
+  const dispatch = useDispatch();
   const { formState, onInputChange, onFormSubmitted } = useForm();
-  const { authState, login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const onLogin = () => {
@@ -17,10 +19,13 @@ export const LoginPage = () => {
       password: formState.password,
     };
 
-    login(user);
-
-    if (authState.isAuthenticated) navigate("/library");
+    dispatch(loginThunk(user));
   };
+
+  useEffect(() => {
+    if (isAuthenticated) navigate("/library");
+
+  }, [isAuthenticated, navigate]);
 
   const onLoginFormSubmitted = (event) => {
     const isSubmitted = onFormSubmitted(event);
@@ -61,7 +66,7 @@ export const LoginPage = () => {
               helperText={formState.passwordError ? formState.passwordError : ""}
             />
           </Grid2>
-          {authState.error && <Alert severity="error">{authState.error}</Alert>}
+          {error && <Alert severity="error">{error}</Alert>}
           <Grid2 size={{ xs: 12, md: 6 }} sx={{ mt: 2, px: 0.5 }}>
             <Button type="submit" variant="contained" fullWidth>
               Login
@@ -76,6 +81,6 @@ export const LoginPage = () => {
         </Grid2>
       </AuthLayout>
     </form>
-     
+
   );
 };

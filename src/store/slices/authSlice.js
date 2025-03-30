@@ -7,20 +7,17 @@ const getInitialState = () => {
         return user
             ? {
                 user: JSON.parse(user),
-                loading: false,
                 error: null,
                 isAuthenticated: true
             }
             : {
                 user: null,
-                loading: false,
                 error: null,
                 isAuthenticated: false
             };
     } catch {
         return {
             user: null,
-            loading: false,
             error: null,
             isAuthenticated: false
         };
@@ -36,14 +33,8 @@ export const authSlice = createSlice({
         login(state, action) {
             state.user = action.payload;
         },
-        setLoading(state) {
-            state.loading = true;
-        },
         setError(state, action) {
             state.error = action.payload;
-        },
-        setIdle(state) {
-            state.loading = false;
         },
         loginSuccess(state) {
             state.isAuthenticated = true;

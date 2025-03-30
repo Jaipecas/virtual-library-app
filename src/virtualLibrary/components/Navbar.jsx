@@ -18,19 +18,21 @@ import { useState } from "react";
 import { useContext } from "react";
 import { AuthContext } from "../../auth/context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from 'react-redux';
 
 const pages = ["Inicio", "Tableros", "Salas"];
 const settings = ["Perfil", "Tableros", "Salas", "Logout"];
 
 export const Navbar = () => {
-  const { authState, userLogout } = useContext(AuthContext);
+  const { isAuthenticated } = useSelector(state => state.auth);
+  const { userLogout } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const pages = authState.isAuthenticated
+  const pages = isAuthenticated
     ? ["Inicio", "Tableros", "Salas"]
     : [];
 
-  const settings = authState.isAuthenticated
+  const settings = isAuthenticated
     ? ["Perfil", "Tableros", "Salas", "Logout"]
     : [];
 
@@ -160,7 +162,7 @@ export const Navbar = () => {
           <Box
             sx={{
               flexGrow: 0,
-              display: authState.isAuthenticated ? "none" : "flex",
+              display: isAuthenticated ? "none" : "flex",
             }}
           >
             <Typography
@@ -183,7 +185,7 @@ export const Navbar = () => {
           <Box
             sx={{
               flexGrow: 0,
-              display: !authState.isAuthenticated ? "none" : "flex",
+              display: !isAuthenticated ? "none" : "flex",
             }}
           >
             <Tooltip title="Open settings">
