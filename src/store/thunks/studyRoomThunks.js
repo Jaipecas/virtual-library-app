@@ -21,9 +21,9 @@ export const createStudyRoom = (newRoom) => async (dispatch) => {
   dispatch(setError(''));
   try {
 
-    await createStudyRoomAsync(newRoom)
+    const room = await createStudyRoomAsync(newRoom)
 
-    dispatch(addStudyRoom(newRoom));
+    dispatch(addStudyRoom(room));
   } catch (error) {
     dispatch(setError(error.message));
   } finally {
