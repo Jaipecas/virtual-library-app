@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
     studyRooms: [],
+    invitedRooms:[],
     loading: false,
     error: null,
 };
@@ -12,6 +13,9 @@ export const studyRoomSlice = createSlice({
     reducers: {
         setStudyRooms(state, action) {
             state.studyRooms = action.payload;
+        },
+        setInvitedStudyRooms(state, action) {
+            state.invitedRooms = action.payload;
         },
         addStudyRoom(state, action) {
             state.studyRooms.push(action.payload);
@@ -37,5 +41,5 @@ export const studyRoomSlice = createSlice({
     },
 });
 
-export const { setStudyRooms, addStudyRoom, updateRoom, removeStudyRoom, setLoading, setError, setIdle } = studyRoomSlice.actions;
+export const { setStudyRooms, addStudyRoom, updateRoom, removeStudyRoom, setLoading, setError, setIdle, setInvitedStudyRooms } = studyRoomSlice.actions;
 

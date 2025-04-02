@@ -10,6 +10,7 @@ export const AuthRoutes = {
 
 export const StudyRoomRoutes = {
   getStudyRooms: `${API_BASE_URL}/studyroom/getStudyRoomsByOwner`,
+  getInvitedStudyRooms: `${API_BASE_URL}/studyroom/getInvitedStudyRooms`,
   studyRoom: `${API_BASE_URL}/studyroom`,
 };
 

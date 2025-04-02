@@ -49,7 +49,7 @@ export const Navbar = () => {
   const handleCloseNavMenu = ({ target }) => {
     setAnchorElNav();
     switch (target.textContent) {
-      case "Tableros":
+      case "Salas":
         navigate("/library/studyroomdashboard");
         break;
       default:

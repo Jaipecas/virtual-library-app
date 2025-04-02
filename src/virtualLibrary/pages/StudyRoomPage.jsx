@@ -21,28 +21,33 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useForm } from "../../hooks/useForm";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useDispatch, useSelector } from 'react-redux';
-import { createStudyRoom, deleteStudyRoom, getStudyRooms, updateStudyRoom } from "../../store/thunks/studyRoomThunks";
+import { createStudyRoom, deleteStudyRoom, getInvitedStudyRooms, getStudyRooms, updateStudyRoom } from "../../store/thunks/studyRoomThunks";
 import { getUserData } from "../../store/thunks/userThunks";
-import { sendNotificationsThunk } from "../../store/thunks/notificationThunks";
+import { setError } from "../../store/slices/studyRoomSlice";
 
 //TODO borrar
 //TODO se podría sacar el Dialog a un componente
 
 export const StudyRoomPage = () => {
+
   const [searchError, setSearchError] = useState(false);
   const [open, setOpen] = useState(false);
   const [selectedUsers, setselectedUsers] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState({});
+  const [action, setAction] = useState("");
+
   const { formState, onInputChange, setFormState } = useForm({}, false);
+
   const { user } = useSelector(state => state.auth);
   const { userData } = useSelector(state => state.user);
 
   const dispatch = useDispatch();
-  const { studyRooms, loading, error } = useSelector(state => state.studyRoom);
+  const { studyRooms, invitedRooms, loading, error } = useSelector(state => state.studyRoom);
 
   useEffect(() => {
     dispatch(getStudyRooms(user.id));
     dispatch(getUserData(user.id));
+    dispatch(getInvitedStudyRooms(user.id));
   }, []);
 
   useEffect(() => {
@@ -64,6 +69,7 @@ export const StudyRoomPage = () => {
 
 
   const onOpenDialog = (room) => {
+    setAction(Object.keys(room).length ? "update" : "create");
     setSelectedRoom(room);
     setOpen((prev) => !prev);
   };
@@ -74,10 +80,14 @@ export const StudyRoomPage = () => {
   };
 
   const onSearchUser = (event) => {
+
+    if (event.key === "Enter") {
+      event.preventDefault();
+    }
+
     if (event.key === "Enter" || event.type === "click") {
       if (selectedUsers.includes(formState.searchUser)) return;
 
-      //TODO hacer llamada a Backend
       const user = userData.friends.find((user) => formState.searchUser === user.userName);
 
       if (user != null) {
@@ -95,6 +105,10 @@ export const StudyRoomPage = () => {
 
   const onSetRoom = async (event) => {
     event.preventDefault();
+
+    const submitter = event.nativeEvent.submitter;
+
+    if (event.key === "Enter") return;
 
     if (Object.keys(selectedRoom).length) {
       const room = {
@@ -134,13 +148,20 @@ export const StudyRoomPage = () => {
       dispatch(createStudyRoom(room));
     }
 
-    onCloseDialog();
-
+    if (submitter?.innerText.toUpperCase() === "ACTUALIZAR") {
+      onCloseDialog();
+    }
   };
 
   const onDeleteRoom = () => {
     dispatch(deleteStudyRoom(selectedRoom.id));
     onCloseDialog();
+  };
+
+  const preventEnterSubmit = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+    }
   };
 
   return (
@@ -178,6 +199,7 @@ export const StudyRoomPage = () => {
               label="Nombre"
               value={formState.name}
               onChange={onInputChange}
+              onKeyDown={preventEnterSubmit}
               fullWidth
             />
             <TextField
@@ -189,6 +211,7 @@ export const StudyRoomPage = () => {
               rows={4}
               value={formState.description}
               onChange={onInputChange}
+              onKeyDown={preventEnterSubmit}
               fullWidth
             />
             <TextField
@@ -198,6 +221,7 @@ export const StudyRoomPage = () => {
               label="Tiempo del pomodoro (minutos)"
               value={formState.time}
               onChange={onInputChange}
+              onKeyDown={preventEnterSubmit}
               inputProps={{
                 min: 1,
                 max: 120,
@@ -212,6 +236,7 @@ export const StudyRoomPage = () => {
               label="Tiempo de descanso (minutos)"
               value={formState.breakTime}
               onChange={onInputChange}
+              onKeyDown={preventEnterSubmit}
               inputProps={{
                 min: 1,
                 max: 60,
@@ -260,8 +285,12 @@ export const StudyRoomPage = () => {
               ))}
             </List>
             <DialogActions>
-              <Button type="submit" color="primary">
+              {action == "update" && (<Button type="submit" color="primary">
                 Entrar
+              </Button>)}
+
+              <Button type="submit" color="primary">
+                {action == "create" ? "Crear" : "Actualizar"}
               </Button>
               <Button onClick={onCloseDialog} color="primary">
                 Cancelar
@@ -281,6 +310,21 @@ export const StudyRoomPage = () => {
           )}
         </DialogContent>
       </Dialog>
+      <Grid2 size={{ xs: 12 }}>
+        <Typography variant="h4">Invitaciones</Typography>
+        <Divider />
+      </Grid2>
+      <Grid2 container size={{ xs: 12 }} spacing={2}>
+        {invitedRooms?.map((room) => (
+          <Button
+            key={room.id}
+            variant="outlined"
+            startIcon={<MenuBookIcon />}
+          >
+            {room.name}
+          </Button>
+        ))}
+      </Grid2>
     </Grid2>
   );
 };
