@@ -148,7 +148,7 @@ export const StudyRoomPage = () => {
       dispatch(createStudyRoom(room));
     }
 
-    if (submitter?.innerText.toUpperCase() === "ACTUALIZAR") {
+    if (submitter?.innerText.toUpperCase() === "ACTUALIZAR" || submitter?.innerText.toUpperCase() === "CREAR") {
       onCloseDialog();
     }
   };
