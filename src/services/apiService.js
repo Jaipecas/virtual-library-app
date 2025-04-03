@@ -107,6 +107,9 @@ export const updateUserAsync = async (data) => {
   return await apiPost(AuthRoutes.updateUser, data);
 };
 
+
+
+
 export const createStudyRoomAsync = async (data) => {
   return await apiPost(StudyRoomRoutes.studyRoom, data);
 };
@@ -127,20 +130,24 @@ export const getInvitedStudyRoomsAsync = async (userId) => {
   return await apiGet(`${StudyRoomRoutes.getInvitedStudyRooms}?UserId=${userId}`);
 };
 
+
+
 export const getUserByIdAsync = async (userId) => {
   return await apiGet(`${UserRoutes.user}?UserId=${userId}`);
 };
+
+
+
 
 export const createFriendAsync = async (friend) => {
   return await apiPost(UserRoutes.friend, friend);
 };
 
+
+
+
 export const getNotificationsAsync = async (userId) => {
   return await apiGet(`${NotificationRoutes.notification}?UserId=${userId}`);
-};
-
-export const createNotificationAsync = async (notification) => {
-  return await apiPost(NotificationRoutes.notification, notification);
 };
 
 export const deleteNotificationAsync = async (id, isAccepted, notificationType) => {
