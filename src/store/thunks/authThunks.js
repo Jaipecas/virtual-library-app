@@ -1,4 +1,5 @@
-import { logoutAsync, signIn, signUp, updateUserAsync } from "../../services/apiService";
+import { AuthRoutes } from "../../services/apiRoutes";
+import { apiPost } from "../../services/apiService";
 import { login, logout, setError, updateUser } from "../slices/authSlice";
 
 
@@ -6,7 +7,8 @@ export const loginThunk = (userData) => async (dispatch) => {
 
   dispatch(setError(''));
   try {
-    const user = await signIn(userData)
+
+    const user = await apiPost(AuthRoutes.signIn, userData);
     
     dispatch(login(user));
     localStorage.setItem("user", JSON.stringify(user));
@@ -19,7 +21,8 @@ export const logoutThunk = () => async (dispatch) => {
 
   dispatch(setError(''));
   try {
-    await logoutAsync()
+
+    await apiPost(AuthRoutes.logout, {});
     localStorage.removeItem("user");
 
     dispatch(logout());
@@ -32,7 +35,8 @@ export const registerThunk = (userData) => async (dispatch) => {
 
   dispatch(setError(''));
   try {
-    const user = await signUp(userData)
+
+    const user = await apiPost(AuthRoutes.signUp, userData);
     
     dispatch(login(user));
     localStorage.setItem("user", JSON.stringify(user));
@@ -45,7 +49,8 @@ export const updateUserThunk = (userData) => async (dispatch) => {
 
   dispatch(setError(''));
   try {
-    const user = await updateUserAsync(userData)
+
+    const user = await apiPost(AuthRoutes.updateUser, userData);
 
     dispatch(updateUser(user))
     localStorage.setItem("user", JSON.stringify(user));

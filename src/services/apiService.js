@@ -91,25 +91,6 @@ const apiPut = async (url, body) => {
 
 
 
-export const signIn = async (credentials) => {
-  return await apiPost(AuthRoutes.signIn, credentials);
-};
-
-export const signUp = async (data) => {
-  return await apiPost(AuthRoutes.signUp, data);
-};
-
-export const logoutAsync = async () => {
-  return await apiPost(AuthRoutes.logout, {});
-};
-
-export const updateUserAsync = async (data) => {
-  return await apiPost(AuthRoutes.updateUser, data);
-};
-
-
-
-
 export const createStudyRoomAsync = async (data) => {
   return await apiPost(StudyRoomRoutes.studyRoom, data);
 };
