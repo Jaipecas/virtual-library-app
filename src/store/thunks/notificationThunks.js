@@ -1,5 +1,6 @@
-import { deleteNotificationAsync, getNotificationsAsync, sendNotificationAsync } from "../../services/apiService";
+import { apiPost, deleteNotificationAsync, getNotificationsAsync } from "../../services/apiService";
 import { removeNotification, sendSuccess, setError, setIdle, setLoading, setNotifications } from "../slices/notificationSlice";
+import { NotificationRoutes } from "../../services/apiRoutes";
 
 //TODO simplificar codigo con CreateThunk
 export const getNotifications = (userId) => async (dispatch) => {
@@ -37,9 +38,12 @@ export const sendNotificationsThunk = (notificationData) => async (dispatch) => 
 
   dispatch(setError(''));
   try {
-    await sendNotificationAsync(notificationData)
+
+    await apiPost(NotificationRoutes.notification, notificationData);
+    
     dispatch(sendSuccess("Notificación enviada"))
   } catch (error) {
     dispatch(setError(error.message));
-  } 
+    dispatch(sendSuccess(""));
+  }
 };

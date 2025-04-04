@@ -55,7 +55,7 @@ export const FriendsPage = () => {
                 />
             </form>
 
-            {notificationError && <Alert sx={{ marginTop: 1 }} severity="error">{error}</Alert>}
+            {notificationError && <Alert sx={{ marginTop: 1 }} severity="error">{notificationError}</Alert>}
             {sendSuccess && <Alert sx={{ marginTop: 1 }} severity="success">{sendSuccess}</Alert>}      
 
             <Box marginTop={2} display="flex" flexWrap="wrap" gap={3}>

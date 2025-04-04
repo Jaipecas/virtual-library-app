@@ -1,6 +1,6 @@
 import { AuthRoutes, StudyRoomRoutes, UserRoutes, NotificationRoutes } from "./apiRoutes";
 
-const apiGet = async (url) => {
+export const apiGet = async (url) => {
   try {
     const response = await fetch(url, {
       method: "GET",
@@ -22,7 +22,7 @@ const apiGet = async (url) => {
   }
 };
 
-const apiPost = async (url, body) => {
+export const apiPost = async (url, body) => {
   try {
     const response = await fetch(url, {
       method: "POST",
@@ -45,7 +45,7 @@ const apiPost = async (url, body) => {
   }
 };
 
-const apiDelete = async (url) => {
+export const apiDelete = async (url) => {
   try {
     const response = await fetch(url, {
       method: "DELETE",
@@ -154,6 +154,3 @@ export const deleteNotificationAsync = async (id, isAccepted, notificationType) 
   return await apiDelete(`${NotificationRoutes.notification}?id=${id}&isAccepted=${isAccepted}&notificationType=${notificationType}`);
 };
 
-export const sendNotificationAsync = async (notificationData) => {
-  return await apiPost(NotificationRoutes.notification, notificationData);  
-};
