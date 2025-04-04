@@ -1,6 +1,6 @@
 import { AuthRoutes, StudyRoomRoutes, UserRoutes, NotificationRoutes } from "./apiRoutes";
 
-const apiGet = async (url) => {
+export const apiGet = async (url) => {
   try {
     const response = await fetch(url, {
       method: "GET",
@@ -22,7 +22,7 @@ const apiGet = async (url) => {
   }
 };
 
-const apiPost = async (url, body) => {
+export const apiPost = async (url, body) => {
   try {
     const response = await fetch(url, {
       method: "POST",
@@ -45,7 +45,7 @@ const apiPost = async (url, body) => {
   }
 };
 
-const apiDelete = async (url) => {
+export const apiDelete = async (url) => {
   try {
     const response = await fetch(url, {
       method: "DELETE",
@@ -107,6 +107,9 @@ export const updateUserAsync = async (data) => {
   return await apiPost(AuthRoutes.updateUser, data);
 };
 
+
+
+
 export const createStudyRoomAsync = async (data) => {
   return await apiPost(StudyRoomRoutes.studyRoom, data);
 };
@@ -127,26 +130,27 @@ export const getInvitedStudyRoomsAsync = async (userId) => {
   return await apiGet(`${StudyRoomRoutes.getInvitedStudyRooms}?UserId=${userId}`);
 };
 
+
+
 export const getUserByIdAsync = async (userId) => {
   return await apiGet(`${UserRoutes.user}?UserId=${userId}`);
 };
+
+
+
 
 export const createFriendAsync = async (friend) => {
   return await apiPost(UserRoutes.friend, friend);
 };
 
+
+
+
 export const getNotificationsAsync = async (userId) => {
   return await apiGet(`${NotificationRoutes.notification}?UserId=${userId}`);
-};
-
-export const createNotificationAsync = async (notification) => {
-  return await apiPost(NotificationRoutes.notification, notification);
 };
 
 export const deleteNotificationAsync = async (id, isAccepted, notificationType) => {
   return await apiDelete(`${NotificationRoutes.notification}?id=${id}&isAccepted=${isAccepted}&notificationType=${notificationType}`);
 };
 
-export const sendNotificationAsync = async (notificationData) => {
-  return await apiPost(NotificationRoutes.notification, notificationData);  
-};

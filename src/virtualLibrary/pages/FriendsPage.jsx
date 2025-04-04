@@ -1,25 +1,33 @@
-import { Alert, Avatar, Box, Card, CardHeader, CardMedia, IconButton, InputAdornment, Paper, TextField, Typography } from '@mui/material'
+import { Alert, Avatar, Box, Card, CardHeader, IconButton, InputAdornment, Paper, TextField, Typography } from '@mui/material'
 import SearchIcon from "@mui/icons-material/Search";
 import { useState } from 'react';
 import profileMan from "../../assets/images/profileMan.png";
 import { useDispatch, useSelector } from 'react-redux';
-import { getUserData, updateFriend } from '../../store/thunks/userThunks';
+import { getUserData } from '../../store/thunks/userThunks';
 import { useEffect } from 'react';
+import { sendNotificationsThunk } from '../../store/thunks/notificationThunks';
 
 export const FriendsPage = () => {
     const [search, setSearch] = useState("");
     const dispatch = useDispatch();
-    const { userData, loading, error } = useSelector(state => state.user);
+    const { userData } = useSelector(state => state.user);
+    const { sendSuccess, error: notificationError } = useSelector(state => state.notifications);
     const { user } = useSelector(state => state.auth);
 
     useEffect(() => {
         dispatch(getUserData(user.id));
-      }, [])
+    }, [])
 
-    const onSearchUser = (event) => {
+    const onSendNotification = (event) => {
         event.preventDefault();
 
-        dispatch(updateFriend({ userId: user.id, friendName: search }));
+        dispatch(sendNotificationsThunk({
+            senderId: user.id,
+            recipientName: search,
+            title: `Invitación amistad`,
+            message: `${user.userName} te ha enviado una invitación de amistad`,
+            notificationType: "Friend",
+        }))
     }
 
     const onSetSearch = (event) => {
@@ -28,7 +36,7 @@ export const FriendsPage = () => {
 
     return (
         <>
-            <form onSubmit={onSearchUser}>
+            <form onSubmit={onSendNotification}>
                 <TextField
                     label="Agregar amigos"
                     variant="outlined"
@@ -38,7 +46,7 @@ export const FriendsPage = () => {
                     InputProps={{
                         endAdornment: (
                             <InputAdornment position="end">
-                                <IconButton onClick={onSearchUser}>
+                                <IconButton onClick={onSendNotification}>
                                     <SearchIcon />
                                 </IconButton>
                             </InputAdornment>
@@ -47,7 +55,8 @@ export const FriendsPage = () => {
                 />
             </form>
 
-            {error && <Alert sx={{ marginTop: 1 }} severity="error">{error}</Alert>}
+            {notificationError && <Alert sx={{ marginTop: 1 }} severity="error">{notificationError}</Alert>}
+            {sendSuccess && <Alert sx={{ marginTop: 1 }} severity="success">{sendSuccess}</Alert>}
 
             <Box marginTop={2} display="flex" flexWrap="wrap" gap={3}>
                 {userData.friends.map(friend => (

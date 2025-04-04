@@ -4,6 +4,7 @@ const initialState = {
     notifications: [],
     loading: false,
     error: null,
+    sendSuccess: null,
 };
 
 export const notificationSlice = createSlice({
@@ -25,8 +26,11 @@ export const notificationSlice = createSlice({
         setIdle(state) {
             state.loading = false;
         },
+        sendSuccess(state, action) {
+            state.sendSuccess = action.payload;
+        },
     },
 });
 
-export const { setNotifications, addNotification, removeNotification, setLoading, setError, setIdle } = notificationSlice.actions;
+export const { setNotifications, addNotification, removeNotification, setLoading, setError, setIdle, sendSuccess } = notificationSlice.actions;
 
