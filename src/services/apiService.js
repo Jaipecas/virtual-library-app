@@ -137,15 +137,6 @@ export const getUserByIdAsync = async (userId) => {
 };
 
 
-
-
-export const createFriendAsync = async (friend) => {
-  return await apiPost(UserRoutes.friend, friend);
-};
-
-
-
-
 export const getNotificationsAsync = async (userId) => {
   return await apiGet(`${NotificationRoutes.notification}?UserId=${userId}`);
 };
