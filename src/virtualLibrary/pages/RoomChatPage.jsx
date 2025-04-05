@@ -1,14 +1,26 @@
 import { useState, useEffect } from "react";
 import * as signalR from "@microsoft/signalr";
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from "react-router-dom";
+import { getStudyRoomThunk } from "../../store/thunks/studyRoomThunks";
 
 export const RoomChatPage = () => {
     const [connection, setConnection] = useState(null);
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState("");
     const { user } = useSelector(state => state.auth);
+    const location = useLocation();
+    const dispatch = useDispatch();
+
+    const { selectedRoom } = useSelector(state => state.studyRoom);
 
     useEffect(() => {
+        getRoom()
+    }, []);
+
+    useEffect(() => {
+        if (!selectedRoom) return
+
         const newConnection = new signalR.HubConnectionBuilder()
             .withUrl("https://localhost:7013/roomChatHub")
             .withAutomaticReconnect()
@@ -26,21 +38,45 @@ export const RoomChatPage = () => {
 
         setConnection(newConnection);
 
+        sendJoinGroupMessage(selectedRoom.id);
+
         return () => {
             newConnection.stop();
         };
-    }, []);
+
+    }, [selectedRoom]);
+
+
+    const getRoom = () => {
+
+        const params = new URLSearchParams(location.search);
+        const id = params.get("id");
+
+        dispatch(getStudyRoomThunk(id))
+    }
 
     const sendMessage = async () => {
         if (connection) {
             try {
-                await connection.invoke("SendMessage", user.userName, message);
+                await connection.invoke("SendMessage", selectedRoom.id, user.userName, message);
                 setMessage("");
             } catch (err) {
                 console.error("Error enviando mensaje:", err);
             }
         }
     };
+
+    const sendJoinGroupMessage = async (roomId) => {
+        if (connection) {
+            try {
+                await connection.invoke("JoinGroup", roomId, user.userName);
+            } catch (err) {
+                console.error("Error enviando mensaje:", err);
+            }
+        }
+    };
+
+
 
     return (
         <div style={{ maxWidth: "600px", margin: "0 auto", textAlign: "center" }}>

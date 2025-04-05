@@ -23,7 +23,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useDispatch, useSelector } from 'react-redux';
 import { createStudyRoom, deleteStudyRoom, getInvitedStudyRooms, getStudyRooms, updateStudyRoom } from "../../store/thunks/studyRoomThunks";
 import { getUserData } from "../../store/thunks/userThunks";
-import { setError } from "../../store/slices/studyRoomSlice";
+import { useNavigate } from "react-router-dom";
 
 //TODO borrar
 //TODO se podría sacar el Dialog a un componente
@@ -35,6 +35,7 @@ export const StudyRoomPage = () => {
   const [selectedUsers, setselectedUsers] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState({});
   const [action, setAction] = useState("");
+  const navigate = useNavigate();
 
   const { formState, onInputChange, setFormState } = useForm({}, false);
 
@@ -143,6 +144,11 @@ export const StudyRoomPage = () => {
     if (submitter?.innerText.toUpperCase() === "ACTUALIZAR" || submitter?.innerText.toUpperCase() === "CREAR") {
       onCloseDialog();
     }
+
+    if (Object.keys(selectedRoom).length && submitter?.innerText.toUpperCase() === "ENTRAR") {
+      onEnterRoom(selectedRoom.id)
+    }
+
   };
 
   const onDeleteRoom = () => {
@@ -155,6 +161,10 @@ export const StudyRoomPage = () => {
       event.preventDefault();
     }
   };
+
+  const onEnterRoom = (roomId) => {
+    navigate(`/library/roomChatPage?id=${roomId}`);
+  }
 
   return (
     <Grid2 container spacing={2}>
@@ -312,6 +322,7 @@ export const StudyRoomPage = () => {
             key={room.id}
             variant="outlined"
             startIcon={<MenuBookIcon />}
+            onClick={() => onEnterRoom(room.id)}
           >
             {room.name}
           </Button>
