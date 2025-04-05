@@ -4,7 +4,7 @@ const initialState = {
     notifications: [],
     loading: false,
     error: null,
-    sendSuccess: null,
+    successMessage: null,
 };
 
 export const notificationSlice = createSlice({
@@ -27,7 +27,7 @@ export const notificationSlice = createSlice({
             state.loading = false;
         },
         sendSuccess(state, action) {
-            state.sendSuccess = action.payload;
+            state.successMessage = action.payload;
         },
     },
 });
