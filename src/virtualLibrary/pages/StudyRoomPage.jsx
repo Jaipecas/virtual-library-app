@@ -135,14 +135,6 @@ export const StudyRoomPage = () => {
           breakTime: formState.breakTime,
         },
         ownerId: user.id,
-        notifications: selectedUsers?.map(userDest => {
-          return {
-            senderId: user.id,
-            recipientId: userDest.id,
-            title: `Invitación Sala: ${formState.name}`,
-            message: `${formState.description}`,
-          };
-        })
       };
       //TODO revisar si da error al crear
       dispatch(createStudyRoom(room));
