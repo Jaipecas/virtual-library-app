@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import * as signalR from "@microsoft/signalr";
+import { useSelector } from 'react-redux';
 
 export const RoomChatPage = () => {
     const [connection, setConnection] = useState(null);
     const [messages, setMessages] = useState([]);
-    const [user, setUser] = useState("Usuario" + Math.floor(Math.random() * 1000));
     const [message, setMessage] = useState("");
+    const { user } = useSelector(state => state.auth);
 
     useEffect(() => {
         const newConnection = new signalR.HubConnectionBuilder()
@@ -33,7 +34,7 @@ export const RoomChatPage = () => {
     const sendMessage = async () => {
         if (connection) {
             try {
-                await connection.invoke("SendMessage", user, message);
+                await connection.invoke("SendMessage", user.userName, message);
                 setMessage("");
             } catch (err) {
                 console.error("Error enviando mensaje:", err);
@@ -49,11 +50,11 @@ export const RoomChatPage = () => {
                     <div key={index}><strong>{msg.user}:</strong> {msg.message}</div>
                 ))}
             </div>
-            <input 
-                type="text" 
-                value={message} 
-                onChange={e => setMessage(e.target.value)} 
-                placeholder="Escribe un mensaje..." 
+            <input
+                type="text"
+                value={message}
+                onChange={e => setMessage(e.target.value)}
+                placeholder="Escribe un mensaje..."
             />
             <button onClick={sendMessage}>Enviar</button>
         </div>
