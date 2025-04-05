@@ -12,7 +12,7 @@ export const FriendsPage = () => {
     const [search, setSearch] = useState("");
     const dispatch = useDispatch();
     const { userData } = useSelector(state => state.user);
-    const { sendSuccess: sendSuccessMessage , error: notificationError } = useSelector(state => state.notifications);
+    const { successMessage , error: notificationError } = useSelector(state => state.notifications);
     const { user } = useSelector(state => state.auth);
 
     useEffect(() => {
@@ -59,7 +59,7 @@ export const FriendsPage = () => {
             </form>
 
             {notificationError && <Alert sx={{ marginTop: 1 }} severity="error">{notificationError}</Alert>}
-            {sendSuccessMessage && <Alert sx={{ marginTop: 1 }} severity="success">{sendSuccessMessage}</Alert>}
+            {successMessage && <Alert sx={{ marginTop: 1 }} severity="success">{successMessage}</Alert>}
 
             <Box marginTop={2} display="flex" flexWrap="wrap" gap={3}>
                 {userData.friends.map(friend => (
