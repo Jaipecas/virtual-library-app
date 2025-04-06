@@ -19,6 +19,7 @@ export const RoomChatPage = () => {
     }, []);
 
     useEffect(() => {
+        
         if (!selectedRoom) return
 
         const newConnection = new signalR.HubConnectionBuilder()
@@ -28,7 +29,7 @@ export const RoomChatPage = () => {
 
         newConnection.start()
             .then(() => {
-                console.log("Conectado a SignalR");
+                sendJoinGroupMessage(selectedRoom.id, newConnection);
             })
             .catch(err => console.error("Error al conectar con SignalR:", err));
 
@@ -37,8 +38,6 @@ export const RoomChatPage = () => {
         });
 
         setConnection(newConnection);
-
-        sendJoinGroupMessage(selectedRoom.id);
 
         return () => {
             newConnection.stop();
@@ -66,7 +65,7 @@ export const RoomChatPage = () => {
         }
     };
 
-    const sendJoinGroupMessage = async (roomId) => {
+    const sendJoinGroupMessage = async (roomId, connection) => {
         if (connection) {
             try {
                 await connection.invoke("JoinGroup", roomId, user.userName);
