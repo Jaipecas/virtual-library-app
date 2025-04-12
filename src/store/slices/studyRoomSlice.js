@@ -19,9 +19,7 @@ export const studyRoomSlice = createSlice({
             state.invitedRooms = action.payload;
         },
         setSelectedRoom(state, action) {
-            if (state.selectedRoom?.id !== action.payload?.id) {
-                state.selectedRoom = action.payload;
-            }
+            state.selectedRoom = action.payload;
         },
         addStudyRoom(state, action) {
             state.studyRooms.push(action.payload);
