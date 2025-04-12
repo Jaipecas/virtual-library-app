@@ -46,31 +46,10 @@ export const RoomChatPage = () => {
         });
 
         //TODO refactorizar
-        newConnection.on("TimerStarted", ({ startTime, duration, disableChat }) => {
+        newConnection.on("TimerStarted", ({ endTime, disableChat }) => {
 
             setDisableChat(disableChat);
-            const start = new Date(startTime).getTime();
-            const end = start + (duration * 60 * 1000);
-
-            const update = () => {
-                const now = Date.now();
-                const diff = Math.floor((end - now) / 1000);
-                setRemainingTime(diff);
-
-                if (diff <= 0 && intervalRef.current) {
-                    clearInterval(intervalRef.current);
-                    intervalRef.current = null;
-                    setShowBreakTime(prev => !prev);
-                    setDisableChat(false);
-                    const audio = new Audio(pomodoroSound);
-                    audio.play();
-                }
-            };
-
-            update();
-
-            if (intervalRef.current) clearInterval(intervalRef.current);
-            intervalRef.current = setInterval(update, 1000);
+            updateTimer(endTime);
         });
 
         setConnection(newConnection);
@@ -112,7 +91,7 @@ export const RoomChatPage = () => {
     const studyTimer = async () => {
         if (connection) {
             try {
-                await connection.invoke("StartTimer", selectedRoom.id, selectedRoom.pomodoro.pomodoroTime, true);
+                await connection.invoke("StartTimer", selectedRoom.id, new Date(), selectedRoom.pomodoro.pomodoroTime, true);
             } catch (err) {
                 console.error("Error iniciando el timer:", err);
             }
@@ -122,7 +101,7 @@ export const RoomChatPage = () => {
     const breakTimer = async () => {
         if (connection) {
             try {
-                await connection.invoke("StartTimer", selectedRoom.id, selectedRoom.pomodoro.breakTime, false);
+                await connection.invoke("StartTimer", selectedRoom.id, new Date(), selectedRoom.pomodoro.breakTime, false);
             } catch (err) {
                 console.error("Error iniciando el timer:", err);
             }
@@ -134,6 +113,30 @@ export const RoomChatPage = () => {
         const m = String(Math.floor(seconds / 60)).padStart(2, "0");
         const s = String(seconds % 60).padStart(2, "0");
         return `${m}:${s}`;
+    };
+
+    const updateTimer = (endTime) => {
+        const end = new Date(endTime).getTime();
+
+        const update = () => {
+            const remaining = Math.floor((end - Date.now()) / 1000);
+            setRemainingTime(remaining);
+
+            if (remaining <= 0) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+                setShowBreakTime(prev => !prev);
+                const audio = new Audio(pomodoroSound);
+                audio.play();
+            }
+        };
+
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+        }
+
+        intervalRef.current = setInterval(update, 1000);
+        update();
     };
 
     return (
