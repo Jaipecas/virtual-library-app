@@ -12,7 +12,7 @@ export const RoomChatPage = () => {
     const [connection, setConnection] = useState(null);
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState("");
-    const [isBreakTime, setBreakTime] = useState(false);
+    const [showButtonBreakTime, setShowBreakTime] = useState(false);
     const [disableChat, setDisableChat] = useState(false);
     const [remainingTime, setRemainingTime] = useState(null);
     const intervalRef = useRef(null);
@@ -60,7 +60,7 @@ export const RoomChatPage = () => {
                 if (diff <= 0 && intervalRef.current) {
                     clearInterval(intervalRef.current);
                     intervalRef.current = null;
-                    setBreakTime(prev => !prev);
+                    setShowBreakTime(prev => !prev);
                     setDisableChat(false);
                     const audio = new Audio(pomodoroSound);
                     audio.play();
@@ -183,12 +183,12 @@ export const RoomChatPage = () => {
 
             {user?.id === selectedRoom?.owner.id && (
                 <Stack direction="row" spacing={2} justifyContent="center">
-                    {!isBreakTime && (
+                    {!showButtonBreakTime && (
                         <Button variant="outlined" color="primary" onClick={studyTimer}>
                             Iniciar Timer
                         </Button>
                     )}
-                    {isBreakTime && (
+                    {showButtonBreakTime && (
                         <Button variant="outlined" color="secondary" onClick={breakTimer}>
                             Iniciar Break Timer
                         </Button>
