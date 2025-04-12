@@ -226,7 +226,6 @@ export const StudyRoomPage = () => {
               onKeyDown={preventEnterSubmit}
               inputProps={{
                 min: 1,
-                max: 120,
                 step: 1,
               }}
               fullWidth
@@ -241,7 +240,6 @@ export const StudyRoomPage = () => {
               onKeyDown={preventEnterSubmit}
               inputProps={{
                 min: 1,
-                max: 60,
                 step: 1,
               }}
               fullWidth
