@@ -1,5 +1,6 @@
-import { apiGet, createStudyRoomAsync, deleteStudyRoomsAsync, getInvitedStudyRoomsAsync, getStudyRoomsAsync, updateStudyRoomAsync } from "../../services/apiService";
-import { addStudyRoom, removeStudyRoom, setError, setIdle, setInvitedStudyRooms, setLoading, setSelectedRoom, setStudyRooms, updateRoom } from "../slices/studyRoomSlice";
+import { apiGet, apiPut, createStudyRoomAsync, deleteStudyRoomsAsync, getInvitedStudyRoomsAsync, getStudyRoomsAsync, updateStudyRoomAsync }
+ from "../../services/apiService";
+import { addStudyRoom, removeStudyRoom, setError, setIdle, setInvitedStudyRooms, setLoading, setSelectedRoom, setStudyRooms, updatePomodoro, updateRoom } from "../slices/studyRoomSlice";
 import { StudyRoomRoutes } from "../../services/apiRoutes";
 
 export const getStudyRooms = (userId) => async (dispatch) => {
@@ -86,6 +87,23 @@ export const deleteStudyRoom = (id) => async (dispatch) => {
     await deleteStudyRoomsAsync(id)
 
     dispatch(removeStudyRoom(id));
+  } catch (error) {
+    dispatch(setError(error.message));
+  } finally {
+    dispatch(setIdle());
+  }
+};
+
+
+export const updatePomodoroThunk = (pomodoroData) => async (dispatch) => {
+  dispatch(setLoading());
+  dispatch(setError(''));
+
+  try {
+
+    const pomodoro = await apiPut(StudyRoomRoutes.updateTimer, pomodoroData)
+
+    dispatch(updatePomodoro(pomodoro));
   } catch (error) {
     dispatch(setError(error.message));
   } finally {

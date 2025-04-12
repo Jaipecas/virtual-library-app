@@ -32,6 +32,9 @@ export const studyRoomSlice = createSlice({
                 state.studyRooms[index] = action.payload;
             }
         },
+        updatePomodoro(state, action) {
+            state.selectedRoom.pomodoro = action.payload;
+        },
         removeStudyRoom(state, action) {
             state.studyRooms = state.studyRooms.filter(room => room.id !== action.payload);
         },
@@ -47,5 +50,5 @@ export const studyRoomSlice = createSlice({
     },
 });
 
-export const { setStudyRooms, addStudyRoom, updateRoom, removeStudyRoom, setLoading, setError, setIdle, setInvitedStudyRooms, setSelectedRoom } = studyRoomSlice.actions;
+export const { setStudyRooms, addStudyRoom, updateRoom, removeStudyRoom, setLoading, setError, setIdle, setInvitedStudyRooms, setSelectedRoom, updatePomodoro } = studyRoomSlice.actions;
 
