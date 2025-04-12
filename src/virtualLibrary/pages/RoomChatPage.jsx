@@ -9,13 +9,13 @@ import pomodoroSound from "../../assets/sounds/pomodoroSound.mp3";
 
 
 export const RoomChatPage = () => {
-    const [connection, setConnection] = useState(null);
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState("");
     const [showButtonBreakTime, setShowBreakTime] = useState(false);
     const [disableChat, setDisableChat] = useState(false);
     const [remainingTime, setRemainingTime] = useState(null);
     const intervalRef = useRef(null);
+    const connectionRef = useRef(null);
 
     const { user } = useSelector(state => state.auth);
     const { selectedRoom } = useSelector(state => state.studyRoom);
@@ -30,6 +30,7 @@ export const RoomChatPage = () => {
 
     useEffect(() => {
         if (!selectedRoom) return;
+        if (connectionRef.current) return;
 
         const newConnection = new signalR.HubConnectionBuilder()
             .withUrl("https://localhost:7013/roomChatHub")
@@ -38,7 +39,7 @@ export const RoomChatPage = () => {
 
         newConnection.start()
             .then(() => {
-                sendJoinGroupMessage(selectedRoom.id, newConnection);
+                sendJoinGroupMessage(selectedRoom.id);
             })
             .catch(err => console.error("Error al conectar con SignalR:", err));
 
@@ -53,11 +54,17 @@ export const RoomChatPage = () => {
             updateTimer(endTime);
         });
 
-        setConnection(newConnection);
+        connectionRef.current = newConnection;
 
         return () => {
-            newConnection.stop();
-            if (intervalRef.current) clearInterval(intervalRef.current);
+            if (connectionRef.current) {
+                connectionRef.current.stop();
+                connectionRef.current = null;
+            }
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
         };
     }, [selectedRoom]);
 
@@ -69,9 +76,9 @@ export const RoomChatPage = () => {
 
     const sendMessage = async (event) => {
         event.preventDefault();
-        if (connection) {
+        if (connectionRef.current) {
             try {
-                await connection.invoke("SendMessage", selectedRoom.id, user.userName, message);
+                await connectionRef.current.invoke("SendMessage", selectedRoom.id, user.userName, message);
                 setMessage("");
             } catch (err) {
                 console.error("Error enviando mensaje:", err);
@@ -79,10 +86,10 @@ export const RoomChatPage = () => {
         }
     };
 
-    const sendJoinGroupMessage = async (roomId, connection) => {
-        if (connection) {
+    const sendJoinGroupMessage = async (roomId) => {
+        if (connectionRef.current) {
             try {
-                await connection.invoke("JoinGroup", roomId, user.userName);
+                await connectionRef.current.invoke("JoinGroup", roomId, user.userName);
             } catch (err) {
                 console.error("Error uniendo al grupo:", err);
             }
@@ -90,9 +97,9 @@ export const RoomChatPage = () => {
     };
 
     const studyTimer = async () => {
-        if (connection) {
+        if (connectionRef.current) {
             try {
-                await connection.invoke("StartTimer", selectedRoom.id, new Date(), selectedRoom.pomodoro.pomodoroTime, true);
+                await connectionRef.current.invoke("StartTimer", selectedRoom.id, new Date(), selectedRoom.pomodoro.pomodoroTime, true);
             } catch (err) {
                 console.error("Error iniciando el timer:", err);
             }
@@ -100,9 +107,9 @@ export const RoomChatPage = () => {
     };
 
     const breakTimer = async () => {
-        if (connection) {
+        if (connectionRef.current) {
             try {
-                await connection.invoke("StartTimer", selectedRoom.id, new Date(), selectedRoom.pomodoro.breakTime, false);
+                await connectionRef.current.invoke("StartTimer", selectedRoom.id, new Date(), selectedRoom.pomodoro.breakTime, false);
             } catch (err) {
                 console.error("Error iniciando el timer:", err);
             }

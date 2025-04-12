@@ -24,6 +24,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createStudyRoom, deleteStudyRoom, getInvitedStudyRooms, getStudyRooms, updateStudyRoom } from "../../store/thunks/studyRoomThunks";
 import { getUserData } from "../../store/thunks/userThunks";
 import { useNavigate } from "react-router-dom";
+import { setSelectedChatRoom } from "../../store/slices/studyRoomSlice";
 
 //TODO borrar
 //TODO se podría sacar el Dialog a un componente
@@ -163,6 +164,7 @@ export const StudyRoomPage = () => {
   };
 
   const onEnterRoom = (roomId) => {
+    dispatch(setSelectedChatRoom(null))
     navigate(`/library/roomChatPage?id=${roomId}`);
   }
 

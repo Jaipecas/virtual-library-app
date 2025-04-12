@@ -18,7 +18,7 @@ export const studyRoomSlice = createSlice({
         setInvitedStudyRooms(state, action) {
             state.invitedRooms = action.payload;
         },
-        setSelectedRoom(state, action) {
+        setSelectedChatRoom(state, action) {
             state.selectedRoom = action.payload;
         },
         addStudyRoom(state, action) {
@@ -48,5 +48,5 @@ export const studyRoomSlice = createSlice({
     },
 });
 
-export const { setStudyRooms, addStudyRoom, updateRoom, removeStudyRoom, setLoading, setError, setIdle, setInvitedStudyRooms, setSelectedRoom, updatePomodoro } = studyRoomSlice.actions;
+export const { setStudyRooms, addStudyRoom, updateRoom, removeStudyRoom, setLoading, setError, setIdle, setInvitedStudyRooms, setSelectedChatRoom, updatePomodoro } = studyRoomSlice.actions;
 
