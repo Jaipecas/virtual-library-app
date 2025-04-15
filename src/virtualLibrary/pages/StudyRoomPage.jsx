@@ -44,7 +44,7 @@ export const StudyRoomPage = () => {
   const { userData } = useSelector(state => state.user);
 
   const dispatch = useDispatch();
-  const { studyRooms, invitedRooms, loading, error } = useSelector(state => state.studyRoom);
+  const { studyRooms, invitedRooms, error } = useSelector(state => state.studyRoom);
 
   useEffect(() => {
     dispatch(getStudyRooms(user.id));
@@ -62,7 +62,9 @@ export const StudyRoomPage = () => {
         breakTime: selectedRoom.pomodoro.breakTime
       }
       setFormState(form);
-      setselectedUsers(selectedRoom.users)
+
+      const users = selectedRoom.users.filter(user => user.id !== selectedRoom.owner.id);
+      setselectedUsers(users)
     } else {
       setFormState({});
       setselectedUsers([])

@@ -1,7 +1,7 @@
 import { apiGet, apiPut, createStudyRoomAsync, deleteStudyRoomsAsync, getInvitedStudyRoomsAsync, getStudyRoomsAsync, updateStudyRoomAsync }
- from "../../services/apiService";
-import { addStudyRoom, removeStudyRoom, setError, setIdle, setInvitedStudyRooms, setLoading, setSelectedChatRoom, setStudyRooms, updatePomodoro, updateRoom } from "../slices/studyRoomSlice";
-import { StudyRoomRoutes } from "../../services/apiRoutes";
+  from "../../services/apiService";
+import { addStudyRoom, removeStudyRoom, setError, setIdle, setInvitedStudyRooms, setLoading, setSelectedChatRoom, setStudyRooms, updateConnectedUser, updatePomodoro, updateRoom } from "../slices/studyRoomSlice";
+import { StudyRoomRoutes, StudyRoomUserRoutes } from "../../services/apiRoutes";
 
 export const getStudyRooms = (userId) => async (dispatch) => {
 
@@ -109,5 +109,20 @@ export const updatePomodoroThunk = (pomodoroData) => async (dispatch) => {
     dispatch(setError(error.message));
   } finally {
     dispatch(setIdle());
+  }
+};
+
+export const updateConnectedUserThunk = (userData) => async (dispatch) => {
+
+  dispatch(setError(''));
+
+  try {
+
+    const roomUserData = await apiPut(StudyRoomUserRoutes.updateRoomUser, userData)
+
+    dispatch(updateConnectedUser(roomUserData.isConnected));
+
+  } catch (error) {
+    dispatch(setError(error.message));
   }
 };

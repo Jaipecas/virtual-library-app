@@ -26,6 +26,10 @@ export const NotificationRoutes = {
   notification: `${API_BASE_URL}/notification`,
 };
 
+export const StudyRoomUserRoutes = {
+  updateRoomUser: `${API_BASE_URL}/studyroomuser`,
+};
+
 export const RoomChatRoutes = {
   roomChat: `${API_CHAT_BASE_URL}/roomChatHub`,
 }

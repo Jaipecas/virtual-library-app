@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import * as signalR from "@microsoft/signalr";
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from "react-router-dom";
-import { getStudyRoomThunk, updatePomodoroThunk } from "../../store/thunks/studyRoomThunks";
+import { getStudyRoomThunk, updateConnectedUserThunk, updatePomodoroThunk } from "../../store/thunks/studyRoomThunks";
 import { Box } from "@mui/system";
 import { Button, Paper, Stack, TextField, Typography } from "@mui/material";
 import pomodoroSound from "../../assets/sounds/pomodoroSound.mp3";
@@ -42,6 +42,7 @@ export const RoomChatPage = () => {
 
         newConnection.start()
             .then(() => {
+                dispatch(updateConnectedUserThunk({ roomId: selectedRoom.id, userId: user.id, isConnected: true }))
                 sendJoinGroupMessage(selectedRoom.id);
             })
             .catch(err => console.error("Error al conectar con SignalR:", err));
@@ -71,6 +72,7 @@ export const RoomChatPage = () => {
                 clearInterval(intervalRef.current);
                 intervalRef.current = null;
             }
+            dispatch(updateConnectedUserThunk({ roomId: selectedRoom.id, userId: user.id, isConnected: false }))
         };
     }, [selectedRoom?.id]);
 
