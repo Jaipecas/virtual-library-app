@@ -1,5 +1,6 @@
 
 const API_BASE_URL = "https://localhost:44347/api";
+const API_CHAT_BASE_URL = "https://localhost:7013";
 
 export const AuthRoutes = {
   signIn: `${API_BASE_URL}/Auth/signIn`,
@@ -24,5 +25,9 @@ export const UserRoutes = {
 export const NotificationRoutes = {
   notification: `${API_BASE_URL}/notification`,
 };
+
+export const RoomChatRoutes = {
+  roomChat: `${API_CHAT_BASE_URL}/roomChatHub`,
+}
 
 
