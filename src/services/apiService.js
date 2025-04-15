@@ -66,7 +66,7 @@ export const apiDelete = async (url) => {
   }
 };
 
-const apiPut = async (url, body) => {
+export const apiPut = async (url, body) => {
   try {
     const response = await fetch(url, {
       method: "PUT",

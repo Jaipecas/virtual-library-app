@@ -2,20 +2,20 @@ import { useState, useEffect, useRef } from "react";
 import * as signalR from "@microsoft/signalr";
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from "react-router-dom";
-import { getStudyRoomThunk } from "../../store/thunks/studyRoomThunks";
+import { getStudyRoomThunk, updatePomodoroThunk } from "../../store/thunks/studyRoomThunks";
 import { Box } from "@mui/system";
 import { Button, Paper, Stack, TextField, Typography } from "@mui/material";
 import pomodoroSound from "../../assets/sounds/pomodoroSound.mp3";
 
 
 export const RoomChatPage = () => {
-    const [connection, setConnection] = useState(null);
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState("");
     const [showButtonBreakTime, setShowBreakTime] = useState(false);
     const [disableChat, setDisableChat] = useState(false);
     const [remainingTime, setRemainingTime] = useState(null);
     const intervalRef = useRef(null);
+    const connectionRef = useRef(null);
 
     const { user } = useSelector(state => state.auth);
     const { selectedRoom } = useSelector(state => state.studyRoom);
@@ -25,10 +25,14 @@ export const RoomChatPage = () => {
 
     useEffect(() => {
         getRoom();
+
     }, []);
 
     useEffect(() => {
         if (!selectedRoom) return;
+        if (connectionRef.current) return;
+
+        if(selectedRoom.pomodoro.endTime != null && new Date(selectedRoom.pomodoro.endTime).getTime() > Date.now()) syncRoom();
 
         const newConnection = new signalR.HubConnectionBuilder()
             .withUrl("https://localhost:7013/roomChatHub")
@@ -37,7 +41,7 @@ export const RoomChatPage = () => {
 
         newConnection.start()
             .then(() => {
-                sendJoinGroupMessage(selectedRoom.id, newConnection);
+                sendJoinGroupMessage(selectedRoom.id);
             })
             .catch(err => console.error("Error al conectar con SignalR:", err));
 
@@ -45,41 +49,26 @@ export const RoomChatPage = () => {
             setMessages(prev => [...prev, { user, message }]);
         });
 
-        //TODO refactorizar
-        newConnection.on("TimerStarted", ({ startTime, duration, disableChat }) => {
+       
+        newConnection.on("TimerStarted", ({ endTime, disableChat }) => {
 
             setDisableChat(disableChat);
-            const start = new Date(startTime).getTime();
-            const end = start + (duration * 60 * 1000);
-
-            const update = () => {
-                const now = Date.now();
-                const diff = Math.floor((end - now) / 1000);
-                setRemainingTime(diff);
-
-                if (diff <= 0 && intervalRef.current) {
-                    clearInterval(intervalRef.current);
-                    intervalRef.current = null;
-                    setShowBreakTime(prev => !prev);
-                    setDisableChat(false);
-                    const audio = new Audio(pomodoroSound);
-                    audio.play();
-                }
-            };
-
-            update();
-
-            if (intervalRef.current) clearInterval(intervalRef.current);
-            intervalRef.current = setInterval(update, 1000);
+            updateTimer(endTime);
         });
 
-        setConnection(newConnection);
+        connectionRef.current = newConnection;
 
         return () => {
-            newConnection.stop();
-            if (intervalRef.current) clearInterval(intervalRef.current);
+            if (connectionRef.current) {
+                connectionRef.current.stop();
+                connectionRef.current = null;
+            }
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
         };
-    }, [selectedRoom]);
+    }, [selectedRoom?.id]);
 
     const getRoom = () => {
         const params = new URLSearchParams(location.search);
@@ -89,9 +78,9 @@ export const RoomChatPage = () => {
 
     const sendMessage = async (event) => {
         event.preventDefault();
-        if (connection) {
+        if (connectionRef.current) {
             try {
-                await connection.invoke("SendMessage", selectedRoom.id, user.userName, message);
+                await connectionRef.current.invoke("SendMessage", selectedRoom.id, user.userName, message);
                 setMessage("");
             } catch (err) {
                 console.error("Error enviando mensaje:", err);
@@ -99,10 +88,10 @@ export const RoomChatPage = () => {
         }
     };
 
-    const sendJoinGroupMessage = async (roomId, connection) => {
-        if (connection) {
+    const sendJoinGroupMessage = async (roomId) => {
+        if (connectionRef.current) {
             try {
-                await connection.invoke("JoinGroup", roomId, user.userName);
+                await connectionRef.current.invoke("JoinGroup", roomId, user.userName);
             } catch (err) {
                 console.error("Error uniendo al grupo:", err);
             }
@@ -110,9 +99,10 @@ export const RoomChatPage = () => {
     };
 
     const studyTimer = async () => {
-        if (connection) {
+        if (connectionRef.current) {
             try {
-                await connection.invoke("StartTimer", selectedRoom.id, selectedRoom.pomodoro.pomodoroTime, true);
+                dispatch(updatePomodoroThunk({ roomId: selectedRoom.id, isStudyTime: true }));
+                await connectionRef.current.invoke("StartTimer", selectedRoom.id, new Date(), selectedRoom.pomodoro.pomodoroTime, true);
             } catch (err) {
                 console.error("Error iniciando el timer:", err);
             }
@@ -120,9 +110,10 @@ export const RoomChatPage = () => {
     };
 
     const breakTimer = async () => {
-        if (connection) {
+        if (connectionRef.current) {
             try {
-                await connection.invoke("StartTimer", selectedRoom.id, selectedRoom.pomodoro.breakTime, false);
+                dispatch(updatePomodoroThunk({ roomId: selectedRoom.id, isStudyTime: false }))
+                await connectionRef.current.invoke("StartTimer", selectedRoom.id, new Date(), selectedRoom.pomodoro.breakTime, false);
             } catch (err) {
                 console.error("Error iniciando el timer:", err);
             }
@@ -135,6 +126,38 @@ export const RoomChatPage = () => {
         const s = String(seconds % 60).padStart(2, "0");
         return `${m}:${s}`;
     };
+
+    const updateTimer = (endTime) => {
+        const end = new Date(endTime).getTime();
+
+        const update = () => {
+            const remaining = Math.floor((end - Date.now()) / 1000);
+            setRemainingTime(remaining);
+
+            if (remaining <= 0) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+                setShowBreakTime(prev => !prev);
+                setDisableChat(false);
+                const audio = new Audio(pomodoroSound);
+                audio.play();
+            }
+        };
+
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+        }
+
+        intervalRef.current = setInterval(update, 1000);
+        update();
+    };
+
+    const syncRoom = () => {
+        setDisableChat(selectedRoom.pomodoro.isStudyTime);
+        setShowBreakTime(!selectedRoom.pomodoro.isStudyTime);
+        updateTimer(new Date(selectedRoom.pomodoro.endTime));
+
+    }
 
     return (
         <Box maxWidth={600} mx="auto" textAlign="center" p={2}>

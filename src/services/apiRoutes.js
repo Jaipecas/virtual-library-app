@@ -13,6 +13,7 @@ export const StudyRoomRoutes = {
   getInvitedStudyRooms: `${API_BASE_URL}/studyroom/getInvitedStudyRooms`,
   getStudyRoomById: `${API_BASE_URL}/studyroom/getStudyRoomById`,
   studyRoom: `${API_BASE_URL}/studyroom`,
+  updateTimer: `${API_BASE_URL}/studyroom/updateRoomTimer`,
 };
 
 export const UserRoutes = {
