@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import * as signalR from "@microsoft/signalr";
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from "react-router-dom";
-import { getStudyRoomThunk, updateConnectedUserThunk, updatePomodoroThunk } from "../../store/thunks/studyRoomThunks";
+import { getRoomUsersThunk, getStudyRoomThunk, updateConnectedUserThunk, updatePomodoroThunk } from "../../store/thunks/studyRoomThunks";
 import { Box } from "@mui/system";
 import { Button, Paper, Stack, TextField, Typography } from "@mui/material";
 import pomodoroSound from "../../assets/sounds/pomodoroSound.mp3";
@@ -19,7 +19,7 @@ export const RoomChatPage = () => {
     const connectionRef = useRef(null);
 
     const { user } = useSelector(state => state.auth);
-    const { selectedRoom } = useSelector(state => state.studyRoom);
+    const { selectedRoom, isConnected, connectedUsers } = useSelector(state => state.studyRoom);
 
     const location = useLocation();
     const dispatch = useDispatch();
@@ -43,12 +43,12 @@ export const RoomChatPage = () => {
         newConnection.start()
             .then(() => {
                 dispatch(updateConnectedUserThunk({ roomId: selectedRoom.id, userId: user.id, isConnected: true }))
-                sendJoinGroupMessage(selectedRoom.id);
             })
             .catch(err => console.error("Error al conectar con SignalR:", err));
 
         newConnection.on("JoinedGroup", (user, message) => {
             setMessages(prev => [...prev, { user, message }]);
+            dispatch(getRoomUsersThunk({ roomId: selectedRoom.id, isConnected: true }))
         });
 
         newConnection.on("ReceiveMessage", (user, message) => {
@@ -75,6 +75,14 @@ export const RoomChatPage = () => {
             dispatch(updateConnectedUserThunk({ roomId: selectedRoom.id, userId: user.id, isConnected: false }))
         };
     }, [selectedRoom?.id]);
+
+    useEffect(() => {
+        if (isConnected == false) return;
+
+        sendJoinGroupMessage(selectedRoom.id);
+
+    }, [isConnected])
+
 
     const getRoom = () => {
         const params = new URLSearchParams(location.search);
@@ -224,6 +232,12 @@ export const RoomChatPage = () => {
                     )}
                 </Stack>
             )}
+
+            {connectedUsers?.map(user => (
+                <Typography key={user.id} variant="body1">
+                    <strong>{user.userName}</strong>
+                </Typography>
+            ))}
         </Box>
     );
 };

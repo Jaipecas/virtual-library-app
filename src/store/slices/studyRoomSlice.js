@@ -50,8 +50,11 @@ export const studyRoomSlice = createSlice({
         setIdle(state) {
             state.loading = false;
         },
+        setConnectedRoomUsers(state, action) {
+            state.connectedUsers = action.payload;
+        },
     },
 });
 
-export const { setStudyRooms, addStudyRoom, updateRoom, removeStudyRoom, setLoading, setError, setIdle, setInvitedStudyRooms, setSelectedChatRoom, updatePomodoro, updateConnectedUser } = studyRoomSlice.actions;
+export const { setStudyRooms, addStudyRoom, updateRoom, removeStudyRoom, setLoading, setError, setIdle, setInvitedStudyRooms, setSelectedChatRoom, updatePomodoro, updateConnectedUser, setConnectedRoomUsers } = studyRoomSlice.actions;
 
