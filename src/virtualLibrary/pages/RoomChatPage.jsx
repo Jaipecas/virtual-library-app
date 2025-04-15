@@ -6,7 +6,7 @@ import { getStudyRoomThunk, updatePomodoroThunk } from "../../store/thunks/study
 import { Box } from "@mui/system";
 import { Button, Paper, Stack, TextField, Typography } from "@mui/material";
 import pomodoroSound from "../../assets/sounds/pomodoroSound.mp3";
-import { RoomChatRoutes } from "../../services/apiRoutes"; 
+import { RoomChatRoutes } from "../../services/apiRoutes";
 
 
 export const RoomChatPage = () => {
@@ -33,7 +33,7 @@ export const RoomChatPage = () => {
         if (!selectedRoom) return;
         if (connectionRef.current) return;
 
-        if(selectedRoom.pomodoro.endTime != null && new Date(selectedRoom.pomodoro.endTime).getTime() > Date.now()) syncRoom();
+        if (selectedRoom.pomodoro.endTime != null && new Date(selectedRoom.pomodoro.endTime).getTime() > Date.now()) syncRoom();
 
         const newConnection = new signalR.HubConnectionBuilder()
             .withUrl(RoomChatRoutes.roomChat)
@@ -46,13 +46,14 @@ export const RoomChatPage = () => {
             })
             .catch(err => console.error("Error al conectar con SignalR:", err));
 
-
-            
+        newConnection.on("JoinedGroup", (user, message) => {
+            setMessages(prev => [...prev, { user, message }]);
+        });
 
         newConnection.on("ReceiveMessage", (user, message) => {
             setMessages(prev => [...prev, { user, message }]);
         });
-       
+
         newConnection.on("TimerStarted", ({ endTime, disableChat }) => {
 
             setDisableChat(disableChat);
