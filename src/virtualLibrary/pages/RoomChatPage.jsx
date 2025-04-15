@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import * as signalR from "@microsoft/signalr";
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from "react-router-dom";
-import { getStudyRoomThunk } from "../../store/thunks/studyRoomThunks";
+import { getStudyRoomThunk, updatePomodoroThunk } from "../../store/thunks/studyRoomThunks";
 import { Box } from "@mui/system";
 import { Button, Paper, Stack, TextField, Typography } from "@mui/material";
 import pomodoroSound from "../../assets/sounds/pomodoroSound.mp3";
@@ -32,6 +32,8 @@ export const RoomChatPage = () => {
         if (!selectedRoom) return;
         if (connectionRef.current) return;
 
+        if(selectedRoom.pomodoro.endTime != null && new Date(selectedRoom.pomodoro.endTime).getTime() > Date.now()) syncRoom();
+
         const newConnection = new signalR.HubConnectionBuilder()
             .withUrl("https://localhost:7013/roomChatHub")
             .withAutomaticReconnect()
@@ -47,7 +49,7 @@ export const RoomChatPage = () => {
             setMessages(prev => [...prev, { user, message }]);
         });
 
-        //TODO refactorizar
+       
         newConnection.on("TimerStarted", ({ endTime, disableChat }) => {
 
             setDisableChat(disableChat);
@@ -66,7 +68,7 @@ export const RoomChatPage = () => {
                 intervalRef.current = null;
             }
         };
-    }, [selectedRoom]);
+    }, [selectedRoom?.id]);
 
     const getRoom = () => {
         const params = new URLSearchParams(location.search);
@@ -99,6 +101,7 @@ export const RoomChatPage = () => {
     const studyTimer = async () => {
         if (connectionRef.current) {
             try {
+                dispatch(updatePomodoroThunk({ roomId: selectedRoom.id, isStudyTime: true }));
                 await connectionRef.current.invoke("StartTimer", selectedRoom.id, new Date(), selectedRoom.pomodoro.pomodoroTime, true);
             } catch (err) {
                 console.error("Error iniciando el timer:", err);
@@ -109,6 +112,7 @@ export const RoomChatPage = () => {
     const breakTimer = async () => {
         if (connectionRef.current) {
             try {
+                dispatch(updatePomodoroThunk({ roomId: selectedRoom.id, isStudyTime: false }))
                 await connectionRef.current.invoke("StartTimer", selectedRoom.id, new Date(), selectedRoom.pomodoro.breakTime, false);
             } catch (err) {
                 console.error("Error iniciando el timer:", err);
@@ -134,6 +138,7 @@ export const RoomChatPage = () => {
                 clearInterval(intervalRef.current);
                 intervalRef.current = null;
                 setShowBreakTime(prev => !prev);
+                setDisableChat(false);
                 const audio = new Audio(pomodoroSound);
                 audio.play();
             }
@@ -146,6 +151,13 @@ export const RoomChatPage = () => {
         intervalRef.current = setInterval(update, 1000);
         update();
     };
+
+    const syncRoom = () => {
+        setDisableChat(selectedRoom.pomodoro.isStudyTime);
+        setShowBreakTime(!selectedRoom.pomodoro.isStudyTime);
+        updateTimer(new Date(selectedRoom.pomodoro.endTime));
+
+    }
 
     return (
         <Box maxWidth={600} mx="auto" textAlign="center" p={2}>
