@@ -2,10 +2,11 @@ import { useState, useEffect, useRef } from "react";
 import * as signalR from "@microsoft/signalr";
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from "react-router-dom";
-import { getStudyRoomThunk, updatePomodoroThunk } from "../../store/thunks/studyRoomThunks";
+import { getRoomUsersThunk, getStudyRoomThunk, updateConnectedUserThunk, updatePomodoroThunk } from "../../store/thunks/studyRoomThunks";
 import { Box } from "@mui/system";
 import { Button, Paper, Stack, TextField, Typography } from "@mui/material";
 import pomodoroSound from "../../assets/sounds/pomodoroSound.mp3";
+import { RoomChatRoutes } from "../../services/apiRoutes";
 
 
 export const RoomChatPage = () => {
@@ -18,7 +19,7 @@ export const RoomChatPage = () => {
     const connectionRef = useRef(null);
 
     const { user } = useSelector(state => state.auth);
-    const { selectedRoom } = useSelector(state => state.studyRoom);
+    const { selectedRoom, isConnected, connectedUsers } = useSelector(state => state.studyRoom);
 
     const location = useLocation();
     const dispatch = useDispatch();
@@ -32,24 +33,28 @@ export const RoomChatPage = () => {
         if (!selectedRoom) return;
         if (connectionRef.current) return;
 
-        if(selectedRoom.pomodoro.endTime != null && new Date(selectedRoom.pomodoro.endTime).getTime() > Date.now()) syncRoom();
+        if (selectedRoom.pomodoro.endTime != null && new Date(selectedRoom.pomodoro.endTime).getTime() > Date.now()) syncRoom();
 
         const newConnection = new signalR.HubConnectionBuilder()
-            .withUrl("https://localhost:7013/roomChatHub")
+            .withUrl(RoomChatRoutes.roomChat)
             .withAutomaticReconnect()
             .build();
 
         newConnection.start()
             .then(() => {
-                sendJoinGroupMessage(selectedRoom.id);
+                dispatch(updateConnectedUserThunk({ roomId: selectedRoom.id, userId: user.id, isConnected: true }))
             })
             .catch(err => console.error("Error al conectar con SignalR:", err));
+
+        newConnection.on("JoinedGroup", (user, message) => {
+            setMessages(prev => [...prev, { user, message }]);
+            dispatch(getRoomUsersThunk({ roomId: selectedRoom.id, isConnected: true }))
+        });
 
         newConnection.on("ReceiveMessage", (user, message) => {
             setMessages(prev => [...prev, { user, message }]);
         });
 
-       
         newConnection.on("TimerStarted", ({ endTime, disableChat }) => {
 
             setDisableChat(disableChat);
@@ -67,8 +72,17 @@ export const RoomChatPage = () => {
                 clearInterval(intervalRef.current);
                 intervalRef.current = null;
             }
+            dispatch(updateConnectedUserThunk({ roomId: selectedRoom.id, userId: user.id, isConnected: false }))
         };
     }, [selectedRoom?.id]);
+
+    useEffect(() => {
+        if (isConnected == false) return;
+
+        sendJoinGroupMessage(selectedRoom.id);
+
+    }, [isConnected])
+
 
     const getRoom = () => {
         const params = new URLSearchParams(location.search);
@@ -218,6 +232,12 @@ export const RoomChatPage = () => {
                     )}
                 </Stack>
             )}
+
+            {connectedUsers?.map(user => (
+                <Typography key={user.id} variant="body1">
+                    <strong>{user.userName}</strong>
+                </Typography>
+            ))}
         </Box>
     );
 };
