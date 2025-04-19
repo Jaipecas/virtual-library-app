@@ -24,6 +24,7 @@ const initialData = [
 
 
 export const BoardPage = () => {
+    
     const [cardList, setCardList] = useState(initialData);
     const [newCardText, setNewCardText] = useState("");
     const [activeCardList, setActiveCardList] = useState(null);

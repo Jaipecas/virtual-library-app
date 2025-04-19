@@ -1,37 +1,51 @@
-import { Box, Button, Card, CardActionArea, CardContent, Grid2, Paper, TextField, Typography } from "@mui/material"
-import { useState } from "react";
-
-const initialData = [
-    { id: 1, title: "board 1" }, { id: 2, title: "board 2" }, { id: 3, title: "board 3" }
-]
+import { Alert, Box, Button, Card, CardActionArea, CardContent, Grid2, Paper, TextField, Typography } from "@mui/material"
+import { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { addBoardThunk, getBoardsThunk } from "../../store/thunks/boardThunks";
+import { useNavigate } from "react-router-dom";
 
 export const BoardListPage = () => {
-    const [boards, setBoards] = useState(initialData);
+
     const [showNewBoardInput, setShowNewBoardInput] = useState(false);
     const [newBoardTitle, setNewBoardTitle] = useState("");
+    const { boards, error } = useSelector(state => state.board);
+    const { user } = useSelector(state => state.auth);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
+    useEffect(() => {
+        dispatch(getBoardsThunk(user.id))
+    }, [])
 
     const addBoard = () => {
         if (!newBoardTitle.trim()) return;
 
         const newBoard = {
+            userId: user.id,
             title: newBoardTitle,
         };
-        setBoards([...boards, newBoard]);
+
         setNewBoardTitle("");
         setShowNewBoardInput(false);
+        dispatch(addBoardThunk(newBoard));
     };
+
+
+    const onNavigateBoard = (boardId) => {
+        navigate(`/library/boards/board?id=${boardId}`);
+    }
 
     return (
         <Box padding={4}>
             <Typography variant="h4">
                 My Boards
             </Typography>
+            {error && <Alert severity="error">{error}</Alert>}
             <Grid2 container padding={2} spacing={2}>
                 {boards.map((board) => (
                     <Grid2 xs={12} sm={6} md={4} key={board.id}>
                         <Card>
-                            <CardActionArea sx={{ height: "100%", padding: 2 }}>
+                            <CardActionArea sx={{ height: "100%", padding: 2 }} onClick={() => onNavigateBoard(board.id)}>
                                 <CardContent>
                                     <Typography variant="h6">{board.title}</Typography>
                                 </CardContent>

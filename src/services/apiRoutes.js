@@ -36,7 +36,7 @@ export const RoomChatRoutes = {
 }
 
 export const BoardRoutes = {
-  board: `${API_BASE_URL}/boards`,
+  board: `${API_BASE_URL}/board`,
 }
 
 

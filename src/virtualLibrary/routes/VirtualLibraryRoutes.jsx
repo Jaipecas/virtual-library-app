@@ -13,6 +13,7 @@ export const VirtualLibraryRoutes = () => {
         <Route path="/studyroomdashboard" element={<StudyRoomDashboard />} />
         <Route path="/roomChatPage" element={<RoomChatPage />} />
         <Route path="/boards" element={<BoardListPage />} />
+        <Route path="/boards/board" element={<BoardPage />} />
       </Routes>
     </>
   );
