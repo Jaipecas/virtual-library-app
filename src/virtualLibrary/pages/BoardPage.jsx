@@ -65,13 +65,13 @@ export const BoardPage = () => {
     };
 
     return (
-        <Box sx={{ padding: 4 }}>
-            <Typography variant="h4" gutterBottom>
+        <Box padding={4}>
+            <Typography variant="h4">
                 My Board
             </Typography>
             <Grid2 container spacing={3}>
                 {cardList.map((cardList) => (
-                    <Grid2 item xs={12} sm={6} md={4} key={cardList.id}>
+                    <Grid2 xs={12} sm={6} md={4} key={cardList.id}>
                         <Paper elevation={3} sx={{ padding: 2 }}>
                             <Typography variant="h6" gutterBottom>
                                 {cardList.title}
@@ -116,7 +116,7 @@ export const BoardPage = () => {
                     </Grid2>
                 ))}
 
-                <Grid2 item xs={12} sm={6} md={4}>
+                <Grid2 xs={12} sm={6} md={4}>
                     <Paper elevation={2} sx={{ padding: 2 }}>
                         {showNewCardListInput ? (
                             <>
