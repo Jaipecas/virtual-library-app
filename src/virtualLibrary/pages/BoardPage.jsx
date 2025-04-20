@@ -1,83 +1,58 @@
 import { Box, Button, Card, CardContent, Grid2, Paper, TextField, Typography } from "@mui/material"
-import { useState } from "react";
-
-const initialData = [
-    {
-        id: 1,
-        title: "To Do",
-        cards: [
-            { id: 1, content: "Buy groceries" },
-            { id: 2, content: "Call plumber" },
-        ],
-    },
-    {
-        id: 2,
-        title: "In Progress",
-        cards: [{ id: 3, content: "Building Trello clone" }],
-    },
-    {
-        id: 3,
-        title: "Done",
-        cards: [{ id: 4, content: "Read a book" }],
-    },
-];
+import { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { addCardListThunk, addCardThunk, getBoardThunk } from "../../store/thunks/boardThunks";
 
 
 export const BoardPage = () => {
-    
-    const [cardList, setCardList] = useState(initialData);
+
     const [newCardText, setNewCardText] = useState("");
     const [activeCardList, setActiveCardList] = useState(null);
 
     const [showNewCardListInput, setShowNewCardListInput] = useState(false);
     const [newCardListTitle, setNewCardListTitle] = useState("");
 
+    const { selectedBoard } = useSelector(state => state.board);
+
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const id = params.get("id");
+
+        dispatch(getBoardThunk(id))
+    }, [])
+
+
     const addCard = (cardListId) => {
         if (!newCardText.trim()) return;
 
-        const newCardList = cardList.map((cardList) =>
-            cardList.id === cardListId
-                ? {
-                    ...cardList,
-                    cards: [
-                        ...cardList.cards,
-                        {
-                            id: Date.now(),
-                            content: newCardText,
-                        },
-                    ],
-                }
-                : cardList
-        );
-        setCardList(newCardList);
+        dispatch(addCardThunk({ cardListId: cardListId, title: newCardText }))
         setNewCardText("");
     };
 
-    const addBoard = () => {
-        if (!newCardListTitle.trim()) return;
+    const addCardList = () => {
+        if (!newCardListTitle.trim()) return;  
 
-        const newCardList = {
-            title: newCardListTitle,
-            cards: [],
-        };
-        setCardList([...cardList, newCardList]);
+        dispatch(addCardListThunk({boardId: selectedBoard.id, title: newCardListTitle}))
+
         setNewCardListTitle("");
         setShowNewCardListInput(false);
     };
 
     return (
         <Box padding={4}>
-            <Typography variant="h4">
+            <Typography variant="h4" marginBottom={3}>
                 My Board
             </Typography>
             <Grid2 container spacing={3}>
-                {cardList.map((cardList) => (
+                {selectedBoard.cardLists?.map((cardList) => (
                     <Grid2 xs={12} sm={6} md={4} key={cardList.id}>
                         <Paper elevation={3} sx={{ padding: 2 }}>
                             <Typography variant="h6" gutterBottom>
                                 {cardList.title}
                             </Typography>
-                            {cardList.cards.map((card) => (
+                            {cardList.cards?.map((card) => (
                                 <Card key={card.id} sx={{ marginBottom: 1 }}>
                                     <CardContent>
                                         <Typography>{card.content}</Typography>
@@ -133,7 +108,7 @@ export const BoardPage = () => {
                                     <Button
                                         variant="contained"
                                         size="small"
-                                        onClick={addBoard}
+                                        onClick={addCardList}
                                         sx={{ marginRight: 1 }}
                                     >
                                         Agregar
