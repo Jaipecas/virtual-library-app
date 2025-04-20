@@ -55,7 +55,7 @@ export const BoardPage = () => {
                             {cardList.cards?.map((card) => (
                                 <Card key={card.id} sx={{ marginBottom: 1 }}>
                                     <CardContent>
-                                        <Typography>{card.content}</Typography>
+                                        <Typography>{card.title}</Typography>
                                     </CardContent>
                                 </Card>
                             ))}

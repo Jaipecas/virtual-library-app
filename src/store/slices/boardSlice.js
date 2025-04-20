@@ -23,8 +23,12 @@ export const boardSlice = createSlice({
             state.selectedBoard.cardLists.push(action.payload);
         },
         addCard(state, action) {
-            const cardList = state.selectedBoard.cardLists.find(c => c.id == action.payload.cardListId);
-            if (cardList) cardList.push(action.payload);
+            const { cardListId, id, title } = action.payload;
+            const cardList = state.selectedBoard.cardLists.find(c => c.id == cardListId);
+            if (cardList) {
+                if (!cardList.cards) cardList.cards = [];
+                cardList.cards.push({ id, title });
+            }
         },
         setError(state, action) {
             state.error = action.payload;
