@@ -1,6 +1,6 @@
 import { BoardRoutes } from "../../services/apiRoutes";
-import { apiGet, apiPost } from "../../services/apiService";
-import { addBoard, addCard, addCardList, setBoard, setBoards, setError } from "../slices/boardSlice"
+import { apiDelete, apiGet, apiPost } from "../../services/apiService";
+import { addBoard, addCard, addCardList, removeBoard, setBoard, setBoards, setError } from "../slices/boardSlice"
 
 export const addBoardThunk = (boardData) => async (dispatch) => {
 
@@ -61,6 +61,19 @@ export const addCardListThunk = (cardListData) => async (dispatch) => {
         const cardList = await apiPost(BoardRoutes.cardList, cardListData);
 
         dispatch(addCardList(cardList));
+    } catch (error) {
+        dispatch(setError(error.message));
+    }
+}
+
+export const removeBoardThunk = (boardId) => async (dispatch) => {
+
+    dispatch(setError(""));
+
+    try {
+        await apiDelete(`${BoardRoutes.board}?Id=${boardId}`);
+
+        dispatch(removeBoard(boardId));
     } catch (error) {
         dispatch(setError(error.message));
     }

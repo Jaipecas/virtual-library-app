@@ -30,11 +30,14 @@ export const boardSlice = createSlice({
                 cardList.cards.push({ id, title });
             }
         },
+        removeBoard(state, action) {
+            state.boards = state.boards.filter(board => board.id !== action.payload);
+        },
         setError(state, action) {
             state.error = action.payload;
         },
     },
 });
 
-export const { setBoards, setBoard, addBoard, addCard, addCardList, setError } = boardSlice.actions;
+export const { setBoards, setBoard, addBoard, addCard, addCardList, setError, removeBoard } = boardSlice.actions;
 

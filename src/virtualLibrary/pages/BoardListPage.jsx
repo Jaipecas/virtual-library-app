@@ -1,15 +1,20 @@
-import { Alert, Box, Button, Card, CardActionArea, CardContent, Grid2, Paper, TextField, Typography } from "@mui/material"
+import { Alert, Box, Button, Card, CardActionArea, CardContent, Grid2, IconButton, Menu, MenuItem, Paper, TextField, Typography } from "@mui/material"
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addBoardThunk, getBoardsThunk } from "../../store/thunks/boardThunks";
+import { addBoardThunk, getBoardsThunk, removeBoardThunk } from "../../store/thunks/boardThunks";
 import { useNavigate } from "react-router-dom";
+import { GridMoreVertIcon } from "@mui/x-data-grid";
 
 export const BoardListPage = () => {
 
     const [showNewBoardInput, setShowNewBoardInput] = useState(false);
     const [newBoardTitle, setNewBoardTitle] = useState("");
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [menuBoardId, setMenuBoardId] = useState(null);
+
     const { boards, error } = useSelector(state => state.board);
     const { user } = useSelector(state => state.auth);
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -35,6 +40,23 @@ export const BoardListPage = () => {
         navigate(`/library/boards/board?id=${boardId}`);
     }
 
+    const onMenuClick = (event, boardId) => {
+        event.stopPropagation();
+        setAnchorEl(event.currentTarget);
+        setMenuBoardId(boardId);
+    };
+
+    const onMenuClose = () => {
+        setAnchorEl(null);
+        setMenuBoardId(null);
+    };
+
+    const onDeleteBoard = () => {
+        dispatch(removeBoardThunk(menuBoardId))
+        onMenuClose();
+    }
+
+
     return (
         <Box padding={4}>
             <Typography variant="h4">
@@ -44,13 +66,22 @@ export const BoardListPage = () => {
             <Grid2 container padding={2} spacing={2}>
                 {boards.map((board) => (
                     <Grid2 xs={12} sm={6} md={4} key={board.id}>
-                        <Card>
-                            <CardActionArea sx={{ height: "100%", padding: 2 }} onClick={() => onNavigateBoard(board.id)}>
-                                <CardContent>
-                                    <Typography variant="h6">{board.title}</Typography>
-                                </CardContent>
-                            </CardActionArea>
-                        </Card>
+                        <Box position={"relative"}>
+                            <Card>
+                                <CardActionArea sx={{ padding: 4 }} onClick={() => onNavigateBoard(board.id)}>
+                                    <CardContent>
+                                        <Typography variant="h6">{board.title}</Typography>
+                                    </CardContent>
+                                </CardActionArea>
+                                <IconButton
+                                    size="small"
+                                    onClick={(e) => onMenuClick(e, board.id)}
+                                    sx={{ position: 'absolute', top: 8, right: 8 }}
+                                >
+                                    <GridMoreVertIcon />
+                                </IconButton>
+                            </Card>
+                        </Box>
                     </Grid2>
                 ))}
 
@@ -95,6 +126,14 @@ export const BoardListPage = () => {
 
                 </Grid2>
             </Grid2>
+            <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={onMenuClose}
+                onClick={(e) => e.stopPropagation()}
+            >
+                <MenuItem onClick={onDeleteBoard}>Eliminar</MenuItem>
+            </Menu>
         </Box>
     )
 }
