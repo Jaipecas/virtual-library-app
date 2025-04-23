@@ -1,4 +1,4 @@
-import { Box, Button, Card, CardContent, Checkbox, Grid2, IconButton, Menu, MenuItem, Paper, TextField, Typography } from "@mui/material"
+import { Box, Button, Card, CardActionArea, CardContent, Checkbox, Grid2, IconButton, Menu, MenuItem, Paper, TextField, Typography } from "@mui/material"
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addCardListThunk, addCardThunk, getBoardThunk, removeCardThunk, updateCardThunk } from "../../store/thunks/boardThunks";
@@ -66,9 +66,9 @@ export const BoardPage = () => {
 
     const onUpdateCompleteCard = (isChecked, card) => {
         const updatedCard = { ...card, isComplete: isChecked };
-        dispatch(updateCardThunk(updatedCard)); 
-      };
-      
+        dispatch(updateCardThunk(updatedCard));
+    };
+
 
     return (
         <Box padding={4}>
@@ -84,24 +84,26 @@ export const BoardPage = () => {
                             </Typography>
                             {cardList.cards?.map((card) => (
                                 <Box position={"relative"}>
-                                    <Card key={card.id} sx={{ marginBottom: 2, paddingRight: 10 }}>
-                                        <CardContent >
-                                            <Box display="flex" alignItems="center">
-                                                <Checkbox
-                                                    checked={card.isComplete}
-                                                    onChange={(e) => onUpdateCompleteCard(e.target.checked, card)}
-                                                />
-                                                <Typography>{card.title}</Typography>
-                                            </Box>
-                                        </CardContent>
+                                    <Card key={card.id} sx={{ marginBottom: 2 }}>
+                                        <CardActionArea sx={{ paddingRight: 10 }}>
+                                            <CardContent >
+                                                <Box display="flex" alignItems="center">
+                                                    <Checkbox
+                                                        checked={card.isComplete}
+                                                        onChange={(e) => onUpdateCompleteCard(e.target.checked, card)}
+                                                    />
+                                                    <Typography>{card.title}</Typography>
+                                                </Box>
+                                            </CardContent>
+                                        </CardActionArea>
+                                        <IconButton
+                                            size="small"
+                                            onClick={(e) => onMenuClick(e, card.id)}
+                                            sx={{ position: 'absolute', top: 8, right: 8 }}
+                                        >
+                                            <GridMoreVertIcon />
+                                        </IconButton>
                                     </Card>
-                                    <IconButton
-                                        size="small"
-                                        onClick={(e) => onMenuClick(e, card.id)}
-                                        sx={{ position: 'absolute', top: 8, right: 8 }}
-                                    >
-                                        <GridMoreVertIcon />
-                                    </IconButton>
                                 </Box>
                             ))}
                             {activeCardList === cardList.id && (
