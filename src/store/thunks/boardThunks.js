@@ -1,6 +1,6 @@
 import { BoardRoutes } from "../../services/apiRoutes";
-import { apiDelete, apiGet, apiPost } from "../../services/apiService";
-import { addBoard, addCard, addCardList, removeBoard, setBoard, setBoards, setError } from "../slices/boardSlice"
+import { apiDelete, apiGet, apiPost, apiPut } from "../../services/apiService";
+import { addBoard, addCard, addCardList, removeBoard, removeCard, setBoard, setBoards, setError, updateCard } from "../slices/boardSlice"
 
 export const addBoardThunk = (boardData) => async (dispatch) => {
 
@@ -74,6 +74,33 @@ export const removeBoardThunk = (boardId) => async (dispatch) => {
         await apiDelete(`${BoardRoutes.board}?Id=${boardId}`);
 
         dispatch(removeBoard(boardId));
+    } catch (error) {
+        dispatch(setError(error.message));
+    }
+}
+
+export const removeCardThunk = (cardId) => async (dispatch) => {
+
+    dispatch(setError(""));
+
+    try {
+        await apiDelete(`${BoardRoutes.card}?Id=${cardId}`);
+
+        dispatch(removeCard(cardId));
+    } catch (error) {
+        dispatch(setError(error.message));
+    }
+}
+
+
+export const updateCardThunk = (cardData) => async (dispatch) => {
+
+    dispatch(setError(""));
+
+    try {
+        await apiPut(`${BoardRoutes.card}`,cardData);
+
+        dispatch(updateCard(cardData));
     } catch (error) {
         dispatch(setError(error.message));
     }

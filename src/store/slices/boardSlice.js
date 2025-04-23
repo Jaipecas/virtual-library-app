@@ -33,11 +33,33 @@ export const boardSlice = createSlice({
         removeBoard(state, action) {
             state.boards = state.boards.filter(board => board.id !== action.payload);
         },
+        removeCard(state, action) {
+            const list = state.selectedBoard.cardLists.find(list =>
+                list.cards?.some(card => card.id === action.payload)
+            );
+
+            if (list) {
+                list.cards = list.cards.filter(card => card.id !== action.payload);
+            }
+        },
+        updateCard(state, action) {
+            const updatedCard = action.payload;
+
+            const list = state.selectedBoard.cardLists.find(list =>
+                list.cards?.some(card => card.id === updatedCard.id)
+            );
+
+            if (list) {
+                list.cards = list.cards.map(card =>
+                    card.id === updatedCard.id ? { ...card, ...updatedCard } : card
+                );
+            }
+        },
         setError(state, action) {
             state.error = action.payload;
         },
     },
 });
 
-export const { setBoards, setBoard, addBoard, addCard, addCardList, setError, removeBoard } = boardSlice.actions;
+export const { setBoards, setBoard, addBoard, addCard, addCardList, setError, removeBoard, removeCard, updateCard } = boardSlice.actions;
 

@@ -1,16 +1,18 @@
-import { Box, Button, Card, CardContent, Grid2, Paper, TextField, Typography } from "@mui/material"
+import { Box, Button, Card, CardContent, Checkbox, Grid2, IconButton, Menu, MenuItem, Paper, TextField, Typography } from "@mui/material"
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addCardListThunk, addCardThunk, getBoardThunk } from "../../store/thunks/boardThunks";
+import { addCardListThunk, addCardThunk, getBoardThunk, removeCardThunk, updateCardThunk } from "../../store/thunks/boardThunks";
+import { GridMoreVertIcon } from "@mui/x-data-grid";
 
 
 export const BoardPage = () => {
 
     const [newCardText, setNewCardText] = useState("");
     const [activeCardList, setActiveCardList] = useState(null);
-
     const [showNewCardListInput, setShowNewCardListInput] = useState(false);
     const [newCardListTitle, setNewCardListTitle] = useState("");
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [menuCardId, setMenuCardId] = useState(null);
 
     const { selectedBoard } = useSelector(state => state.board);
 
@@ -32,13 +34,41 @@ export const BoardPage = () => {
     };
 
     const addCardList = () => {
-        if (!newCardListTitle.trim()) return;  
+        if (!newCardListTitle.trim()) return;
 
-        dispatch(addCardListThunk({boardId: selectedBoard.id, title: newCardListTitle}))
+        dispatch(addCardListThunk({ boardId: selectedBoard.id, title: newCardListTitle }))
 
         setNewCardListTitle("");
         setShowNewCardListInput(false);
     };
+
+    const onMenuClick = (event, cardId) => {
+        event.stopPropagation();
+
+        setAnchorEl(event.currentTarget);
+        setMenuCardId(cardId);
+    };
+
+    const onMenuClose = () => {
+        setAnchorEl(null);
+        setMenuCardId(null);
+    };
+
+    const onDeleteCard = () => {
+        dispatch(removeCardThunk(menuCardId))
+        onMenuClose();
+    }
+
+    const onUpdateCard = () => {
+
+        onMenuClose();
+    }
+
+    const onUpdateCompleteCard = (isChecked, card) => {
+        const updatedCard = { ...card, isComplete: isChecked };
+        dispatch(updateCardThunk(updatedCard)); 
+      };
+      
 
     return (
         <Box padding={4}>
@@ -53,11 +83,26 @@ export const BoardPage = () => {
                                 {cardList.title}
                             </Typography>
                             {cardList.cards?.map((card) => (
-                                <Card key={card.id} sx={{ marginBottom: 1 }}>
-                                    <CardContent>
-                                        <Typography>{card.title}</Typography>
-                                    </CardContent>
-                                </Card>
+                                <Box position={"relative"}>
+                                    <Card key={card.id} sx={{ marginBottom: 2, paddingRight: 10 }}>
+                                        <CardContent >
+                                            <Box display="flex" alignItems="center">
+                                                <Checkbox
+                                                    checked={card.isComplete}
+                                                    onChange={(e) => onUpdateCompleteCard(e.target.checked, card)}
+                                                />
+                                                <Typography>{card.title}</Typography>
+                                            </Box>
+                                        </CardContent>
+                                    </Card>
+                                    <IconButton
+                                        size="small"
+                                        onClick={(e) => onMenuClick(e, card.id)}
+                                        sx={{ position: 'absolute', top: 8, right: 8 }}
+                                    >
+                                        <GridMoreVertIcon />
+                                    </IconButton>
+                                </Box>
                             ))}
                             {activeCardList === cardList.id && (
                                 <Box mt={2}>
@@ -134,6 +179,15 @@ export const BoardPage = () => {
                     </Paper>
                 </Grid2>
             </Grid2>
+            <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={onMenuClose}
+                onClick={(e) => e.stopPropagation()}
+            >
+                <MenuItem onClick={onUpdateCard}>Editar</MenuItem>
+                <MenuItem onClick={onDeleteCard}>Eliminar</MenuItem>
+            </Menu>
         </Box>
     );
 }
