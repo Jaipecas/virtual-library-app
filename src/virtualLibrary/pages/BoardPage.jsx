@@ -1,9 +1,8 @@
 import { Box, Button, Card, CardActionArea, CardContent, Checkbox, Grid2, IconButton, Menu, MenuItem, Paper, TextField, Typography } from "@mui/material"
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addCardListThunk, addCardThunk, getBoardThunk, removeCardThunk, updateCardThunk } from "../../store/thunks/boardThunks";
+import { addCardListThunk, addCardThunk, getBoardThunk, removeCardThunk, updateBoardThunk, updateCardThunk } from "../../store/thunks/boardThunks";
 import { GridMoreVertIcon } from "@mui/x-data-grid";
-import { updateCard } from "../../store/slices/boardSlice";
 
 
 export const BoardPage = () => {
@@ -16,6 +15,9 @@ export const BoardPage = () => {
     const [menuCard, setMenuCard] = useState(null);
     const [activeCard, setActiveCard] = useState(null);
     const [updateCardText, setUpdateCardText] = useState("");
+    const [isEditingBoardTitle, setIsEditingBoardTitle] = useState(false);
+    const [updateBoardTitle, setUpdateBoardTitle] = useState("");
+
 
     const { selectedBoard } = useSelector(state => state.board);
 
@@ -82,12 +84,42 @@ export const BoardPage = () => {
         dispatch(updateCardThunk(updatedCard));
     };
 
+    const onEditBoardTitle = () => {
+        setUpdateBoardTitle(selectedBoard.title);
+        setIsEditingBoardTitle(true);
+    };
+
+    const onUpdateBoardTitle = (key) => {
+        if (key !== "Enter") return;
+
+        const updateBoard = {
+            ...selectedBoard,
+            title: updateBoardTitle,
+        };
+
+        dispatch(updateBoardThunk(updateBoard))
+        setIsEditingBoardTitle(false);
+    }
 
     return (
         <Box padding={4}>
-            <Typography variant="h4" marginBottom={3}>
-                My Board
-            </Typography>
+            {isEditingBoardTitle
+                ? (<TextField
+                    value={updateBoardTitle}
+                    onChange={(e) => setUpdateBoardTitle(e.target.value)}
+                    onKeyDown={(e) => onUpdateBoardTitle(e.key)}
+                    autoFocus
+                    variant="standard"
+                    sx={{ marginBottom: 3 }} />)
+                : (<Typography
+                    variant="h4"
+                    marginBottom={3}
+                    sx={{ cursor: "pointer" }}
+                    onClick={onEditBoardTitle}>
+                    {selectedBoard.title}
+                </Typography>)}
+
+
             <Grid2 container spacing={3}>
                 {selectedBoard.cardLists?.map((cardList) => (
                     <Grid2 xs={12} sm={6} md={4} key={cardList.id}>

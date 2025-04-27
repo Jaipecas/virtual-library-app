@@ -55,11 +55,22 @@ export const boardSlice = createSlice({
                 );
             }
         },
+        updateBoard(state, action) {
+            const updatedBoard = action.payload;
+
+            state.selectedBoard.title = updatedBoard.title;
+
+            const board = state.boards.find(board => board.id === updatedBoard.id);
+
+            if (board) {
+                board.title = updatedBoard.title;
+            }
+        },
         setError(state, action) {
             state.error = action.payload;
         },
     },
 });
 
-export const { setBoards, setBoard, addBoard, addCard, addCardList, setError, removeBoard, removeCard, updateCard } = boardSlice.actions;
+export const { setBoards, setBoard, addBoard, addCard, addCardList, setError, removeBoard, removeCard, updateCard, updateBoard } = boardSlice.actions;
 
