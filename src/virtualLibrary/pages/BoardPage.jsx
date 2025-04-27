@@ -71,9 +71,9 @@ export const BoardPage = () => {
         onMenuClose();
     }
 
-    const onActiveCard = () => {
-        setActiveCard(menuCard.id);
-        setUpdateCardText(menuCard.title)
+    const onActiveCard = (card) => {
+        setActiveCard(card.id);
+        setUpdateCardText(card.title)
     }
 
     const onUpdateTitleCard = (card) => {
@@ -168,7 +168,7 @@ export const BoardPage = () => {
                                 {cardListEditingTitle == cardList.id
                                     ? (<TextField
                                         value={updateCardListTitle}
-                                        sx={{ marginBottom: 2 }}
+                                        sx={{ marginBottom: 2, paddingRight: 8 }}
                                         onChange={(e) => setUpdateCardListTitle(e.target.value)}
                                         onKeyDown={(e) => onUpdateCardListTitle(e.key, cardList)}
                                         variant="outlined"
@@ -176,7 +176,7 @@ export const BoardPage = () => {
                                     />)
                                     : (<Typography
                                         variant="h6"
-                                        sx={{ cursor: "pointer" }}
+                                        sx={{ cursor: "pointer", paddingRight: 8 }}
                                         onClick={() => onEditCardListTitle(cardList)}>
                                         {cardList.title}
                                     </Typography>)}
@@ -200,35 +200,39 @@ export const BoardPage = () => {
                             {cardList.cards?.map((card) => (
                                 <Box position={"relative"}>
                                     <Card key={card.id} sx={{ marginBottom: 2 }}>
-                                        <CardActionArea sx={{ paddingRight: 10 }}>
-                                            <CardContent >
-                                                {activeCard === card.id
-                                                    ? (
-                                                        <Box >
-                                                            <TextField fullWidth
-                                                                variant="outlined"
-                                                                size="small"
-                                                                placeholder="Actualiza card"
-                                                                value={updateCardText}
-                                                                onChange={(e) => setUpdateCardText(e.target.value)}
-                                                                sx={{ marginBottom: 1 }}
-                                                            />
-                                                            <Button
-                                                                variant="contained"
-                                                                size="small"
-                                                                onClick={() => onUpdateTitleCard(card)}>
-                                                                Editar
-                                                            </Button>
-                                                        </Box>
-                                                    ) : <Box display="flex" alignItems="center">
-                                                        <Checkbox
-                                                            checked={card.isComplete}
-                                                            onChange={(e) => onUpdateCompleteCard(e.target.checked, card)}
+                                        <CardContent sx={{ paddingRight: 10 }}>
+                                            {activeCard === card.id
+                                                ? (
+                                                    <Box >
+                                                        <TextField fullWidth
+                                                            variant="outlined"
+                                                            size="small"
+                                                            placeholder="Actualiza card"
+                                                            value={updateCardText}
+                                                            onChange={(e) => setUpdateCardText(e.target.value)}
+                                                            onKeyDown={(e) => { if (e.key === "Enter") onUpdateTitleCard(card) }}
+                                                            autoFocus
+                                                            sx={{ marginBottom: 1 }}
                                                         />
-                                                        <Typography>{card.title}</Typography>
-                                                    </Box>}
-                                            </CardContent>
-                                        </CardActionArea>
+                                                        <Button
+                                                            variant="contained"
+                                                            size="small"
+                                                            onClick={() => onUpdateTitleCard(card)}>
+                                                            Editar
+                                                        </Button>
+                                                    </Box>
+                                                ) : <Box display="flex" alignItems="center">
+                                                    <Checkbox
+                                                        checked={card.isComplete}
+                                                        onChange={(e) => onUpdateCompleteCard(e.target.checked, card)}
+                                                    />
+                                                    <Typography
+                                                        onClick={() => onActiveCard(card)}
+                                                        sx={{ cursor: "pointer" }}>
+                                                        {card.title}
+                                                    </Typography>
+                                                </Box>}
+                                        </CardContent>
                                         <IconButton
                                             size="small"
                                             onClick={(e) => onMenuClick(e, card)}
@@ -320,7 +324,6 @@ export const BoardPage = () => {
                 onClose={onMenuClose}
                 onClick={(e) => e.stopPropagation()}
             >
-                <MenuItem onClick={onActiveCard}>Editar</MenuItem>
                 <MenuItem onClick={onDeleteCard}>Eliminar</MenuItem>
             </Menu>
         </Box>
