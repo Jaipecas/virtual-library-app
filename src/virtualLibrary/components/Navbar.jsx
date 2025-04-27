@@ -52,6 +52,8 @@ export const Navbar = () => {
       case "Salas":
         navigate("/library/studyroomdashboard");
         break;
+      case "Tableros":
+        navigate("/library/boards");
       default:
         break;
     }
