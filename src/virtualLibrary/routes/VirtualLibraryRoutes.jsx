@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import { BoardListPage } from "../pages/BoardListPage";
 import { BoardPage } from "../pages/BoardPage";
+import { PruebaDrag } from "../pages/pruebaDrag";
 import { RoomChatPage } from "../pages/RoomChatPage";
 import { StudyRoomDashboard } from "../pages/StudyRoomDashboard";
 import { UserPage } from "../pages/UserPage";
