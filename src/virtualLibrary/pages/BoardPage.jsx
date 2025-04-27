@@ -1,7 +1,7 @@
 import { Box, Button, Card, CardActionArea, CardContent, Checkbox, Grid2, IconButton, Menu, MenuItem, Paper, TextField, Typography } from "@mui/material"
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addCardListThunk, addCardThunk, getBoardThunk, removeCardThunk, updateBoardThunk, updateCardThunk } from "../../store/thunks/boardThunks";
+import { addCardListThunk, addCardThunk, getBoardThunk, removeCardListThunk, removeCardThunk, updateBoardThunk, updateCardListThunk, updateCardThunk } from "../../store/thunks/boardThunks";
 import { GridMoreVertIcon } from "@mui/x-data-grid";
 
 
@@ -15,8 +15,15 @@ export const BoardPage = () => {
     const [menuCard, setMenuCard] = useState(null);
     const [activeCard, setActiveCard] = useState(null);
     const [updateCardText, setUpdateCardText] = useState("");
+
     const [isEditingBoardTitle, setIsEditingBoardTitle] = useState(false);
     const [updateBoardTitle, setUpdateBoardTitle] = useState("");
+
+    const [cardListEditingTitle, setCardListEditingTitle] = useState(null);
+    const [updateCardListTitle, setUpdateCardListTitle] = useState("");
+
+    const [anchorElMenuCardList, setAnchorElMenuCardList] = useState(null);
+    const [menuCardList, setMenuCardList] = useState(null);
 
 
     const { selectedBoard } = useSelector(state => state.board);
@@ -67,7 +74,6 @@ export const BoardPage = () => {
     const onActiveCard = () => {
         setActiveCard(menuCard.id);
         setUpdateCardText(menuCard.title)
-        onMenuClose();
     }
 
     const onUpdateTitleCard = (card) => {
@@ -101,6 +107,40 @@ export const BoardPage = () => {
         setIsEditingBoardTitle(false);
     }
 
+    const onEditCardListTitle = (cardList) => {
+        setUpdateCardListTitle(cardList.title);
+        setCardListEditingTitle(cardList.id);
+    };
+
+    const onUpdateCardListTitle = (key, cardList) => {
+        if (key !== "Enter") return;
+
+        const updateCardList = {
+            ...cardList,
+            title: updateCardListTitle,
+        };
+
+        dispatch(updateCardListThunk(updateCardList))
+        setCardListEditingTitle(null);
+    }
+
+    const onMenuCardListClose = () => {
+        setAnchorElMenuCardList(null);
+        setMenuCardList(null);
+    };
+
+    const onMenuCardListClick = (event, cardList) => {
+        event.stopPropagation();
+
+        setAnchorElMenuCardList(event.currentTarget);
+        setMenuCardList(cardList);
+    };
+
+    const onDeleteCardList = () => {
+        dispatch(removeCardListThunk(menuCardList.id));
+        onMenuCardListClose();
+    }
+
     return (
         <Box padding={4}>
             {isEditingBoardTitle
@@ -109,7 +149,7 @@ export const BoardPage = () => {
                     onChange={(e) => setUpdateBoardTitle(e.target.value)}
                     onKeyDown={(e) => onUpdateBoardTitle(e.key)}
                     autoFocus
-                    variant="standard"
+                    variant="outlined"
                     sx={{ marginBottom: 3 }} />)
                 : (<Typography
                     variant="h4"
@@ -124,9 +164,39 @@ export const BoardPage = () => {
                 {selectedBoard.cardLists?.map((cardList) => (
                     <Grid2 xs={12} sm={6} md={4} key={cardList.id}>
                         <Paper elevation={3} sx={{ padding: 2 }}>
-                            <Typography variant="h6" gutterBottom>
-                                {cardList.title}
-                            </Typography>
+                            <Box position={"relative"} mb={1}>
+                                {cardListEditingTitle == cardList.id
+                                    ? (<TextField
+                                        value={updateCardListTitle}
+                                        sx={{ marginBottom: 2 }}
+                                        onChange={(e) => setUpdateCardListTitle(e.target.value)}
+                                        onKeyDown={(e) => onUpdateCardListTitle(e.key, cardList)}
+                                        variant="outlined"
+                                        autoFocus
+                                    />)
+                                    : (<Typography
+                                        variant="h6"
+                                        sx={{ cursor: "pointer" }}
+                                        onClick={() => onEditCardListTitle(cardList)}>
+                                        {cardList.title}
+                                    </Typography>)}
+                                <IconButton
+                                    size="small"
+                                    sx={{ position: 'absolute', top: 1, right: 1 }}
+                                    onClick={(e) => onMenuCardListClick(e, cardList)}
+                                >
+                                    <GridMoreVertIcon />
+                                </IconButton>
+                                <Menu
+                                    anchorEl={anchorElMenuCardList}
+                                    open={Boolean(anchorElMenuCardList)}
+                                    onClose={onMenuCardListClose}
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <MenuItem onClick={onDeleteCardList}>Eliminar</MenuItem>
+                                </Menu>
+
+                            </Box>
                             {cardList.cards?.map((card) => (
                                 <Box position={"relative"}>
                                     <Card key={card.id} sx={{ marginBottom: 2 }}>

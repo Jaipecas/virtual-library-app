@@ -42,6 +42,10 @@ export const boardSlice = createSlice({
                 list.cards = list.cards.filter(card => card.id !== action.payload);
             }
         },
+        removeCardList(state, action) {
+            const removedCardListId = action.payload;
+            state.selectedBoard.cardLists = state.selectedBoard.cardLists.filter(cardList => cardList.id !== removedCardListId);
+        },
         updateCard(state, action) {
             const updatedCard = action.payload;
 
@@ -66,11 +70,31 @@ export const boardSlice = createSlice({
                 board.title = updatedBoard.title;
             }
         },
+        updateCardList(state, action) {
+            const updatedCardList = action.payload;
+
+            const cardList = state.selectedBoard.cardLists.find(cardList => cardList.id === updatedCardList.id);
+
+            if (cardList) cardList.title = updatedCardList.title
+        },
         setError(state, action) {
             state.error = action.payload;
         },
     },
 });
 
-export const { setBoards, setBoard, addBoard, addCard, addCardList, setError, removeBoard, removeCard, updateCard, updateBoard } = boardSlice.actions;
+export const {
+    setBoards,
+    setBoard,
+    addBoard,
+    addCard,
+    addCardList,
+    setError,
+    removeBoard,
+    removeCard,
+    removeCardList,
+    updateCard,
+    updateBoard,
+    updateCardList,
+} = boardSlice.actions;
 
