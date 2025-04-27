@@ -286,6 +286,7 @@ export const BoardPage = () => {
                                     label="Nombre de la lista"
                                     value={newCardListTitle}
                                     onChange={(e) => setNewCardListTitle(e.target.value)}
+                                    onKeyDown={(e) => { if (e.key === "Enter") addCardList() }}
                                     sx={{ marginBottom: 1 }}
                                 />
                                 <Box>
