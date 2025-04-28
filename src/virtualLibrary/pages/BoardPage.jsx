@@ -183,7 +183,7 @@ export const BoardPage = () => {
                     {selectedBoard.cardLists?.map((cardList) => (
                         <Grid2 xs={12} sm={6} md={4} key={cardList.id}>
                             <Paper elevation={3} sx={{ padding: 2 }}>
-                                <DroppableCardList key={cardList.id} id={cardList.id} data={cardList}>
+                                <DroppableCardList key={cardList.id} id={cardList.id} cardList={cardList}>
                                     {cardListEditingTitle == cardList.id
                                         ? (<TextField
                                             value={updateCardListTitle}
