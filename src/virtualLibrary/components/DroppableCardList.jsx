@@ -8,7 +8,7 @@ export function DroppableCardList(props) {
         data: props.data,
     });
     const style = {
-        color: isOver ? 'green' : undefined,
+        color: isOver ? 'red' : undefined,
     };
 
     return (
