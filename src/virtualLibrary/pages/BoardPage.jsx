@@ -1,7 +1,7 @@
 import { Box, Button, Card, CardActionArea, CardContent, Checkbox, Grid2, IconButton, Menu, MenuItem, Paper, TextField, Typography } from "@mui/material"
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addCardListThunk, addCardThunk, getBoardThunk, removeCardListThunk, removeCardThunk, updateBoardThunk, updateCardListThunk, updateCardThunk } from "../../store/thunks/boardThunks";
+import { addCardListThunk, addCardThunk, getBoardThunk, moveCardThunk, removeCardListThunk, removeCardThunk, updateBoardThunk, updateCardListThunk, updateCardThunk } from "../../store/thunks/boardThunks";
 import { GridMoreVertIcon } from "@mui/x-data-grid";
 import { DndContext } from "@dnd-kit/core";
 import { DraggableCard } from "../components/DraggableCard";
@@ -144,12 +144,23 @@ export const BoardPage = () => {
         onMenuCardListClose();
     }
 
-    function handleDragEnd(event) {
-        console.log(event);
+    function onDragEnd(event) {
+        if (!event.active) return;
+        if (!event.over) return;
+
+        const activeCard = event.active.data.current;
+        const overCardList = event.over.data.current;
+
+        const updatedCard = {
+            ...activeCard,
+            cardListId: overCardList.id
+        }
+
+        dispatch(moveCardThunk(updatedCard))
     }
 
     return (
-        <DndContext onDragEnd={handleDragEnd}>
+        <DndContext onDragEnd={onDragEnd}>
             <Box padding={4}>
                 {isEditingBoardTitle
                     ? (<TextField
@@ -172,37 +183,37 @@ export const BoardPage = () => {
                     {selectedBoard.cardLists?.map((cardList) => (
                         <Grid2 xs={12} sm={6} md={4} key={cardList.id}>
                             <Paper elevation={3} sx={{ padding: 2 }}>
-                                <DroppableCardList key={cardList.id} id={cardList.id}>                                    
-                                        {cardListEditingTitle == cardList.id
-                                            ? (<TextField
-                                                value={updateCardListTitle}
-                                                sx={{ marginBottom: 2, paddingRight: 8 }}
-                                                onChange={(e) => setUpdateCardListTitle(e.target.value)}
-                                                onKeyDown={(e) => onUpdateCardListTitle(e.key, cardList)}
-                                                variant="outlined"
-                                                autoFocus
-                                            />)
-                                            : (<Typography
-                                                variant="h6"
-                                                sx={{ cursor: "pointer", paddingRight: 8 , marginBottom: 1.5}}
-                                                onClick={() => onEditCardListTitle(cardList)}>
-                                                {cardList.title}
-                                            </Typography>)}
-                                        <IconButton
-                                            size="small"
-                                            sx={{ position: 'absolute', top: 1, right: 1 }}
-                                            onClick={(e) => onMenuCardListClick(e, cardList)}
-                                        >
-                                            <GridMoreVertIcon />
-                                        </IconButton>
-                                        <Menu
-                                            anchorEl={anchorElMenuCardList}
-                                            open={Boolean(anchorElMenuCardList)}
-                                            onClose={onMenuCardListClose}
-                                            onClick={(e) => e.stopPropagation()}
-                                        >
-                                            <MenuItem onClick={onDeleteCardList}>Eliminar</MenuItem>
-                                        </Menu>
+                                <DroppableCardList key={cardList.id} id={cardList.id} data={cardList}>
+                                    {cardListEditingTitle == cardList.id
+                                        ? (<TextField
+                                            value={updateCardListTitle}
+                                            sx={{ marginBottom: 2, paddingRight: 8 }}
+                                            onChange={(e) => setUpdateCardListTitle(e.target.value)}
+                                            onKeyDown={(e) => onUpdateCardListTitle(e.key, cardList)}
+                                            variant="outlined"
+                                            autoFocus
+                                        />)
+                                        : (<Typography
+                                            variant="h6"
+                                            sx={{ cursor: "pointer", paddingRight: 8, marginBottom: 1.5 }}
+                                            onClick={() => onEditCardListTitle(cardList)}>
+                                            {cardList.title}
+                                        </Typography>)}
+                                    <IconButton
+                                        size="small"
+                                        sx={{ position: 'absolute', top: 1, right: 1 }}
+                                        onClick={(e) => onMenuCardListClick(e, cardList)}
+                                    >
+                                        <GridMoreVertIcon />
+                                    </IconButton>
+                                    <Menu
+                                        anchorEl={anchorElMenuCardList}
+                                        open={Boolean(anchorElMenuCardList)}
+                                        onClose={onMenuCardListClose}
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <MenuItem onClick={onDeleteCardList}>Eliminar</MenuItem>
+                                    </Menu>
 
 
                                     {cardList.cards?.map((card) => (

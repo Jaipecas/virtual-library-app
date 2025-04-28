@@ -77,6 +77,21 @@ export const boardSlice = createSlice({
 
             if (cardList) cardList.title = updatedCardList.title
         },
+        moveCard(state, action) {
+            const updatedCard = action.payload;
+
+            const oldList = state.selectedBoard.cardLists.find(list =>
+                list.cards?.some(card => card.id === updatedCard.id)
+            );
+
+            if (oldList) {
+                oldList.cards = oldList.cards.filter(card => card.id !== updatedCard.id);
+            }
+
+            const newList = state.selectedBoard.cardLists.find(cardList => cardList.id === updatedCard.cardListId);
+
+            if (newList) newList.cards.push(updatedCard);
+        },
         setError(state, action) {
             state.error = action.payload;
         },
@@ -96,5 +111,6 @@ export const {
     updateCard,
     updateBoard,
     updateCardList,
+    moveCard
 } = boardSlice.actions;
 

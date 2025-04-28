@@ -1,6 +1,5 @@
 import { useDraggable } from '@dnd-kit/core';
 import { Box, Button, Card, CardContent, Checkbox, Grid2, IconButton, Menu, MenuItem, Paper, TextField, Typography } from "@mui/material"
-import { GridDragIcon, GridMoreVertIcon } from '@mui/x-data-grid';
 
 export const DraggableCard = (
     {
@@ -16,15 +15,14 @@ export const DraggableCard = (
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: card.id,
     });
-
     const style = transform ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-        zIndex: 1
+        position: "relative"
     } : undefined;
 
 
     return (
-        <Box ref={setNodeRef} style={style} position={"relative"} >
+        <Box ref={setNodeRef} style={style} {...listeners} {...attributes} >
             <Card key={card.id} sx={{ marginBottom: 2 }}>
                 <CardContent sx={{ paddingRight: 10 }}>
                     {activeCard === card.id
@@ -38,7 +36,7 @@ export const DraggableCard = (
                                     onChange={(e) => setUpdateCardText(e.target.value)}
                                     onKeyDown={(e) => { if (e.key === "Enter") onUpdateTitleCard(card) }}
                                     autoFocus
-                                    sx={{ marginBottom: 1, marginTop: 2 }}
+                                    sx={{ marginBottom: 1 }}
                                 />
                                 <Button
                                     variant="contained"
@@ -59,15 +57,10 @@ export const DraggableCard = (
                             </Typography>
                         </Box>}
                 </CardContent>
-                <GridDragIcon
-                    {...listeners}
-                    {...attributes}
-                    sx={{ position: 'absolute', top: 1, left: 1, cursor: 'grab' }}
-                />
                 <IconButton
                     size="small"
                     onClick={(e) => onMenuClick(e, card)}
-                    sx={{ position: 'absolute', top: 1, right: 1 }}
+                    sx={{ position: 'absolute', top: 8, right: 8 }}
                 >
                     <GridMoreVertIcon />
                 </IconButton>
