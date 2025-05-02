@@ -2,11 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import * as signalR from "@microsoft/signalr";
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from "react-router-dom";
-import { getRoomUsersThunk, getStudyRoomThunk, updateConnectedUserThunk, updatePomodoroThunk } from "../../store/thunks/studyRoomThunks";
+import { getRoomUsersThunk, getStudyRoomThunk, updatePomodoroThunk } from "../../store/thunks/studyRoomThunks";
 import { Box } from "@mui/system";
-import { Button, Paper, Stack, TextField, Typography } from "@mui/material";
+import { Avatar, Button, Grid2, Paper, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import pomodoroSound from "../../assets/sounds/pomodoroSound.mp3";
 import { RoomChatRoutes } from "../../services/apiRoutes";
+import profileMan from "../../assets/images/profileMan.png";
+import profileWoman from "../../assets/images/profileWoman.png";
 
 
 export const RoomChatPage = () => {
@@ -42,7 +44,7 @@ export const RoomChatPage = () => {
 
         newConnection.start()
             .then(() => {
-                dispatch(updateConnectedUserThunk({ roomId: selectedRoom.id, userId: user.id, isConnected: true }))
+                sendJoinGroupMessage(selectedRoom.id);
             })
             .catch(err => console.error("Error al conectar con SignalR:", err));
 
@@ -61,6 +63,12 @@ export const RoomChatPage = () => {
             updateTimer(endTime);
         });
 
+        newConnection.on("UserDisconnected", (userName) => {
+            setMessages(prev => [...prev, { user: `${userName} salió de la sala`, message }]);
+            dispatch(getRoomUsersThunk({ roomId: selectedRoom.id, isConnected: true }))
+        });
+
+
         connectionRef.current = newConnection;
 
         return () => {
@@ -72,17 +80,8 @@ export const RoomChatPage = () => {
                 clearInterval(intervalRef.current);
                 intervalRef.current = null;
             }
-            dispatch(updateConnectedUserThunk({ roomId: selectedRoom.id, userId: user.id, isConnected: false }))
         };
     }, [selectedRoom?.id]);
-
-    useEffect(() => {
-        if (isConnected == false) return;
-
-        sendJoinGroupMessage(selectedRoom.id);
-
-    }, [isConnected])
-
 
     const getRoom = () => {
         const params = new URLSearchParams(location.search);
@@ -105,7 +104,7 @@ export const RoomChatPage = () => {
     const sendJoinGroupMessage = async (roomId) => {
         if (connectionRef.current) {
             try {
-                await connectionRef.current.invoke("JoinGroup", roomId, user.userName);
+                await connectionRef.current.invoke("JoinGroup", roomId, user.id, user.userName);
             } catch (err) {
                 console.error("Error uniendo al grupo:", err);
             }
@@ -174,70 +173,79 @@ export const RoomChatPage = () => {
     }
 
     return (
-        <Box maxWidth={600} mx="auto" textAlign="center" p={2}>
-            <Typography variant="h4" gutterBottom>
-                {selectedRoom ? selectedRoom.name : "Room"}
-            </Typography>
-
-            <Typography variant="subtitle1" mb={2}>
-                {remainingTime !== null
-                    ? `${formatTime(remainingTime)}`
-                    : "Pulsa 'Iniciar' para empezar"}
-            </Typography>
-
-            <Paper
-                variant="outlined"
-                sx={{
-                    padding: 2,
-                    height: 300,
-                    overflowY: "auto",
-                    mb: 2,
-                    textAlign: "left"
-                }}
-            >
-                {messages.map((msg, index) => (
-                    <Typography key={index} variant="body1">
-                        <strong>{msg.user}{msg.message && ":"}</strong> {msg.message}
-                    </Typography>
+        <Grid2 container justifyContent="center"
+            alignItems="center" spacing={4} sx={{ height: "100vh" }}>
+            <Grid2 size={{ xs: 12, md: 4 }} padding={10} sx={{
+                display: 'flex',
+                flexWrap: 'wrap', height: "100vh"
+            }} >
+                {connectedUsers?.map(user => (
+                    <Tooltip title={user.userName} key={user.id}>
+                        <Avatar src={profileMan} sx={{ width: 100, height: 100, margin: 1 }} />
+                    </Tooltip>
                 ))}
-            </Paper>
+            </Grid2>
+            <Grid2 size={{ xs: 12, md: 6 }} padding={5} sx={{ height: "100vh" }} >
 
-            <form onSubmit={sendMessage}>
-                <Stack direction="row" spacing={2} alignItems="center" mb={2}>
-                    <TextField
-                        fullWidth
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        placeholder="Escribe un mensaje..."
-                        variant="outlined"
-                        disabled={disableChat}
-                    />
-                    <Button variant="contained" onClick={sendMessage}>
-                        Enviar
-                    </Button>
-                </Stack>
-            </form>
-
-            {user?.id === selectedRoom?.owner.id && (
-                <Stack direction="row" spacing={2} justifyContent="center">
-                    {!showButtonBreakTime && (
-                        <Button variant="outlined" color="primary" onClick={studyTimer}>
-                            Iniciar Timer
-                        </Button>
-                    )}
-                    {showButtonBreakTime && (
-                        <Button variant="outlined" color="secondary" onClick={breakTimer}>
-                            Iniciar Break Timer
-                        </Button>
-                    )}
-                </Stack>
-            )}
-
-            {connectedUsers?.map(user => (
-                <Typography key={user.id} variant="body1">
-                    <strong>{user.userName}</strong>
+                <Typography variant="h4" gutterBottom>
+                    {selectedRoom ? selectedRoom.name : "Room"}
                 </Typography>
-            ))}
-        </Box>
+
+                <Typography variant="subtitle1" mb={2}>
+                    {remainingTime !== null
+                        ? `${formatTime(remainingTime)}`
+                        : "Pulsa 'Iniciar' para empezar"}
+                </Typography>
+
+                <Paper
+                    variant="outlined"
+                    sx={{
+                        padding: 2,
+                        height: 300,
+                        overflowY: "auto",
+                        mb: 2,
+                        textAlign: "left"
+                    }}
+                >
+                    {messages.map((msg, index) => (
+                        <Typography key={index} variant="body1">
+                            <strong>{msg.user}{msg.message && ":"}</strong> {msg.message}
+                        </Typography>
+                    ))}
+                </Paper>
+
+                <form onSubmit={sendMessage}>
+                    <Stack direction="row" spacing={2} alignItems="center" mb={2}>
+                        <TextField
+                            fullWidth
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                            placeholder="Escribe un mensaje..."
+                            variant="outlined"
+                            disabled={disableChat}
+                        />
+                        <Button variant="contained" onClick={sendMessage}>
+                            Enviar
+                        </Button>
+                    </Stack>
+                </form>
+
+                {user?.id === selectedRoom?.owner.id && (
+                    <Stack direction="row" spacing={2} justifyContent="center">
+                        {!showButtonBreakTime && (
+                            <Button variant="outlined" color="primary" onClick={studyTimer}>
+                                Iniciar Timer
+                            </Button>
+                        )}
+                        {showButtonBreakTime && (
+                            <Button variant="outlined" color="secondary" onClick={breakTimer}>
+                                Iniciar Break Timer
+                            </Button>
+                        )}
+                    </Stack>
+                )}
+            </Grid2>
+        </Grid2>
+
     );
 };

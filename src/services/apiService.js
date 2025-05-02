@@ -13,7 +13,7 @@ export const apiGet = async (url) => {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.errorMessage);
+      throw new Error(data.errors.join(", "));
     }
 
     return data;
@@ -36,7 +36,7 @@ export const apiPost = async (url, body) => {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.errorMessage);
+      throw new Error(data.errors.join(", "));
     }
 
     return data;
@@ -57,7 +57,7 @@ export const apiDelete = async (url) => {
 
     if (!response.ok) {
       const data = await response.json();
-      throw new Error(data.errorMessage);
+      throw new Error(data.errors.join(", "));
     }
 
     return { success: true };
@@ -80,7 +80,7 @@ export const apiPut = async (url, body) => {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.errorMessage);
+      throw new Error(data.errors.join(", "));
     }
 
     return data;
