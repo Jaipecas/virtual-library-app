@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { loginThunk } from "../../store/thunks/authThunks";
 import { useEffect } from "react";
+import { setError } from "../../store/slices/authSlice";
 
 export const LoginPage = () => {
   const { error, isAuthenticated } = useSelector(state => state.auth);
@@ -33,6 +34,13 @@ export const LoginPage = () => {
 
   }, [isAuthenticated, navigate]);
 
+  useEffect(() => {
+    
+    return () => {
+      dispatch(setError(null));
+    }
+  }, [])
+  
   return (
     <form onSubmit={onLoginFormSubmitted}>
       <AuthLayout isLogin={true}>

@@ -3,11 +3,12 @@ import profileMan from "../../assets/images/profileMan.png";
 import profileWoman from "../../assets/images/profileWoman.png";
 import previous from "../../assets/images/previous.png";
 import next from "../../assets/images/next.png";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "../../hooks/useForm";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { updateUserThunk } from "../../store/thunks/authThunks";
+import { setError } from "../../store/slices/authSlice";
 
 //TODO: cambiar la forma en la que se manejan los logos
 const logos = [profileMan, profileWoman];
@@ -45,9 +46,6 @@ export const UserPage = () => {
       NewPassword: formState.password,
       logo: logosNames[selectedLogo],
     }));
-
-    //TODO falta controlar el error
-    navigate("/library")
   };
 
   const onClickShowPass = () => setShowPassword((prev) => !prev);
@@ -65,6 +63,22 @@ export const UserPage = () => {
       return prev + 1;
     });
   };
+
+
+  useEffect(() => {
+
+    if (error == "") {
+      navigate("/library")
+    }
+
+  }, [error])
+
+  useEffect(() => {
+    
+    return () => {
+      dispatch(setError(null));
+    }
+  }, [])
 
   return (
     <form onSubmit={onUpdateUserFormSubmitted}>

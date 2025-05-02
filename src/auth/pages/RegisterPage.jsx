@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { registerThunk } from "../../store/thunks/authThunks";
 import { useEffect } from "react";
+import { setError } from "../../store/slices/authSlice";
 
 export const RegisterPage = () => {
   const { error, isAuthenticated } = useSelector(state => state.auth);
@@ -30,6 +31,13 @@ export const RegisterPage = () => {
     if (isAuthenticated) navigate("/library");
 
   }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    
+    return () => {
+      dispatch(setError(null));
+    }
+  }, [])
 
   return (
     <form onSubmit={onregisterFormSubmitted}>
