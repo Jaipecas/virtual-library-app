@@ -111,11 +111,4 @@ export const getInvitedStudyRoomsAsync = async (userId) => {
   return await apiGet(`${StudyRoomRoutes.getInvitedStudyRooms}?UserId=${userId}`);
 };
 
-export const getNotificationsAsync = async (userId) => {
-  return await apiGet(`${NotificationRoutes.notification}?UserId=${userId}`);
-};
-
-export const deleteNotificationAsync = async (id, isAccepted, notificationType) => {
-  return await apiDelete(`${NotificationRoutes.notification}?id=${id}&isAccepted=${isAccepted}&notificationType=${notificationType}`);
-};
 
