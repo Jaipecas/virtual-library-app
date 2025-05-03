@@ -1,6 +1,8 @@
 import { useDraggable } from '@dnd-kit/core';
+import { useSortable } from '@dnd-kit/sortable';
 import { Box, Button, Card, CardContent, Checkbox, Grid2, IconButton, Menu, MenuItem, Paper, TextField, Typography } from "@mui/material"
 import { GridDragIcon, GridMoreVertIcon } from '@mui/x-data-grid';
+import { CSS } from '@dnd-kit/utilities';
 
 export const DraggableCard = (
     {
@@ -13,15 +15,15 @@ export const DraggableCard = (
         onMenuClick,
         activeCard,
     }) => {
-    const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
         id: card.id,
         data: card
 
     });
 
     const style = transform ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-        zIndex: 1
+        transform: CSS.Transform.toString(transform),
+        transition: transition
     } : undefined;
 
 

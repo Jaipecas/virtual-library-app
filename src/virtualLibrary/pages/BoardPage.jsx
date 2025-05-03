@@ -1,11 +1,13 @@
 import { Box, Button, Card, CardActionArea, CardContent, Checkbox, Grid2, IconButton, Menu, MenuItem, Paper, TextField, Typography } from "@mui/material"
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addCardListThunk, addCardThunk, getBoardThunk, moveCardThunk, removeCardListThunk, removeCardThunk, updateBoardThunk, updateCardListThunk, updateCardThunk } from "../../store/thunks/boardThunks";
+import { addCardListThunk, addCardThunk, getBoardThunk, moveCardThunk, orderCardThunk, removeCardListThunk, removeCardThunk, updateBoardThunk, updateCardListThunk, updateCardThunk } from "../../store/thunks/boardThunks";
 import { GridMoreVertIcon } from "@mui/x-data-grid";
 import { DndContext } from "@dnd-kit/core";
 import { DraggableCard } from "../components/DraggableCard";
 import { DroppableCardList } from "../components/DroppableCardList";
+import { SortableContext, arrayMove } from "@dnd-kit/sortable"
+import { moveCard, updateCard } from "../../store/slices/boardSlice";
 
 
 export const BoardPage = () => {
@@ -33,6 +35,8 @@ export const BoardPage = () => {
 
     const dispatch = useDispatch();
 
+    const [dragData, setDragData] = useState(null);
+
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const id = params.get("id");
@@ -41,10 +45,13 @@ export const BoardPage = () => {
     }, [])
 
 
-    const addCard = (cardListId) => {
+    const addCard = (cardList) => {
         if (!newCardText.trim()) return;
 
-        dispatch(addCardThunk({ cardListId: cardListId, title: newCardText }))
+        const cardListFound = selectedBoard.cardLists.find(cl => cl.id === cardList.id);
+        const cardCount = cardListFound?.cards?.length + 1 || 0;
+
+        dispatch(addCardThunk({ cardListId: cardList.id, title: newCardText, order: cardCount }))
         setNewCardText("");
     };
 
@@ -144,11 +151,31 @@ export const BoardPage = () => {
         onMenuCardListClose();
     }
 
-    function onDragEnd(event) {
+    const onDragEnd = (event) => {
+
+        console.log("DragEnd")
         if (!event.active) return;
         if (!event.over) return;
 
-        const activeCard = event.active.data.current;
+        if (event.active.id === event.over.id) return;
+
+        if (event.active.data.current.sortable.containerId !== event.over.data.current.sortable.containerId) return;
+
+
+        const cardListId = event.active.data.current.sortable.containerId;
+        const cardList = selectedBoard.cardLists.find(cl => cl.id == cardListId);
+
+
+        const oldIndex = cardList.cards.findIndex(c => c.id === event.active.id);
+        const newIndex = cardList.cards.findIndex(c => c.id === event.over.id);
+
+        const newCardList = arrayMove(cardList.cards, oldIndex, newIndex);
+
+        const cards = newCardList.map((card, index) => ({ ...card, order: index }));
+
+        cards.forEach(card => dispatch(orderCardThunk(card)))
+
+        /* const activeCard = event.active.data.current;
         const overCardList = event.over.data.current;
 
         const updatedCard = {
@@ -156,29 +183,69 @@ export const BoardPage = () => {
             cardListId: overCardList.id
         }
 
-        dispatch(moveCardThunk(updatedCard))
+        dispatch(moveCardThunk(updatedCard)) */
+    }
+
+    const onDragOver = (e) => {
+        // Check if item is drag into unknown area
+        if (!e.over) return;
+
+        // Get the initial and target sortable list name
+        const initialContainer = e.active.data.current?.sortable?.containerId;
+        const targetContainer = e.over.data.current?.sortable?.containerId;
+
+        // if there are none initial sortable list name, then item is not sortable item
+        if (!initialContainer) return;
+       
+        //arrasta a lista vacia
+        if (!targetContainer) {
+            const activeCard = e.active.data.current;
+            const overCardList = e.over.data.current;
+
+            const updatedCard = {
+                ...activeCard,
+                cardListId: overCardList.id
+            }
+            dispatch(moveCard(updatedCard));
+        }
+
+        if (initialContainer === targetContainer) {
+            console.log("Hola");
+        } else {
+             //arrastra encima de otra carta
+             const activeCard = e.active.data.current;
+             const overCard = e.over.data.current;
+             const overCardListId = e.over.data.current?.sortable?.containerId;
+ 
+             const updatedCard = {
+                 ...activeCard,
+                 cardListId: overCardListId,         
+             }
+             dispatch(moveCard(updatedCard));
+        }
+
     }
 
     return (
-        <DndContext onDragEnd={onDragEnd}>
-            <Box padding={4}>
-                {isEditingBoardTitle
-                    ? (<TextField
-                        value={updateBoardTitle}
-                        onChange={(e) => setUpdateBoardTitle(e.target.value)}
-                        onKeyDown={(e) => onUpdateBoardTitle(e.key)}
-                        autoFocus
-                        variant="outlined"
-                        sx={{ marginBottom: 3 }} />)
-                    : (<Typography
-                        variant="h4"
-                        marginBottom={3}
-                        sx={{ cursor: "pointer" }}
-                        onClick={onEditBoardTitle}>
-                        {selectedBoard.title}
-                    </Typography>)}
 
+        <Box padding={4}>
+            {isEditingBoardTitle
+                ? (<TextField
+                    value={updateBoardTitle}
+                    onChange={(e) => setUpdateBoardTitle(e.target.value)}
+                    onKeyDown={(e) => onUpdateBoardTitle(e.key)}
+                    autoFocus
+                    variant="outlined"
+                    sx={{ marginBottom: 3 }} />)
+                : (<Typography
+                    variant="h4"
+                    marginBottom={3}
+                    sx={{ cursor: "pointer" }}
+                    onClick={onEditBoardTitle}>
+                    {selectedBoard.title}
+                </Typography>)}
 
+            <DndContext onDragEnd={onDragEnd} onDragOver={onDragOver}>
                 <Grid2 container spacing={3}>
                     {selectedBoard.cardLists?.map((cardList) => (
                         <Grid2 xs={12} sm={6} md={4} key={cardList.id}>
@@ -215,20 +282,22 @@ export const BoardPage = () => {
                                         <MenuItem onClick={onDeleteCardList}>Eliminar</MenuItem>
                                     </Menu>
 
+                                    <SortableContext id={cardList.id} items={cardList.cards || []}>
+                                        {cardList.cards?.map((card) => (
+                                            <DraggableCard
+                                                key={card.id}
+                                                card={card}
+                                                setUpdateCardText={setUpdateCardText}
+                                                updateCardText={updateCardText}
+                                                onUpdateTitleCard={onUpdateTitleCard}
+                                                onUpdateCompleteCard={onUpdateCompleteCard}
+                                                onActiveCard={onActiveCard}
+                                                onMenuClick={onMenuClick}
+                                                activeCard={activeCard}
+                                            />
+                                        ))}
+                                    </SortableContext>
 
-                                    {cardList.cards?.map((card) => (
-                                        <DraggableCard
-                                            key={card.id}
-                                            card={card}
-                                            setUpdateCardText={setUpdateCardText}
-                                            updateCardText={updateCardText}
-                                            onUpdateTitleCard={onUpdateTitleCard}
-                                            onUpdateCompleteCard={onUpdateCompleteCard}
-                                            onActiveCard={onActiveCard}
-                                            onMenuClick={onMenuClick}
-                                            activeCard={activeCard}
-                                        />
-                                    ))}
                                 </DroppableCardList>
                                 {activeCardList === cardList.id && (
                                     <Box mt={2}>
@@ -244,7 +313,7 @@ export const BoardPage = () => {
                                         <Button
                                             variant="contained"
                                             size="small"
-                                            onClick={() => addCard(cardList.id)}
+                                            onClick={() => addCard(cardList)}
                                         >
                                             Añadir
                                         </Button>
@@ -306,15 +375,16 @@ export const BoardPage = () => {
                         </Paper>
                     </Grid2>
                 </Grid2>
-                <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    onClose={onMenuClose}
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <MenuItem onClick={onDeleteCard}>Eliminar</MenuItem>
-                </Menu>
-            </Box>
-        </DndContext>
+            </DndContext>
+            <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={onMenuClose}
+                onClick={(e) => e.stopPropagation()}
+            >
+                <MenuItem onClick={onDeleteCard}>Eliminar</MenuItem>
+            </Menu>
+        </Box>
+
     );
 }
