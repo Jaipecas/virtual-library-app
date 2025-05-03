@@ -36,14 +36,14 @@ export const deleteNotification = (id, isAccepted, notificationType) => async (d
 
 export const sendNotificationsThunk = (notificationData) => async (dispatch) => {
 
-  dispatch(setError(''));
   try {
 
     await apiPost(NotificationRoutes.notification, notificationData);
     
     dispatch(sendSuccess("Notificación enviada"))
+    dispatch(setError(null))
   } catch (error) {
     dispatch(setError(error.message));
-    dispatch(sendSuccess(""));
+    dispatch(sendSuccess(null));
   }
 };

@@ -111,13 +111,6 @@ export const getInvitedStudyRoomsAsync = async (userId) => {
   return await apiGet(`${StudyRoomRoutes.getInvitedStudyRooms}?UserId=${userId}`);
 };
 
-
-
-export const getUserByIdAsync = async (userId) => {
-  return await apiGet(`${UserRoutes.user}?UserId=${userId}`);
-};
-
-
 export const getNotificationsAsync = async (userId) => {
   return await apiGet(`${NotificationRoutes.notification}?UserId=${userId}`);
 };
