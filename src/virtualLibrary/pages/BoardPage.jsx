@@ -1,8 +1,11 @@
-import { Box, Button, Card, CardActionArea, CardContent, Checkbox, Grid2, IconButton, Menu, MenuItem, Paper, TextField, Typography } from "@mui/material"
+import { Box, Button, Grid2, IconButton, Menu, MenuItem, Paper, TextField, Typography } from "@mui/material"
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addCardListThunk, addCardThunk, getBoardThunk, removeCardListThunk, removeCardThunk, updateBoardThunk, updateCardListThunk, updateCardThunk } from "../../store/thunks/boardThunks";
+import { addCardListThunk, addCardThunk, getBoardThunk, moveCardThunk, orderCardThunk, removeCardListThunk, removeCardThunk, updateBoardThunk, updateCardListThunk, updateCardThunk } from "../../store/thunks/boardThunks";
 import { GridMoreVertIcon } from "@mui/x-data-grid";
+import { DndContext } from "@dnd-kit/core";
+import { DraggableCard } from "../components/DraggableCard";
+import { SortableContext, arrayMove } from "@dnd-kit/sortable"
 
 
 export const BoardPage = () => {
@@ -38,10 +41,13 @@ export const BoardPage = () => {
     }, [])
 
 
-    const addCard = (cardListId) => {
+    const addCard = (cardList) => {
         if (!newCardText.trim()) return;
 
-        dispatch(addCardThunk({ cardListId: cardListId, title: newCardText }))
+        const cardListFound = selectedBoard.cardLists.find(cl => cl.id === cardList.id);
+        const cardCount = cardListFound?.cards?.length + 1 || 0;
+
+        dispatch(addCardThunk({ cardListId: cardList.id, title: newCardText, order: cardCount }))
         setNewCardText("");
     };
 
@@ -141,192 +147,202 @@ export const BoardPage = () => {
         onMenuCardListClose();
     }
 
+    const moveCardToAnotherList = (card, cardList) => {
+        const updatedCard = {
+            ...card,
+            cardListId: cardList.id,
+            order: cardList?.cards?.length + 1 || 0
+        }
+
+        dispatch(moveCardThunk(updatedCard))
+    }
+
+    const onDragEnd = (event) => {
+
+        if (!event.active) return;
+        if (!event.over) return;
+
+        if (event.active.data.current.id === event.over.data.current.id) return
+
+        const cardListId = event.active.data.current.sortable.containerId;
+        const cardList = selectedBoard.cardLists.find(cl => cl.id == cardListId);
+
+
+        const oldIndex = cardList.cards.findIndex(c => c.id === event.active.id);
+        const newIndex = cardList.cards.findIndex(c => c.id === event.over.id);
+
+        const newCardList = arrayMove(cardList.cards, oldIndex, newIndex);
+
+        const cards = newCardList.map((card, index) => ({ ...card, order: index }));
+
+        cards.forEach(card => dispatch(orderCardThunk(card)))
+
+    }
+
+
     return (
-        <Box padding={4}>
-            {isEditingBoardTitle
-                ? (<TextField
-                    value={updateBoardTitle}
-                    onChange={(e) => setUpdateBoardTitle(e.target.value)}
-                    onKeyDown={(e) => onUpdateBoardTitle(e.key)}
-                    autoFocus
-                    variant="outlined"
-                    sx={{ marginBottom: 3 }} />)
-                : (<Typography
-                    variant="h4"
-                    marginBottom={3}
-                    sx={{ cursor: "pointer" }}
-                    onClick={onEditBoardTitle}>
-                    {selectedBoard.title}
-                </Typography>)}
+
+        <DndContext onDragEnd={onDragEnd}>
+            <Box padding={4}>
+                {isEditingBoardTitle
+                    ? (<TextField
+                        value={updateBoardTitle}
+                        onChange={(e) => setUpdateBoardTitle(e.target.value)}
+                        onKeyDown={(e) => onUpdateBoardTitle(e.key)}
+                        autoFocus
+                        variant="outlined"
+                        sx={{ marginBottom: 3 }} />)
+                    : (<Typography
+                        variant="h4"
+                        marginBottom={3}
+                        sx={{ cursor: "pointer" }}
+                        onClick={onEditBoardTitle}>
+                        {selectedBoard.title}
+                    </Typography>)}
+
+                <Grid2 container spacing={3}>
+                    {selectedBoard.cardLists?.map((cardList) => (
+                        <Grid2 xs={12} sm={6} md={4} key={cardList.id}>
+                            <Box position={"relative"}>
+                                <Paper elevation={3} sx={{ padding: 2 }}>
+
+                                    {cardListEditingTitle == cardList.id
+                                        ? (<TextField
+                                            value={updateCardListTitle}
+                                            sx={{ marginBottom: 2, paddingRight: 8 }}
+                                            onChange={(e) => setUpdateCardListTitle(e.target.value)}
+                                            onKeyDown={(e) => onUpdateCardListTitle(e.key, cardList)}
+                                            variant="outlined"
+                                            autoFocus
+                                        />)
+                                        : (<Typography
+                                            variant="h6"
+                                            sx={{ cursor: "pointer", paddingRight: 8, marginBottom: 1.5 }}
+                                            onClick={() => onEditCardListTitle(cardList)}>
+                                            {cardList.title}
+                                        </Typography>)}
+                                    <IconButton
+                                        size="small"
+                                        sx={{ position: 'absolute', top: 1, right: 1 }}
+                                        onClick={(e) => onMenuCardListClick(e, cardList)}
+                                    >
+                                        <GridMoreVertIcon />
+                                    </IconButton>
+                                    <Menu
+                                        anchorEl={anchorElMenuCardList}
+                                        open={Boolean(anchorElMenuCardList)}
+                                        onClose={onMenuCardListClose}
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <MenuItem onClick={onDeleteCardList}>Eliminar</MenuItem>
+                                    </Menu>
+
+                                    <SortableContext id={cardList.id} items={cardList.cards || []}>
+                                        {cardList.cards?.map((card) => (
+                                            <DraggableCard
+                                                key={card.id}
+                                                card={card}
+                                                cardLists={selectedBoard.cardLists.filter(cl => cl.id !== cardList.id)}
+                                                setUpdateCardText={setUpdateCardText}
+                                                updateCardText={updateCardText}
+                                                onUpdateTitleCard={onUpdateTitleCard}
+                                                onUpdateCompleteCard={onUpdateCompleteCard}
+                                                onActiveCard={onActiveCard}
+                                                onMenuClick={onMenuClick}
+                                                activeCard={activeCard}
+                                                moveCardToAnotherList={moveCardToAnotherList}
+                                            />
+                                        ))}
+                                    </SortableContext>
 
 
-            <Grid2 container spacing={3}>
-                {selectedBoard.cardLists?.map((cardList) => (
-                    <Grid2 xs={12} sm={6} md={4} key={cardList.id}>
-                        <Paper elevation={3} sx={{ padding: 2 }}>
-                            <Box position={"relative"} mb={1}>
-                                {cardListEditingTitle == cardList.id
-                                    ? (<TextField
-                                        value={updateCardListTitle}
-                                        sx={{ marginBottom: 2, paddingRight: 8 }}
-                                        onChange={(e) => setUpdateCardListTitle(e.target.value)}
-                                        onKeyDown={(e) => onUpdateCardListTitle(e.key, cardList)}
-                                        variant="outlined"
-                                        autoFocus
-                                    />)
-                                    : (<Typography
-                                        variant="h6"
-                                        sx={{ cursor: "pointer", paddingRight: 8 }}
-                                        onClick={() => onEditCardListTitle(cardList)}>
-                                        {cardList.title}
-                                    </Typography>)}
-                                <IconButton
-                                    size="small"
-                                    sx={{ position: 'absolute', top: 1, right: 1 }}
-                                    onClick={(e) => onMenuCardListClick(e, cardList)}
-                                >
-                                    <GridMoreVertIcon />
-                                </IconButton>
-                                <Menu
-                                    anchorEl={anchorElMenuCardList}
-                                    open={Boolean(anchorElMenuCardList)}
-                                    onClose={onMenuCardListClose}
-                                    onClick={(e) => e.stopPropagation()}
-                                >
-                                    <MenuItem onClick={onDeleteCardList}>Eliminar</MenuItem>
-                                </Menu>
-
-                            </Box>
-                            {cardList.cards?.map((card) => (
-                                <Box position={"relative"}>
-                                    <Card key={card.id} sx={{ marginBottom: 2 }}>
-                                        <CardContent sx={{ paddingRight: 10 }}>
-                                            {activeCard === card.id
-                                                ? (
-                                                    <Box >
-                                                        <TextField fullWidth
-                                                            variant="outlined"
-                                                            size="small"
-                                                            placeholder="Actualiza card"
-                                                            value={updateCardText}
-                                                            onChange={(e) => setUpdateCardText(e.target.value)}
-                                                            onKeyDown={(e) => { if (e.key === "Enter") onUpdateTitleCard(card) }}
-                                                            autoFocus
-                                                            sx={{ marginBottom: 1 }}
-                                                        />
-                                                        <Button
-                                                            variant="contained"
-                                                            size="small"
-                                                            onClick={() => onUpdateTitleCard(card)}>
-                                                            Editar
-                                                        </Button>
-                                                    </Box>
-                                                ) : <Box display="flex" alignItems="center">
-                                                    <Checkbox
-                                                        checked={card.isComplete}
-                                                        onChange={(e) => onUpdateCompleteCard(e.target.checked, card)}
-                                                    />
-                                                    <Typography
-                                                        onClick={() => onActiveCard(card)}
-                                                        sx={{ cursor: "pointer" }}>
-                                                        {card.title}
-                                                    </Typography>
-                                                </Box>}
-                                        </CardContent>
-                                        <IconButton
+                                    {activeCardList === cardList.id && (
+                                        <Box mt={2}>
+                                            <TextField
+                                                fullWidth
+                                                variant="outlined"
+                                                size="small"
+                                                placeholder="Nueva card"
+                                                value={newCardText}
+                                                onChange={(e) => setNewCardText(e.target.value)}
+                                                sx={{ marginBottom: 1 }}
+                                            />
+                                            <Button
+                                                variant="contained"
+                                                size="small"
+                                                onClick={() => addCard(cardList)}
+                                            >
+                                                Añadir
+                                            </Button>
+                                        </Box>
+                                    )}
+                                    {activeCardList !== cardList.id && (
+                                        <Button
+                                            variant="text"
                                             size="small"
-                                            onClick={(e) => onMenuClick(e, card)}
-                                            sx={{ position: 'absolute', top: 8, right: 8 }}
+                                            onClick={() => setActiveCardList(cardList.id)}
                                         >
-                                            <GridMoreVertIcon />
-                                        </IconButton>
-                                    </Card>
-                                </Box>
-                            ))}
-                            {activeCardList === cardList.id && (
-                                <Box mt={2}>
+                                            + Añadir card
+                                        </Button>
+                                    )}
+                                </Paper>
+                            </Box>
+                        </Grid2>
+                    ))}
+
+                    <Grid2 xs={12} sm={6} md={4}>
+                        <Paper elevation={2} sx={{ padding: 2 }}>
+                            {showNewCardListInput ? (
+                                <>
                                     <TextField
                                         fullWidth
-                                        variant="outlined"
                                         size="small"
-                                        placeholder="Nueva card"
-                                        value={newCardText}
-                                        onChange={(e) => setNewCardText(e.target.value)}
+                                        label="Nombre de la lista"
+                                        value={newCardListTitle}
+                                        onChange={(e) => setNewCardListTitle(e.target.value)}
+                                        onKeyDown={(e) => { if (e.key === "Enter") addCardList() }}
                                         sx={{ marginBottom: 1 }}
                                     />
-                                    <Button
-                                        variant="contained"
-                                        size="small"
-                                        onClick={() => addCard(cardList.id)}
-                                    >
-                                        Añadir
-                                    </Button>
-                                </Box>
-                            )}
-                            {activeCardList !== cardList.id && (
+                                    <Box>
+                                        <Button
+                                            variant="contained"
+                                            size="small"
+                                            onClick={addCardList}
+                                            sx={{ marginRight: 1 }}
+                                        >
+                                            Agregar
+                                        </Button>
+                                        <Button
+                                            variant="text"
+                                            size="small"
+                                            onClick={() => setShowNewCardListInput(false)}
+                                        >
+                                            Cancelar
+                                        </Button>
+                                    </Box>
+                                </>
+                            ) : (
                                 <Button
-                                    variant="text"
-                                    size="small"
-                                    onClick={() => setActiveCardList(cardList.id)}
+                                    variant="outlined"
+                                    onClick={() => setShowNewCardListInput(true)}
+                                    fullWidth
                                 >
-                                    + Añadir card
+                                    + Agregar Lista
                                 </Button>
                             )}
                         </Paper>
                     </Grid2>
-                ))}
-
-                <Grid2 xs={12} sm={6} md={4}>
-                    <Paper elevation={2} sx={{ padding: 2 }}>
-                        {showNewCardListInput ? (
-                            <>
-                                <TextField
-                                    fullWidth
-                                    size="small"
-                                    label="Nombre de la lista"
-                                    value={newCardListTitle}
-                                    onChange={(e) => setNewCardListTitle(e.target.value)}
-                                    onKeyDown={(e) => { if (e.key === "Enter") addCardList() }}
-                                    sx={{ marginBottom: 1 }}
-                                />
-                                <Box>
-                                    <Button
-                                        variant="contained"
-                                        size="small"
-                                        onClick={addCardList}
-                                        sx={{ marginRight: 1 }}
-                                    >
-                                        Agregar
-                                    </Button>
-                                    <Button
-                                        variant="text"
-                                        size="small"
-                                        onClick={() => setShowNewCardListInput(false)}
-                                    >
-                                        Cancelar
-                                    </Button>
-                                </Box>
-                            </>
-                        ) : (
-                            <Button
-                                variant="outlined"
-                                onClick={() => setShowNewCardListInput(true)}
-                                fullWidth
-                            >
-                                + Agregar Lista
-                            </Button>
-                        )}
-                    </Paper>
                 </Grid2>
-            </Grid2>
-            <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={onMenuClose}
-                onClick={(e) => e.stopPropagation()}
-            >
-                <MenuItem onClick={onDeleteCard}>Eliminar</MenuItem>
-            </Menu>
-        </Box>
+
+                <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={onMenuClose}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <MenuItem onClick={onDeleteCard}>Eliminar</MenuItem>
+                </Menu>
+            </Box>
+        </DndContext >
     );
 }

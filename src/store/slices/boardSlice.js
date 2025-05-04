@@ -77,6 +77,41 @@ export const boardSlice = createSlice({
 
             if (cardList) cardList.title = updatedCardList.title
         },
+        moveCard(state, action) {
+            const updatedCard = action.payload;
+
+            const oldList = state.selectedBoard.cardLists.find(list =>
+                list.cards?.some(card => card.id === updatedCard.id)
+            );
+
+            if (oldList) {
+                oldList.cards = oldList.cards.filter(card => card.id !== updatedCard.id);
+            }
+
+            const newList = state.selectedBoard.cardLists.find(cardList => cardList.id === updatedCard.cardListId);
+
+            if (newList) {
+                if (!newList.cards) newList.cards = [];
+                newList.cards.push(updatedCard);
+            }
+
+        },
+        orderCard(state, action) {
+            const updatedCard = action.payload;
+
+            const list = state.selectedBoard.cardLists.find(list =>
+                list.cards?.some(card => card.id === updatedCard.id)
+            );
+
+            if (list) {
+                list.cards = list.cards.map(card =>
+                    card.id === updatedCard.id ? { ...card, ...updatedCard } : card
+                );
+            }
+
+            list.cards.sort((a, b) => a.order - b.order);
+
+        },
         setError(state, action) {
             state.error = action.payload;
         },
@@ -96,5 +131,7 @@ export const {
     updateCard,
     updateBoard,
     updateCardList,
+    moveCard,
+    orderCard
 } = boardSlice.actions;
 

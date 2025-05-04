@@ -1,6 +1,6 @@
 import { BoardRoutes } from "../../services/apiRoutes";
 import { apiDelete, apiGet, apiPost, apiPut } from "../../services/apiService";
-import { addBoard, addCard, addCardList, removeBoard, removeCard, removeCardList, setBoard, setBoards, setError, updateBoard, updateCard, updateCardList } from "../slices/boardSlice"
+import { addBoard, addCard, addCardList, moveCard, orderCard, removeBoard, removeCard, removeCardList, setBoard, setBoards, setError, updateBoard, updateCard, updateCardList } from "../slices/boardSlice"
 
 export const addBoardThunk = (boardData) => async (dispatch) => {
 
@@ -140,6 +140,30 @@ export const updateCardListThunk = (cardListData) => async (dispatch) => {
         await apiPut(`${BoardRoutes.cardList}`, cardListData);
 
         dispatch(updateCardList(cardListData));
+    } catch (error) {
+        dispatch(setError(error.message));
+    }
+}
+
+export const moveCardThunk = (cardData) => async (dispatch) => {
+
+    dispatch(setError(""));
+
+    try {
+        await apiPut(`${BoardRoutes.card}`, cardData);
+
+        dispatch(moveCard(cardData));
+    } catch (error) {
+        dispatch(setError(error.message));
+    }
+}
+
+export const orderCardThunk = (cardData) => async (dispatch) => {
+
+    try {
+        await apiPut(`${BoardRoutes.card}`, cardData);
+
+        dispatch(orderCard(cardData));
     } catch (error) {
         dispatch(setError(error.message));
     }
