@@ -1,6 +1,6 @@
 import { DataGrid } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
-import { Button, Box, Tabs, Tab } from '@mui/material';
+import { Button, Box, Tabs, Tab, Alert } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckIcon from '@mui/icons-material/Check';
@@ -47,10 +47,11 @@ export const NotificationsPage = () => {
 
   return (
     <Paper sx={{ height: 400, width: '100%' }}>
+      {error && <Alert sx={{ marginTop: 1 }} severity="error">{error}</Alert>}
 
       <Tabs value={tabValue} onChange={handleChange} aria-label="basic tabs">
         <Tab label="Salas" />
-        <Tab label="Amigos" />        
+        <Tab label="Amigos" />
       </Tabs>
 
       <Box marginTop={1}>

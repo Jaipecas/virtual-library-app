@@ -12,13 +12,17 @@ export const FriendsPage = () => {
     const [search, setSearch] = useState("");
     const dispatch = useDispatch();
     const { userData } = useSelector(state => state.user);
-    const { successMessage , error: notificationError } = useSelector(state => state.notifications);
+    const { successMessage, error: notificationError } = useSelector(state => state.notifications);
     const { user } = useSelector(state => state.auth);
 
     useEffect(() => {
         dispatch(getUserData(user.id));
-        dispatch(setError(''))
-        dispatch(sendSuccess(''))
+
+        return () => {
+            dispatch(setError(null))
+            dispatch(sendSuccess(null))
+        }
+
     }, [])
 
     const onSendNotification = (event) => {
