@@ -1,12 +1,14 @@
-import { useDraggable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { Box, Button, Card, CardContent, Checkbox, Grid2, IconButton, Menu, MenuItem, Paper, TextField, Typography } from "@mui/material"
 import { GridDragIcon, GridMoreVertIcon } from '@mui/x-data-grid';
 import { CSS } from '@dnd-kit/utilities';
+import { ChevronRight } from '@mui/icons-material';
+import { useState } from 'react';
 
 export const DraggableCard = (
     {
         card,
+        cardLists,
         setUpdateCardText,
         updateCardText,
         onUpdateTitleCard,
@@ -14,12 +16,32 @@ export const DraggableCard = (
         onActiveCard,
         onMenuClick,
         activeCard,
+        moveCardToAnotherList
     }) => {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
         id: card.id,
         data: card
 
     });
+
+    const [moveCardAnchorEl, setMoveCardAnchorEl] = useState(null);
+
+    const onMenuMoveClose = () => {
+        setMoveCardAnchorEl(null);
+    };
+
+    const onOpenCardMoveMenuClick = (event) => {
+        event.stopPropagation();
+
+        if (cardLists.length == 0) return
+        setMoveCardAnchorEl(event.currentTarget);
+    };
+
+
+    const moveCard = (cardList) => {
+        moveCardToAnotherList(card, cardList)
+        onMenuMoveClose()
+    }
 
     const style = transform ? {
         transform: CSS.Transform.toString(transform),
@@ -76,6 +98,25 @@ export const DraggableCard = (
                 >
                     <GridMoreVertIcon />
                 </IconButton>
+
+                <IconButton size="small"
+                    onClick={(e) => onOpenCardMoveMenuClick(e)}
+                    sx={{ position: 'absolute', top: 45, right: 1 }}>
+                    <ChevronRight />
+                </IconButton>
+
+                <Menu
+                    anchorEl={moveCardAnchorEl}
+                    open={Boolean(moveCardAnchorEl)}
+                    onClose={onMenuMoveClose}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {
+                        cardLists.map(cl => (
+                            <MenuItem key={cl.id} onClick={() => moveCard(cl)}>{cl.title}</MenuItem>
+                        ))
+                    }
+                </Menu>
             </Card>
         </Box>
 

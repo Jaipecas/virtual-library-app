@@ -1,13 +1,11 @@
-import { Box, Button, Card, CardActionArea, CardContent, Checkbox, Grid2, IconButton, Menu, MenuItem, Paper, TextField, Typography } from "@mui/material"
+import { Box, Button, Grid2, IconButton, Menu, MenuItem, Paper, TextField, Typography } from "@mui/material"
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addCardListThunk, addCardThunk, getBoardThunk, moveCardThunk, orderCardThunk, removeCardListThunk, removeCardThunk, updateBoardThunk, updateCardListThunk, updateCardThunk } from "../../store/thunks/boardThunks";
 import { GridMoreVertIcon } from "@mui/x-data-grid";
 import { DndContext } from "@dnd-kit/core";
 import { DraggableCard } from "../components/DraggableCard";
-import { DroppableCardList } from "../components/DroppableCardList";
 import { SortableContext, arrayMove } from "@dnd-kit/sortable"
-import { moveCard, updateCard } from "../../store/slices/boardSlice";
 
 
 export const BoardPage = () => {
@@ -34,8 +32,6 @@ export const BoardPage = () => {
     const { selectedBoard } = useSelector(state => state.board);
 
     const dispatch = useDispatch();
-
-    const [dragData, setDragData] = useState(null);
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
@@ -151,16 +147,22 @@ export const BoardPage = () => {
         onMenuCardListClose();
     }
 
+    const moveCardToAnotherList = (card, cardList) => {
+        const updatedCard = {
+            ...card,
+            cardListId: cardList.id,
+            order: cardList?.cards?.length + 1 || 0
+        }
+
+        dispatch(moveCardThunk(updatedCard))
+    }
+
     const onDragEnd = (event) => {
 
-        console.log("DragEnd")
         if (!event.active) return;
         if (!event.over) return;
 
-        if (event.active.id === event.over.id) return;
-
-        if (event.active.data.current.sortable.containerId !== event.over.data.current.sortable.containerId) return;
-
+        if (event.active.data.current.id === event.over.data.current.id) return
 
         const cardListId = event.active.data.current.sortable.containerId;
         const cardList = selectedBoard.cardLists.find(cl => cl.id == cardListId);
@@ -175,82 +177,35 @@ export const BoardPage = () => {
 
         cards.forEach(card => dispatch(orderCardThunk(card)))
 
-        /* const activeCard = event.active.data.current;
-        const overCardList = event.over.data.current;
-
-        const updatedCard = {
-            ...activeCard,
-            cardListId: overCardList.id
-        }
-
-        dispatch(moveCardThunk(updatedCard)) */
     }
 
-    const onDragOver = (e) => {
-        // Check if item is drag into unknown area
-        if (!e.over) return;
-
-        // Get the initial and target sortable list name
-        const initialContainer = e.active.data.current?.sortable?.containerId;
-        const targetContainer = e.over.data.current?.sortable?.containerId;
-
-        // if there are none initial sortable list name, then item is not sortable item
-        if (!initialContainer) return;
-       
-        //arrasta a lista vacia
-        if (!targetContainer) {
-            const activeCard = e.active.data.current;
-            const overCardList = e.over.data.current;
-
-            const updatedCard = {
-                ...activeCard,
-                cardListId: overCardList.id
-            }
-            dispatch(moveCard(updatedCard));
-        }
-
-        if (initialContainer === targetContainer) {
-            console.log("Hola");
-        } else {
-             //arrastra encima de otra carta
-             const activeCard = e.active.data.current;
-             const overCard = e.over.data.current;
-             const overCardListId = e.over.data.current?.sortable?.containerId;
- 
-             const updatedCard = {
-                 ...activeCard,
-                 cardListId: overCardListId,         
-             }
-             dispatch(moveCard(updatedCard));
-        }
-
-    }
 
     return (
 
-        <Box padding={4}>
-            {isEditingBoardTitle
-                ? (<TextField
-                    value={updateBoardTitle}
-                    onChange={(e) => setUpdateBoardTitle(e.target.value)}
-                    onKeyDown={(e) => onUpdateBoardTitle(e.key)}
-                    autoFocus
-                    variant="outlined"
-                    sx={{ marginBottom: 3 }} />)
-                : (<Typography
-                    variant="h4"
-                    marginBottom={3}
-                    sx={{ cursor: "pointer" }}
-                    onClick={onEditBoardTitle}>
-                    {selectedBoard.title}
-                </Typography>)}
+        <DndContext onDragEnd={onDragEnd}>
+            <Box padding={4}>
+                {isEditingBoardTitle
+                    ? (<TextField
+                        value={updateBoardTitle}
+                        onChange={(e) => setUpdateBoardTitle(e.target.value)}
+                        onKeyDown={(e) => onUpdateBoardTitle(e.key)}
+                        autoFocus
+                        variant="outlined"
+                        sx={{ marginBottom: 3 }} />)
+                    : (<Typography
+                        variant="h4"
+                        marginBottom={3}
+                        sx={{ cursor: "pointer" }}
+                        onClick={onEditBoardTitle}>
+                        {selectedBoard.title}
+                    </Typography>)}
 
-            <DndContext onDragEnd={onDragEnd} onDragOver={onDragOver}>
                 <Grid2 container spacing={3}>
                     {selectedBoard.cardLists?.map((cardList) => (
                         <Grid2 xs={12} sm={6} md={4} key={cardList.id}>
-                            <Paper elevation={3} sx={{ padding: 2 }}>
-                                <DroppableCardList key={cardList.id} id={cardList.id} cardList={cardList}>
+                            <Box position={"relative"}>
+                                <Paper elevation={3} sx={{ padding: 2 }}>
+
                                     {cardListEditingTitle == cardList.id
                                         ? (<TextField
                                             value={updateCardListTitle}
@@ -287,6 +242,7 @@ export const BoardPage = () => {
                                             <DraggableCard
                                                 key={card.id}
                                                 card={card}
+                                                cardLists={selectedBoard.cardLists.filter(cl => cl.id !== cardList.id)}
                                                 setUpdateCardText={setUpdateCardText}
                                                 updateCardText={updateCardText}
                                                 onUpdateTitleCard={onUpdateTitleCard}
@@ -294,41 +250,43 @@ export const BoardPage = () => {
                                                 onActiveCard={onActiveCard}
                                                 onMenuClick={onMenuClick}
                                                 activeCard={activeCard}
+                                                moveCardToAnotherList={moveCardToAnotherList}
                                             />
                                         ))}
                                     </SortableContext>
 
-                                </DroppableCardList>
-                                {activeCardList === cardList.id && (
-                                    <Box mt={2}>
-                                        <TextField
-                                            fullWidth
-                                            variant="outlined"
-                                            size="small"
-                                            placeholder="Nueva card"
-                                            value={newCardText}
-                                            onChange={(e) => setNewCardText(e.target.value)}
-                                            sx={{ marginBottom: 1 }}
-                                        />
+
+                                    {activeCardList === cardList.id && (
+                                        <Box mt={2}>
+                                            <TextField
+                                                fullWidth
+                                                variant="outlined"
+                                                size="small"
+                                                placeholder="Nueva card"
+                                                value={newCardText}
+                                                onChange={(e) => setNewCardText(e.target.value)}
+                                                sx={{ marginBottom: 1 }}
+                                            />
+                                            <Button
+                                                variant="contained"
+                                                size="small"
+                                                onClick={() => addCard(cardList)}
+                                            >
+                                                Añadir
+                                            </Button>
+                                        </Box>
+                                    )}
+                                    {activeCardList !== cardList.id && (
                                         <Button
-                                            variant="contained"
+                                            variant="text"
                                             size="small"
-                                            onClick={() => addCard(cardList)}
+                                            onClick={() => setActiveCardList(cardList.id)}
                                         >
-                                            Añadir
+                                            + Añadir card
                                         </Button>
-                                    </Box>
-                                )}
-                                {activeCardList !== cardList.id && (
-                                    <Button
-                                        variant="text"
-                                        size="small"
-                                        onClick={() => setActiveCardList(cardList.id)}
-                                    >
-                                        + Añadir card
-                                    </Button>
-                                )}
-                            </Paper>
+                                    )}
+                                </Paper>
+                            </Box>
                         </Grid2>
                     ))}
 
@@ -375,16 +333,16 @@ export const BoardPage = () => {
                         </Paper>
                     </Grid2>
                 </Grid2>
-            </DndContext>
-            <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={onMenuClose}
-                onClick={(e) => e.stopPropagation()}
-            >
-                <MenuItem onClick={onDeleteCard}>Eliminar</MenuItem>
-            </Menu>
-        </Box>
 
+                <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={onMenuClose}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <MenuItem onClick={onDeleteCard}>Eliminar</MenuItem>
+                </Menu>
+            </Box>
+        </DndContext >
     );
 }

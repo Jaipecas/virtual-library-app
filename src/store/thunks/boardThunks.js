@@ -150,7 +150,7 @@ export const moveCardThunk = (cardData) => async (dispatch) => {
     dispatch(setError(""));
 
     try {
-        //await apiPut(`${BoardRoutes.card}`, cardData);
+        await apiPut(`${BoardRoutes.card}`, cardData);
 
         dispatch(moveCard(cardData));
     } catch (error) {
