@@ -90,19 +90,6 @@ export const apiPut = async (url, body) => {
 };
 
 
-
-export const createStudyRoomAsync = async (data) => {
-  return await apiPost(StudyRoomRoutes.studyRoom, data);
-};
-
-export const deleteStudyRoomsAsync = async (id) => {
-  return await apiDelete(`${StudyRoomRoutes.studyRoom}?StudyRoomId=${id}`);
-};
-
-export const updateStudyRoomAsync = async (data) => {
-  return await apiPut(StudyRoomRoutes.studyRoom, data);
-};
-
 export const getStudyRoomsAsync = async (userId) => {
   return await apiGet(`${StudyRoomRoutes.getStudyRooms}?UserId=${userId}`);
 };

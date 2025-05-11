@@ -1,42 +1,32 @@
-import { apiGet, apiPut, createStudyRoomAsync, deleteStudyRoomsAsync, getInvitedStudyRoomsAsync, getStudyRoomsAsync, updateStudyRoomAsync }
+import { apiDelete, apiGet, apiPost, apiPut, getInvitedStudyRoomsAsync, getStudyRoomsAsync }
   from "../../services/apiService";
-import { addStudyRoom, removeStudyRoom, setConnectedRoomUsers, setError, setIdle, setInvitedStudyRooms, setLoading, setSelectedChatRoom, setStudyRooms, updatePomodoro, updateRoom } from "../slices/studyRoomSlice";
+import { addStudyRoom, removeStudyRoom, setConnectedRoomUsers, setError, setIdle, setInvitedStudyRooms, setLoading, setSelectedChatRoom, setStatus, setStudyRooms, updatePomodoro, updateRoom } from "../slices/studyRoomSlice";
 import { StudyRoomRoutes, StudyRoomUserRoutes } from "../../services/apiRoutes";
 
 export const getStudyRooms = (userId) => async (dispatch) => {
 
-  dispatch(setLoading());
-  dispatch(setError(''));
   try {
     const rooms = await getStudyRoomsAsync(userId)
 
     dispatch(setStudyRooms(rooms));
   } catch (error) {
     dispatch(setError(error.message));
-  } finally {
-    dispatch(setIdle());
   }
 };
 
 export const getInvitedStudyRooms = (userId) => async (dispatch) => {
 
-  dispatch(setLoading());
-  dispatch(setError(''));
   try {
     const rooms = await getInvitedStudyRoomsAsync(userId)
 
     dispatch(setInvitedStudyRooms(rooms));
   } catch (error) {
     dispatch(setError(error.message));
-  } finally {
-    dispatch(setIdle());
-  }
+  } 
 };
 
 export const getStudyRoomThunk = (roomId) => async (dispatch) => {
 
-  dispatch(setLoading());
-  dispatch(setError(''));
   try {
     const room = await apiGet(`${StudyRoomRoutes.getStudyRoomById}?roomId=${roomId}`);
 
@@ -51,54 +41,45 @@ export const getStudyRoomThunk = (roomId) => async (dispatch) => {
 
 
 export const createStudyRoom = (newRoom) => async (dispatch) => {
-  dispatch(setLoading());
-  dispatch(setError(''));
+
   try {
 
-    const room = await createStudyRoomAsync(newRoom)
+    const room = await apiPost(StudyRoomRoutes.studyRoom, newRoom)
 
     dispatch(addStudyRoom(room));
+    dispatch(setStatus("success"));
   } catch (error) {
     dispatch(setError(error.message));
-  } finally {
-    dispatch(setIdle());
   }
 };
 
 export const updateStudyRoom = (updatedRoom) => async (dispatch) => {
-  dispatch(setLoading());
-  dispatch(setError(''));
 
   try {
 
-    const room = await updateStudyRoomAsync(updatedRoom)
+    const room = await apiPut(StudyRoomRoutes.studyRoom, updatedRoom);
 
     dispatch(updateRoom(room));
+    dispatch(setStatus("success"));
   } catch (error) {
     dispatch(setError(error.message));
-  } finally {
-    dispatch(setIdle());
   }
 };
 
 export const deleteStudyRoom = (id) => async (dispatch) => {
-  dispatch(setLoading());
-  dispatch(setError(''));
   try {
-    await deleteStudyRoomsAsync(id)
+
+    await apiDelete(`${StudyRoomRoutes.studyRoom}?StudyRoomId=${id}`);
 
     dispatch(removeStudyRoom(id));
+    dispatch(setStatus("success"));
   } catch (error) {
     dispatch(setError(error.message));
-  } finally {
-    dispatch(setIdle());
   }
 };
 
 
 export const updatePomodoroThunk = (pomodoroData) => async (dispatch) => {
-  dispatch(setLoading());
-  dispatch(setError(''));
 
   try {
 
@@ -107,14 +88,10 @@ export const updatePomodoroThunk = (pomodoroData) => async (dispatch) => {
     dispatch(updatePomodoro(pomodoro));
   } catch (error) {
     dispatch(setError(error.message));
-  } finally {
-    dispatch(setIdle());
   }
 };
 
 export const getRoomUsersThunk = (roomData) => async (dispatch) => {
-
-  dispatch(setError(''));
 
   try {
 

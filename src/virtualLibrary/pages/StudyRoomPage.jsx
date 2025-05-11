@@ -16,7 +16,7 @@ import {
   Alert,
 } from "@mui/material";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import { useForm } from "../../hooks/useForm";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -24,7 +24,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createStudyRoom, deleteStudyRoom, getInvitedStudyRooms, getStudyRooms, updateStudyRoom } from "../../store/thunks/studyRoomThunks";
 import { getUserData } from "../../store/thunks/userThunks";
 import { useNavigate } from "react-router-dom";
-import { setSelectedChatRoom } from "../../store/slices/studyRoomSlice";
+import { clearOperationStatus, setError, setSelectedChatRoom } from "../../store/slices/studyRoomSlice";
 
 //TODO borrar
 //TODO se podría sacar el Dialog a un componente
@@ -44,14 +44,22 @@ export const StudyRoomPage = () => {
   const { userData } = useSelector(state => state.user);
 
   const dispatch = useDispatch();
-  const { studyRooms, invitedRooms, error } = useSelector(state => state.studyRoom);
+  const { studyRooms, invitedRooms, error, status } = useSelector(state => state.studyRoom);
 
+  const clickedButtonTextRef = useRef("");
+
+  //Carga inicial
   useEffect(() => {
     dispatch(getStudyRooms(user.id));
     dispatch(getUserData(user.id));
     dispatch(getInvitedStudyRooms(user.id));
+
+    return () => {
+      dispatch(setError(null));
+    }
   }, []);
 
+  //Efecto al cambiar la room
   useEffect(() => {
     if (Object.keys(selectedRoom).length) {
 
@@ -70,6 +78,25 @@ export const StudyRoomPage = () => {
       setselectedUsers([])
     }
   }, [selectedRoom]);
+
+  //si create/update/delete es success se cierra el dialog o se navega a la room
+  useEffect(() => {
+
+    if (status !== "success") return;
+
+    if (clickedButtonTextRef.current === "ACTUALIZAR" || clickedButtonTextRef.current === "CREAR" || clickedButtonTextRef.current === "BORRAR") {
+      onCloseDialog();
+      dispatch(clearOperationStatus());
+      dispatch(setError(null));
+    }
+
+    if (Object.keys(selectedRoom).length && clickedButtonTextRef.current === "ENTRAR") {
+      onEnterRoom(selectedRoom.id);
+      dispatch(clearOperationStatus());
+      dispatch(setError(null));
+    }
+
+  }, [status]);
 
 
   const onOpenDialog = (room) => {
@@ -121,9 +148,8 @@ export const StudyRoomPage = () => {
         description: formState.description,
         usersIds: selectedUsers?.map(user => user.id),
         pomodoro: {
-          name: "",
-          pomodoroTime: formState.time,
-          breakTime: formState.breakTime,
+          pomodoroTime: formState.time === "" ? null : Number(formState.time),
+          breakTime: formState.breakTime === "" ? null : Number(formState.breakTime),
         }
       }
       dispatch(updateStudyRoom(room))
@@ -140,23 +166,15 @@ export const StudyRoomPage = () => {
         },
         ownerId: user.id,
       };
-      //TODO revisar si da error al crear
       dispatch(createStudyRoom(room));
     }
 
-    if (submitter?.innerText.toUpperCase() === "ACTUALIZAR" || submitter?.innerText.toUpperCase() === "CREAR") {
-      onCloseDialog();
-    }
-
-    if (Object.keys(selectedRoom).length && submitter?.innerText.toUpperCase() === "ENTRAR") {
-      onEnterRoom(selectedRoom.id)
-    }
-
+    clickedButtonTextRef.current = submitter?.innerText.toUpperCase();
   };
 
   const onDeleteRoom = () => {
     dispatch(deleteStudyRoom(selectedRoom.id));
-    onCloseDialog();
+    clickedButtonTextRef.current = "BORRAR";
   };
 
   const preventEnterSubmit = (event) => {

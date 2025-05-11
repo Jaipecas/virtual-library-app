@@ -6,6 +6,7 @@ const initialState = {
     selectedRoom: null,
     loading: false,
     error: null,
+    status: "idle",
     isConnected: false,
     connectedUsers: [],
 };
@@ -50,8 +51,27 @@ export const studyRoomSlice = createSlice({
         setConnectedRoomUsers(state, action) {
             state.connectedUsers = action.payload;
         },
+        setStatus: (state, action) => {
+            state.status = action.payload;
+        },
+        clearOperationStatus: (state) => {
+            state.status = "idle";
+        },
     },
 });
 
-export const { setStudyRooms, addStudyRoom, updateRoom, removeStudyRoom, setLoading, setError, setIdle, setInvitedStudyRooms, setSelectedChatRoom, updatePomodoro, setConnectedRoomUsers } = studyRoomSlice.actions;
+export const {
+    setStudyRooms,
+    addStudyRoom,
+    updateRoom,
+    removeStudyRoom,
+    setLoading,
+    setError, setIdle,
+    setInvitedStudyRooms,
+    setSelectedChatRoom,
+    updatePomodoro,
+    setConnectedRoomUsers,
+    setStatus,
+    clearOperationStatus
+} = studyRoomSlice.actions;
 
