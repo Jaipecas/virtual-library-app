@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   AppBar,
   Box,
@@ -13,11 +12,11 @@ import {
   MenuItem,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import AdbIcon from "@mui/icons-material/Adb";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import { logoutThunk } from "../../store/thunks/authThunks";
 import { useEffect, useState } from "react";
+import libraryIcon from "../../assets/images/libraryIcon.png"
 
 export const Navbar = () => {
   const { isAuthenticated } = useSelector(state => state.auth);
@@ -29,7 +28,7 @@ export const Navbar = () => {
   useEffect(() => {
     if (isAuthenticated) {
       setPages(["Inicio", "Tableros", "Salas"]);
-      setSettings(["Perfil", "Tableros", "Salas", "Logout"])
+      setSettings(["Perfil", "Logout"])
     } else {
       setPages([]);
       setSettings([]);
@@ -54,6 +53,10 @@ export const Navbar = () => {
         break;
       case "Tableros":
         navigate("/library/boards");
+        break;
+      case "Inicio":
+        navigate("/library");
+        break;
       default:
         break;
     }
@@ -76,27 +79,24 @@ export const Navbar = () => {
 
   return (
     <AppBar position="static">
-      <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
+      <Container maxWidth="xxl">
+        <Toolbar sx={{ alignItems: "center" }}>
+          {/* Icono aplicación */}
+          <Box
+            component="img"
+            src={libraryIcon}
+            alt="libraryIcon"
             sx={{
+              height: 32,
+              width: 32,
               mr: 2,
-              display: { xs: "none", md: "flex" },
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
+              display: "flex",
+              alignSelf: "center",
             }}
-          >
-            LOGO
-          </Typography>
+          />
 
+          {/* Para moviles */}
+          {/* Icono menu desplegable */}
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
@@ -131,36 +131,23 @@ export const Navbar = () => {
               ))}
             </Menu>
           </Box>
-          <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
-            sx={{
-              mr: 2,
-              display: { xs: "flex", md: "none" },
-              flexGrow: 1,
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
-            }}
-          >
-            LOGO
-          </Typography>
+
+
+          {/* Tamaño pantalla ordenador */}
+          {/* Paginas en en el menu */}
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
               <Button
                 key={page}
                 onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: "white", display: "block" }}
+                sx={{ my: 2, color: "white" }}
               >
                 {page}
               </Button>
             ))}
           </Box>
+
+          {/* texto login */}
           <Box
             sx={{
               flexGrow: 0,
@@ -169,29 +156,27 @@ export const Navbar = () => {
           >
             <Typography
               variant="h5"
-              noWrap
-              component="a"
-              href="#app-bar-with-responsive-menu"
               sx={{
                 fontFamily: "monospace",
                 fontWeight: 700,
                 letterSpacing: ".3rem",
-                color: "inherit",
-                textDecoration: "none",
+                cursor: "pointer"
               }}
               onClick={() => navigate("/auth/login")}
             >
               LOGIN
             </Typography>
           </Box>
+
+          {/* settings */}
           <Box
             sx={{
               flexGrow: 0,
               display: !isAuthenticated ? "none" : "flex",
             }}
           >
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+            <Tooltip title="Configuración">
+              <IconButton onClick={handleOpenUserMenu}>
                 <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
               </IconButton>
             </Tooltip>
