@@ -78,7 +78,7 @@ export const Navbar = () => {
   };
 
   return (
-    <AppBar position="static">
+    <AppBar position="static" sx={{ height: "65px" }}>
       <Container maxWidth="xxl">
         <Toolbar sx={{ alignItems: "center" }}>
           {/* Icono aplicación */}
