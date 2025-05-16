@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPost, apiPut, getInvitedStudyRoomsAsync, getStudyRoomsAsync }
+import { apiDelete, apiGet, apiPost, apiPut }
   from "../../services/apiService";
 import { addStudyRoom, removeStudyRoom, setConnectedRoomUsers, setError, setIdle, setInvitedStudyRooms, setLoading, setSelectedChatRoom, setStatus, setStudyRooms, updatePomodoro, updateRoom } from "../slices/studyRoomSlice";
 import { StudyRoomRoutes, StudyRoomUserRoutes } from "../../services/apiRoutes";
@@ -6,7 +6,7 @@ import { StudyRoomRoutes, StudyRoomUserRoutes } from "../../services/apiRoutes";
 export const getStudyRooms = (userId) => async (dispatch) => {
 
   try {
-    const rooms = await getStudyRoomsAsync(userId)
+    const rooms = await apiGet(`${StudyRoomRoutes.getStudyRooms}?UserId=${userId}`);
 
     dispatch(setStudyRooms(rooms));
   } catch (error) {
@@ -17,12 +17,12 @@ export const getStudyRooms = (userId) => async (dispatch) => {
 export const getInvitedStudyRooms = (userId) => async (dispatch) => {
 
   try {
-    const rooms = await getInvitedStudyRoomsAsync(userId)
+    const rooms = await apiGet(`${StudyRoomRoutes.getInvitedStudyRooms}?UserId=${userId}`);
 
     dispatch(setInvitedStudyRooms(rooms));
   } catch (error) {
     dispatch(setError(error.message));
-  } 
+  }
 };
 
 export const getStudyRoomThunk = (roomId) => async (dispatch) => {

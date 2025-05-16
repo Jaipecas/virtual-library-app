@@ -1,4 +1,3 @@
-import { AuthRoutes, StudyRoomRoutes, UserRoutes, NotificationRoutes } from "./apiRoutes";
 
 export const apiGet = async (url) => {
   try {
@@ -87,15 +86,6 @@ export const apiPut = async (url, body) => {
   } catch (error) {
     throw error;
   }
-};
-
-
-export const getStudyRoomsAsync = async (userId) => {
-  return await apiGet(`${StudyRoomRoutes.getStudyRooms}?UserId=${userId}`);
-};
-
-export const getInvitedStudyRoomsAsync = async (userId) => {
-  return await apiGet(`${StudyRoomRoutes.getInvitedStudyRooms}?UserId=${userId}`);
 };
 
 
