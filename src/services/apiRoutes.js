@@ -29,6 +29,7 @@ export const NotificationRoutes = {
 export const StudyRoomUserRoutes = {
   updateRoomUser: `${API_BASE_URL}/studyroomuser`,
   getRoomUsers:`${API_BASE_URL}/studyroomuser`,
+  deleteRoomUsers:`${API_BASE_URL}/studyroomuser`,
 };
 
 export const RoomChatRoutes = {

@@ -39,6 +39,9 @@ export const studyRoomSlice = createSlice({
         removeStudyRoom(state, action) {
             state.studyRooms = state.studyRooms.filter(room => room.id !== action.payload);
         },
+        removeInvitedStudyRoom(state, action) {
+            state.invitedRooms = state.invitedRooms.filter(room => room.id !== action.payload);
+        },
         setLoading(state) {
             state.loading = true;
         },
@@ -72,6 +75,7 @@ export const {
     updatePomodoro,
     setConnectedRoomUsers,
     setStatus,
-    clearOperationStatus
+    clearOperationStatus,
+    removeInvitedStudyRoom
 } = studyRoomSlice.actions;
 

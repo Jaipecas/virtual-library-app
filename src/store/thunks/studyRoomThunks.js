@@ -1,6 +1,6 @@
 import { apiDelete, apiGet, apiPost, apiPut }
   from "../../services/apiService";
-import { addStudyRoom, removeStudyRoom, setConnectedRoomUsers, setError, setIdle, setInvitedStudyRooms, setLoading, setSelectedChatRoom, setStatus, setStudyRooms, updatePomodoro, updateRoom } from "../slices/studyRoomSlice";
+import { addStudyRoom, removeInvitedStudyRoom, removeStudyRoom, setConnectedRoomUsers, setError, setIdle, setInvitedStudyRooms, setLoading, setSelectedChatRoom, setStatus, setStudyRooms, updatePomodoro, updateRoom } from "../slices/studyRoomSlice";
 import { StudyRoomRoutes, StudyRoomUserRoutes } from "../../services/apiRoutes";
 
 export const getStudyRooms = (userId) => async (dispatch) => {
@@ -99,6 +99,18 @@ export const getRoomUsersThunk = (roomData) => async (dispatch) => {
 
     dispatch(setConnectedRoomUsers(roomUsers));
 
+  } catch (error) {
+    dispatch(setError(error.message));
+  }
+};
+
+export const deleteInvitedRoomThunk = (roomId, userId) => async (dispatch) => {
+  try {
+
+    await apiDelete(`${StudyRoomUserRoutes.deleteRoomUsers}?roomId=${roomId}&userId=${userId}`);
+
+    dispatch(removeInvitedStudyRoom(roomId));
+    
   } catch (error) {
     dispatch(setError(error.message));
   }
