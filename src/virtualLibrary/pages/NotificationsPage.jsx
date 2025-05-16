@@ -19,12 +19,12 @@ export const NotificationsPage = () => {
 
   const dispatch = useDispatch();
   const { notifications, loading, error } = useSelector(state => state.notifications);
-  const { userData } = useSelector(state => state.user);
+  const { user } = useSelector(state => state.auth);
   const selectedRowsRef = useRef([]);
   const [tabValue, setTabValue] = useState(0);
 
   useEffect(() => {
-    dispatch(getNotifications(userData.id));
+    dispatch(getNotifications(user.id));
   }, [])
 
 

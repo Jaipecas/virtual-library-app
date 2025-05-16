@@ -11,25 +11,30 @@ import MailIcon from "@mui/icons-material/Mail";
 import GroupIcon from "@mui/icons-material/Group";
 import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
 import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StudyRoomPage } from "./StudyRoomPage";
 import { NotificationsPage } from "./NotificationsPage";
 import { FriendsPage } from "./FriendsPage";
+import theme from "../../themes/theme";
+import { getNotifications } from "../../store/thunks/notificationThunks";
+import { useDispatch, useSelector } from "react-redux";
+import { NotificationImportant } from "@mui/icons-material";
 
 const drawerWidth = 240;
-const marginTop = 69.4;
-const menuItems = {
-  Salas: <ChatBubbleIcon />,
-  Notificaciones: <MailIcon />,
-  Amigos: <GroupIcon />,
-};
+const marginTop = 65.1;
 
-//TODO valorar llamar a BD desde el dashboard y pasar los datos como props
+
 export const StudyRoomDashboard = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [selectedPage, setSelectedPage] = useState("Salas");
+  const dispatch = useDispatch();
+  const { user } = useSelector(state => state.auth);
+  const { notifications } = useSelector(state => state.notifications);
+
+  useEffect(() => {
+    dispatch(getNotifications(user.id));
+  }, [])
 
   const onDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -37,6 +42,7 @@ export const StudyRoomDashboard = () => {
 
   const onMenuItemClick = (text) => {
     setSelectedPage(text);
+    setMobileOpen(!mobileOpen);
   };
 
   const renderPage = () => {
@@ -52,6 +58,14 @@ export const StudyRoomDashboard = () => {
     }
   };
 
+  const menuItems = {
+    Salas: <ChatBubbleIcon sx={{ color: theme.palette.primary.dark }} />,
+    Notificaciones: notifications?.length == 0
+      ? <MailIcon sx={{ color: theme.palette.primary.dark }} />
+      : <NotificationImportant color="error" />,
+    Amigos: <GroupIcon sx={{ color: theme.palette.primary.dark }} />,
+  };
+
   const drawer = (
     <>
       <List>
@@ -59,7 +73,9 @@ export const StudyRoomDashboard = () => {
           <ListItem key={text} disablePadding>
             <ListItemButton onClick={() => onMenuItemClick(text)}>
               <ListItemIcon>{icon}</ListItemIcon>
-              <ListItemText primary={text} />
+              <ListItemText primary={text} sx={{
+                color: theme.palette.primary.dark,
+              }} />
             </ListItemButton>
           </ListItem>
         ))}
@@ -75,27 +91,25 @@ export const StudyRoomDashboard = () => {
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
           mt: `${marginTop}px`,
+          backgroundColor: theme.palette.secondary.main,
+          display: { sm: "none" }
         }}
       >
-        <Toolbar>
+        <Toolbar sx={{ display: { sm: "none" } }}>
           <IconButton
             color="inherit"
-            aria-label="open drawer"
             edge="start"
             onClick={onDrawerToggle}
-            sx={{ mr: 2, display: { sm: "none" } }}
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            {selectedPage}
-          </Typography>
         </Toolbar>
       </AppBar>
       <Box
-        component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-        aria-label="mailbox folders"
+        sx={{
+          width: { sm: drawerWidth },
+          flexShrink: { sm: 0 },
+        }}
       >
         <Drawer
           variant="temporary"
@@ -107,7 +121,8 @@ export const StudyRoomDashboard = () => {
               boxSizing: "border-box",
               width: drawerWidth,
               mt: `${marginTop}px`,
-            },
+
+            }
           }}
           slotProps={{
             root: {
@@ -125,6 +140,7 @@ export const StudyRoomDashboard = () => {
               boxSizing: "border-box",
               width: drawerWidth,
               mt: `${marginTop}px`,
+
             },
           }}
           open
@@ -133,14 +149,13 @@ export const StudyRoomDashboard = () => {
         </Drawer>
       </Box>
       <Box
-        component="main"
         sx={{
-          flexGrow: 1,
-          p: 3,
+          px: 2,
+          mt: 3,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
         }}
       >
-        <Toolbar />
+        <Toolbar sx={{ display: { sm: "none" } }} />
         {renderPage()}
       </Box>
     </Box>

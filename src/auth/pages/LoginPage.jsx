@@ -19,7 +19,7 @@ export const LoginPage = () => {
 
     if (isSubmitted) onLogin();
   };
-  
+
   const onLogin = () => {
     const user = {
       email: formState.email,
@@ -35,12 +35,12 @@ export const LoginPage = () => {
   }, [isAuthenticated, navigate]);
 
   useEffect(() => {
-    
+
     return () => {
       dispatch(setError(null));
     }
   }, [])
-  
+
   return (
     <form onSubmit={onLoginFormSubmitted}>
       <AuthLayout isLogin={true}>
@@ -75,15 +75,9 @@ export const LoginPage = () => {
             />
           </Grid2>
           {error && <Alert severity="error">{error}</Alert>}
-          <Grid2 size={{ xs: 12, md: 6 }} sx={{ mt: 2, px: 0.5 }}>
+          <Grid2 size={{ md: 12 }} sx={{ mt: 2, px: 0.5 }}>
             <Button type="submit" variant="contained" fullWidth>
               Login
-            </Button>
-          </Grid2>
-          <Grid2 size={{ xs: 12, md: 6 }} sx={{ mt: 2, px: 0.5 }}>
-            <Button type="submit" variant="contained" fullWidth>
-              <Google />
-              <Typography sx={{ ml: 1 }}>Google</Typography>
             </Button>
           </Grid2>
         </Grid2>
