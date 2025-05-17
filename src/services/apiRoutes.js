@@ -42,4 +42,8 @@ export const BoardRoutes = {
   card: `${API_BASE_URL}/cards`,
 }
 
+export const FriendRoutes = {
+  friend: `${API_BASE_URL}/userfriend`
+}
+
 
