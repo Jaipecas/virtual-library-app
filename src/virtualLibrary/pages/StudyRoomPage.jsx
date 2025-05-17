@@ -172,7 +172,6 @@ export const StudyRoomPage = () => {
         description: formState.description,
         usersIds: selectedUsers?.map(user => user.id),
         pomodoro: {
-          name: "",
           pomodoroTime: formState.time,
           breakTime: formState.breakTime,
         },
