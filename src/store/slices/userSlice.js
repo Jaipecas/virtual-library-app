@@ -19,6 +19,9 @@ export const userSlice = createSlice({
         setUser(state, action) {
             state.userData = action.payload;
         },
+        deleteFriend(state, action) {
+            state.userData.friends = state.userData.friends.filter(f => f.id != action.payload);
+        },
         setLoading(state) {
             state.loading = true;
         },
@@ -31,5 +34,5 @@ export const userSlice = createSlice({
     },
 });
 
-export const { setUser, setLoading, setError, setIdle } = userSlice.actions;
+export const { setUser, setLoading, setError, setIdle, deleteFriend } = userSlice.actions;
 

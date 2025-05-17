@@ -14,6 +14,9 @@ import {
   ListItem,
   ListItemText,
   Alert,
+  Box,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import { useEffect, useRef, useState } from "react";
@@ -21,21 +24,25 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useForm } from "../../hooks/useForm";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useDispatch, useSelector } from 'react-redux';
-import { createStudyRoom, deleteStudyRoom, getInvitedStudyRooms, getStudyRooms, updateStudyRoom } from "../../store/thunks/studyRoomThunks";
+import { createStudyRoom, deleteInvitedRoomThunk, deleteStudyRoom, getInvitedStudyRooms, getStudyRooms, updateStudyRoom } from "../../store/thunks/studyRoomThunks";
 import { getUserData } from "../../store/thunks/userThunks";
 import { useNavigate } from "react-router-dom";
 import { clearOperationStatus, setError, setSelectedChatRoom } from "../../store/slices/studyRoomSlice";
+import { GridMoreVertIcon } from "@mui/x-data-grid";
 
 //TODO borrar
 //TODO se podría sacar el Dialog a un componente
 
 export const StudyRoomPage = () => {
 
-  const [searchError, setSearchError] = useState(false);
+  const [searchError, setSearchError] = useState("");
   const [open, setOpen] = useState(false);
   const [selectedUsers, setselectedUsers] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState({});
   const [action, setAction] = useState("");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [menuInvitedRoomId, setMenuInvitedRoomId] = useState(null);
+
   const navigate = useNavigate();
 
   const { formState, onInputChange, setFormState } = useForm({}, false);
@@ -56,6 +63,7 @@ export const StudyRoomPage = () => {
 
     return () => {
       dispatch(setError(null));
+      setSearchError(null);
     }
   }, []);
 
@@ -108,6 +116,7 @@ export const StudyRoomPage = () => {
   const onCloseDialog = () => {
     setSelectedRoom({});
     setOpen((prev) => !prev);
+    setSearchError(null);
   };
 
   const onSearchUser = (event) => {
@@ -117,15 +126,18 @@ export const StudyRoomPage = () => {
     }
 
     if (event.key === "Enter" || event.type === "click") {
-      if (selectedUsers.includes(formState.searchUser)) return;
+      if (selectedUsers.map(user => user.userName).includes(formState.searchUser)) {
+        setSearchError(`${formState.searchUser} ya ha sido añadido a la sala`);
+        return;
+      }
 
       const user = userData.friends.find((user) => formState.searchUser === user.userName);
 
       if (user != null) {
         setselectedUsers((prev) => [...prev, user]);
-        setSearchError(false);
+        setSearchError(null);
       } else {
-        setSearchError(true);
+        setSearchError("Usuario no encontrado");
       }
     }
   };
@@ -188,6 +200,22 @@ export const StudyRoomPage = () => {
     navigate(`/library/roomChatPage?id=${roomId}`);
   }
 
+  const onMenuInvitedRoomClick = (event, room) => {
+    event.stopPropagation();
+    setAnchorEl(event.currentTarget);
+    setMenuInvitedRoomId(room.id);
+  };
+
+  const onMenuClose = () => {
+    setAnchorEl(null);
+    setMenuInvitedRoomId(null);
+  };
+
+  const onDeleteInvitedRoom = () => {
+    dispatch(deleteInvitedRoomThunk(menuInvitedRoomId, user.id));
+    onMenuClose();
+  }
+
   return (
     <Grid2 container spacing={2}>
       <Grid2 size={{ xs: 12 }}>
@@ -201,14 +229,17 @@ export const StudyRoomPage = () => {
       </Grid2>
       <Grid2 container size={{ xs: 12 }} spacing={2}>
         {studyRooms?.map((room) => (
+
           <Button
             key={room.id}
             variant="outlined"
             startIcon={<MenuBookIcon />}
             onClick={() => onOpenDialog(room)}
+            sx={{ padding: 2, paddingX: 8 }}
           >
             {room.name}
           </Button>
+
         ))}
       </Grid2>
 
@@ -286,7 +317,7 @@ export const StudyRoomPage = () => {
               fullWidth
             />
             {searchError && (
-              <Alert severity="error">Usuario no encontrado</Alert>
+              <Alert severity="error">{searchError}</Alert>
             )}
             <List>
               {selectedUsers?.map((user) => (
@@ -332,22 +363,43 @@ export const StudyRoomPage = () => {
           )}
         </DialogContent>
       </Dialog>
+
+
       <Grid2 size={{ xs: 12 }}>
         <Typography variant="h4">Invitaciones</Typography>
         <Divider />
       </Grid2>
       <Grid2 container size={{ xs: 12 }} spacing={2}>
         {invitedRooms?.map((room) => (
-          <Button
-            key={room.id}
-            variant="outlined"
-            startIcon={<MenuBookIcon />}
-            onClick={() => onEnterRoom(room.id)}
-          >
-            {room.name}
-          </Button>
+          <Box position={"relative"}>
+            <Button
+              key={room.id}
+              variant="outlined"
+              startIcon={<MenuBookIcon />}
+              onClick={() => onEnterRoom(room.id)}
+              sx={{ padding: 2, paddingX: 8 }}
+            >
+              {room.name}
+            </Button>
+            <IconButton
+              size="small"
+              onClick={(e) => onMenuInvitedRoomClick(e, room)}
+              sx={{ position: 'absolute', top: 2, right: 2 }}
+            >
+              <GridMoreVertIcon color="secondary" />
+            </IconButton>
+          </Box>
+
         ))}
       </Grid2>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={onMenuClose}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <MenuItem onClick={onDeleteInvitedRoom}>Eliminar</MenuItem>
+      </Menu>
     </Grid2>
   );
 };

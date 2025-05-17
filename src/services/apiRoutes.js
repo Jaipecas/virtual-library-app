@@ -29,6 +29,7 @@ export const NotificationRoutes = {
 export const StudyRoomUserRoutes = {
   updateRoomUser: `${API_BASE_URL}/studyroomuser`,
   getRoomUsers:`${API_BASE_URL}/studyroomuser`,
+  deleteRoomUsers:`${API_BASE_URL}/studyroomuser`,
 };
 
 export const RoomChatRoutes = {
@@ -39,6 +40,10 @@ export const BoardRoutes = {
   board: `${API_BASE_URL}/board`,
   cardList: `${API_BASE_URL}/cardList`,
   card: `${API_BASE_URL}/cards`,
+}
+
+export const FriendRoutes = {
+  friend: `${API_BASE_URL}/userfriend`
 }
 
 
