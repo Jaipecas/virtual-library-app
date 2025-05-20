@@ -3,12 +3,12 @@ import * as signalR from "@microsoft/signalr";
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from "react-router-dom";
 import { getRoomUsersThunk, getStudyRoomThunk, updatePomodoroThunk } from "../../store/thunks/studyRoomThunks";
-import { Box } from "@mui/system";
-import { Avatar, Button, Grid2, Paper, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import { Avatar, Button, Grid2, IconButton, Paper, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import pomodoroSound from "../../assets/sounds/pomodoroSound.mp3";
 import { RoomChatRoutes } from "../../services/apiRoutes";
 import profileMan from "../../assets/images/profileMan.png";
 import profileWoman from "../../assets/images/profileWoman.png";
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 
 export const RoomChatPage = () => {
@@ -25,6 +25,8 @@ export const RoomChatPage = () => {
 
     const location = useLocation();
     const dispatch = useDispatch();
+
+    const containerScrollRef = useRef(null);
 
     useEffect(() => {
         getRoom();
@@ -68,6 +70,10 @@ export const RoomChatPage = () => {
             dispatch(getRoomUsersThunk({ roomId: selectedRoom.id, isConnected: true }))
         });
 
+        newConnection.on("RestartTimer", ({ endTime, disableChat }) => {
+            setDisableChat(disableChat);
+            updateTimer(endTime);
+        });
 
         connectionRef.current = newConnection;
 
@@ -83,6 +89,14 @@ export const RoomChatPage = () => {
         };
     }, [selectedRoom?.id]);
 
+    //Sirve para scrollear el chat
+    useEffect(() => {
+        const container = containerScrollRef.current;
+        if (container) {
+            container.scrollTop = container.scrollHeight;
+        }
+    }, [messages]);
+
     const getRoom = () => {
         const params = new URLSearchParams(location.search);
         const id = params.get("id");
@@ -91,6 +105,9 @@ export const RoomChatPage = () => {
 
     const sendMessage = async (event) => {
         event.preventDefault();
+
+        if (!message) return;
+
         if (connectionRef.current) {
             try {
                 await connectionRef.current.invoke("SendMessage", selectedRoom.id, user.userName, message);
@@ -145,7 +162,7 @@ export const RoomChatPage = () => {
 
         const update = () => {
             const remaining = Math.floor((end - Date.now()) / 1000);
-            setRemainingTime(remaining);
+            setRemainingTime(remaining > 0 ? remaining : 0);
 
             if (remaining <= 0) {
                 clearInterval(intervalRef.current);
@@ -169,15 +186,23 @@ export const RoomChatPage = () => {
         setDisableChat(selectedRoom.pomodoro.isStudyTime);
         setShowBreakTime(!selectedRoom.pomodoro.isStudyTime);
         updateTimer(new Date(selectedRoom.pomodoro.endTime));
+    }
 
+    const forwardRoom = async () => {
+        dispatch(updatePomodoroThunk({ roomId: selectedRoom.id, isRestart: true }));
+        await connectionRef.current.invoke("RestartTimer", selectedRoom.id, false);
     }
 
     return (
         <Grid2 container justifyContent="center"
-            alignItems="center" spacing={4} sx={{ height: "100vh" }}>
-            <Grid2 size={{ xs: 12, md: 4 }} padding={10} sx={{
-                display: 'flex',
-                flexWrap: 'wrap', height: "100vh"
+            spacing={4} sx={{ height: "100vh" }}>
+            <Grid2 size={{ xs: 12, md: 3 }} marginTop={10} sx={{
+                maxHeight: "100vh",
+                overflowY: "auto",
+                display: "flex",
+                flexWrap: "wrap",
+                alignContent: "flex-start",
+                justifyContent: "center",
             }} >
                 {connectedUsers?.map(user => (
                     <Tooltip title={user.userName} key={user.id}>
@@ -185,7 +210,7 @@ export const RoomChatPage = () => {
                     </Tooltip>
                 ))}
             </Grid2>
-            <Grid2 size={{ xs: 12, md: 6 }} padding={5} sx={{ height: "100vh" }} >
+            <Grid2 size={{ xs: 12, md: 7 }} padding={5} sx={{ height: "100vh" }} >
 
                 <Typography variant="h4" gutterBottom>
                     {selectedRoom ? selectedRoom.name : "Room"}
@@ -206,6 +231,7 @@ export const RoomChatPage = () => {
                         mb: 2,
                         textAlign: "left"
                     }}
+                    ref={containerScrollRef}
                 >
                     {messages.map((msg, index) => (
                         <Typography key={index} variant="body1">
@@ -224,7 +250,7 @@ export const RoomChatPage = () => {
                             variant="outlined"
                             disabled={disableChat}
                         />
-                        <Button variant="contained" onClick={sendMessage}>
+                        <Button variant="contained" disabled={disableChat} onClick={sendMessage}>
                             Enviar
                         </Button>
                     </Stack>
@@ -242,6 +268,12 @@ export const RoomChatPage = () => {
                                 Iniciar Break Timer
                             </Button>
                         )}
+                        <IconButton color="primary"
+                            aria-label="pasar hacia delante"
+                            size="large"
+                            sx={{ border: '1px solid' }} onClick={forwardRoom}>
+                            <ArrowForwardIcon />
+                        </IconButton>
                     </Stack>
                 )}
             </Grid2>
