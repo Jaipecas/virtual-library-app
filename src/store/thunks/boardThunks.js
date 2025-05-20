@@ -17,11 +17,12 @@ export const addBoardThunk = (boardData) => async (dispatch) => {
 
 export const getBoardsThunk = (userId) => async (dispatch) => {
 
-    dispatch(setError(""));
-
     try {
         const boards = await apiGet(`${BoardRoutes.board}?userId=${userId}`);
+
         dispatch(setBoards(boards));
+        
+        dispatch(setError(null));
     } catch (error) {
         dispatch(setError(error.message));
     }

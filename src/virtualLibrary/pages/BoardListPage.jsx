@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { addBoardThunk, getBoardsThunk, removeBoardThunk } from "../../store/thunks/boardThunks";
 import { useNavigate } from "react-router-dom";
 import { GridMoreVertIcon } from "@mui/x-data-grid";
+import { setError } from "../../store/slices/boardSlice";
 
 export const BoardListPage = () => {
 
@@ -13,6 +14,7 @@ export const BoardListPage = () => {
     const [menuBoardId, setMenuBoardId] = useState(null);
 
     const { boards, error } = useSelector(state => state.board);
+
     const { user } = useSelector(state => state.auth);
 
     const dispatch = useDispatch();
@@ -20,6 +22,10 @@ export const BoardListPage = () => {
 
     useEffect(() => {
         dispatch(getBoardsThunk(user.id))
+
+        return () => {
+            dispatch(setError(null));
+        }
     }, [])
 
     const addBoard = () => {
