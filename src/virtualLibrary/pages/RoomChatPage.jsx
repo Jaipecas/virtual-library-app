@@ -40,7 +40,9 @@ export const RoomChatPage = () => {
         if (selectedRoom.pomodoro.endTime != null && new Date(selectedRoom.pomodoro.endTime).getTime() > Date.now()) syncRoom();
 
         const newConnection = new signalR.HubConnectionBuilder()
-            .withUrl(RoomChatRoutes.roomChat)
+            .withUrl(RoomChatRoutes.roomChat, {
+                withCredentials: true
+            })
             .withAutomaticReconnect()
             .build();
 
