@@ -6,11 +6,11 @@ import fs from 'fs';
 export default defineConfig({
   plugins: [react()],
   //TODO activarlo cunado queramos https
-  /* server: {
+  server: {
     https: {
       key: fs.readFileSync('./certs/private-key.pem'),
       cert: fs.readFileSync('./certs/certificate.pem'),
     },
     port: 5173,
-  }, */
+  },
 })
