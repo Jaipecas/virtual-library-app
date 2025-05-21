@@ -4,6 +4,7 @@ import fs from 'fs';
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/virtual-library-app/library/',
   plugins: [react()],
   //TODO activarlo cunado queramos https
   server: {
