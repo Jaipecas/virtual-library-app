@@ -9,6 +9,7 @@ import { RoomChatRoutes } from "../../services/apiRoutes";
 import profileMan from "../../assets/images/profileMan.png";
 import profileWoman from "../../assets/images/profileWoman.png";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import theme from "../../themes/theme";
 
 
 export const RoomChatPage = () => {
@@ -219,7 +220,7 @@ export const RoomChatPage = () => {
                 <Typography variant="subtitle1" mb={2}>
                     {remainingTime !== null
                         ? `${formatTime(remainingTime)}`
-                        : "Pulsa 'Iniciar' para empezar"}
+                        : (user?.id === selectedRoom?.owner.id) ? "Pulsa 'Iniciar Estudio' para empezar" : "Espere a que se inicie el tiempo"}
                 </Typography>
 
                 <Paper
@@ -229,7 +230,9 @@ export const RoomChatPage = () => {
                         height: 300,
                         overflowY: "auto",
                         mb: 2,
-                        textAlign: "left"
+                        textAlign: "left",
+                        border: "3px solid",
+                        borderColor: theme.palette.primary.light
                     }}
                     ref={containerScrollRef}
                 >
@@ -260,12 +263,12 @@ export const RoomChatPage = () => {
                     <Stack direction="row" spacing={2} justifyContent="center">
                         {!showButtonBreakTime && (
                             <Button variant="outlined" color="primary" onClick={studyTimer}>
-                                Iniciar Timer
+                                Iniciar Estudio
                             </Button>
                         )}
                         {showButtonBreakTime && (
                             <Button variant="outlined" color="secondary" onClick={breakTimer}>
-                                Iniciar Break Timer
+                                Iniciar Descanso
                             </Button>
                         )}
                         <IconButton color="primary"
