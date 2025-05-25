@@ -6,6 +6,7 @@ import { GridMoreVertIcon } from "@mui/x-data-grid";
 import { DndContext } from "@dnd-kit/core";
 import { DraggableCard } from "../components/DraggableCard";
 import { SortableContext, arrayMove } from "@dnd-kit/sortable"
+import theme from "../../themes/theme";
 
 
 export const BoardPage = () => {
@@ -204,8 +205,7 @@ export const BoardPage = () => {
                     {selectedBoard.cardLists?.map((cardList) => (
                         <Grid2 xs={12} sm={6} md={4} key={cardList.id}>
                             <Box position={"relative"}>
-                                <Paper elevation={3} sx={{ padding: 2 }}>
-
+                                <Paper elevation={5} sx={{ padding: 2, borderRadius: 3, border: '1px solid', borderColor: theme.palette.secondary.light }}>
                                     {cardListEditingTitle == cardList.id
                                         ? (<TextField
                                             value={updateCardListTitle}
@@ -226,7 +226,7 @@ export const BoardPage = () => {
                                         sx={{ position: 'absolute', top: 1, right: 1 }}
                                         onClick={(e) => onMenuCardListClick(e, cardList)}
                                     >
-                                        <GridMoreVertIcon />
+                                        <GridMoreVertIcon color="secondary" />
                                     </IconButton>
                                     <Menu
                                         anchorEl={anchorElMenuCardList}

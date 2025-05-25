@@ -121,7 +121,7 @@ export const StudyRoomDashboard = () => {
               boxSizing: "border-box",
               width: drawerWidth,
               mt: `${marginTop}px`,
-
+              backgroundColor:  theme.palette.secondary.light
             }
           }}
           slotProps={{
@@ -140,7 +140,7 @@ export const StudyRoomDashboard = () => {
               boxSizing: "border-box",
               width: drawerWidth,
               mt: `${marginTop}px`,
-
+              backgroundColor:  theme.palette.secondary.light
             },
           }}
           open

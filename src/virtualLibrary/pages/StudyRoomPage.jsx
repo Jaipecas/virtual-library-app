@@ -29,9 +29,7 @@ import { getUserData } from "../../store/thunks/userThunks";
 import { useNavigate } from "react-router-dom";
 import { clearOperationStatus, setError, setSelectedChatRoom } from "../../store/slices/studyRoomSlice";
 import { GridMoreVertIcon } from "@mui/x-data-grid";
-
-//TODO borrar
-//TODO se podría sacar el Dialog a un componente
+import theme from "../../themes/theme";
 
 export const StudyRoomPage = () => {
 
@@ -165,7 +163,7 @@ export const StudyRoomPage = () => {
         }
       }
       dispatch(updateStudyRoom(room))
-      //TODO falta enviar notificaciones a los nuevos users
+
     } else {
       const room = {
         name: formState.name,
@@ -223,8 +221,8 @@ export const StudyRoomPage = () => {
         </Button>
       </Grid2>
       <Grid2 size={{ xs: 12 }}>
-        <Typography variant="h4">Salas creadas</Typography>
-        <Divider />
+        <Typography variant="h4" color={theme.palette.secondary.dark}>Salas creadas</Typography>
+        <Divider sx={{ borderColor: theme.palette.secondary.dark }} />
       </Grid2>
       <Grid2 container size={{ xs: 12 }} spacing={2}>
         {studyRooms?.map((room) => (
@@ -234,7 +232,7 @@ export const StudyRoomPage = () => {
             variant="outlined"
             startIcon={<MenuBookIcon />}
             onClick={() => onOpenDialog(room)}
-            sx={{ padding: 2, paddingX: 8 }}
+            sx={{ padding: 2, paddingX: 8, borderWidth: '2px' }}
           >
             {room.name}
           </Button>
@@ -364,9 +362,9 @@ export const StudyRoomPage = () => {
       </Dialog>
 
 
-      <Grid2 size={{ xs: 12 }}>
-        <Typography variant="h4">Invitaciones</Typography>
-        <Divider />
+      <Grid2 marginTop={5} size={{ xs: 12 }}>
+        <Typography variant="h4" color={theme.palette.secondary.dark}>Invitaciones</Typography>
+        <Divider sx={{ borderColor: theme.palette.secondary.dark }} />
       </Grid2>
       <Grid2 container size={{ xs: 12 }} spacing={2}>
         {invitedRooms?.map((room) => (
@@ -376,7 +374,7 @@ export const StudyRoomPage = () => {
               variant="outlined"
               startIcon={<MenuBookIcon />}
               onClick={() => onEnterRoom(room.id)}
-              sx={{ padding: 2, paddingX: 8 }}
+              sx={{ padding: 2, paddingX: 8, borderWidth: '2px' }}
             >
               {room.name}
             </Button>
