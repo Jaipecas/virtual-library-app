@@ -17,9 +17,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import { logoutThunk } from "../../store/thunks/authThunks";
 import { useEffect, useState } from "react";
 import libraryIcon from "../../assets/images/libraryIcon.png"
+import profileMan from "../../assets/images/profileMan.png";
+import profileWoman from "../../assets/images/profileWoman.png";
 
 export const Navbar = () => {
-  const { isAuthenticated } = useSelector(state => state.auth);
+  const { user, isAuthenticated } = useSelector(state => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [pages, setPages] = useState([])
@@ -177,7 +179,7 @@ export const Navbar = () => {
           >
             <Tooltip title="Configuración">
               <IconButton onClick={handleOpenUserMenu}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                <Avatar alt="logo" src={user?.logo == "profileMan" ? profileMan : profileWoman} />
               </IconButton>
             </Tooltip>
             <Menu
