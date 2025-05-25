@@ -5,6 +5,7 @@ import { addBoardThunk, getBoardsThunk, removeBoardThunk } from "../../store/thu
 import { useNavigate } from "react-router-dom";
 import { GridMoreVertIcon } from "@mui/x-data-grid";
 import { setError } from "../../store/slices/boardSlice";
+import theme from "../../themes/theme";
 
 export const BoardListPage = () => {
 
@@ -65,15 +66,15 @@ export const BoardListPage = () => {
 
     return (
         <Box padding={4}>
-            <Typography variant="h4">
-                My Boards
+            <Typography variant="h4" color={theme.palette.secondary.dark}>
+                Mis Tableros
             </Typography>
             {error && <Alert severity="error">{error}</Alert>}
             <Grid2 container padding={2} spacing={2}>
                 {boards.map((board) => (
                     <Grid2 xs={12} sm={6} md={4} key={board.id}>
                         <Box position={"relative"}>
-                            <Card>
+                            <Card sx={{ backgroundColor: theme.palette.primary.light }}>
                                 <CardActionArea sx={{ padding: 4 }} onClick={() => onNavigateBoard(board.id)}>
                                     <CardContent>
                                         <Typography variant="h6">{board.title}</Typography>
@@ -84,7 +85,7 @@ export const BoardListPage = () => {
                                     onClick={(e) => onMenuClick(e, board.id)}
                                     sx={{ position: 'absolute', top: 8, right: 8 }}
                                 >
-                                    <GridMoreVertIcon />
+                                    <GridMoreVertIcon color="secondary" />
                                 </IconButton>
                             </Card>
                         </Box>

@@ -4,6 +4,7 @@ import { GridDragIcon, GridMoreVertIcon } from '@mui/x-data-grid';
 import { CSS } from '@dnd-kit/utilities';
 import { ChevronRight } from '@mui/icons-material';
 import { useState } from 'react';
+import theme from '../../themes/theme';
 
 export const DraggableCard = (
     {
@@ -51,7 +52,7 @@ export const DraggableCard = (
 
     return (
         <Box ref={setNodeRef} style={style} {...attributes} position="relative">
-            <Card key={card.id} sx={{ marginBottom: 2 }}>
+            <Card key={card.id} sx={{ marginBottom: 2, backgroundColor: theme.palette.primary.light }} >
                 <CardContent sx={{ paddingRight: 10 }}>
                     {activeCard === card.id
                         ? (
@@ -88,7 +89,7 @@ export const DraggableCard = (
 
                 <GridDragIcon
                     {...listeners}
-                    sx={{ position: 'absolute', top: 1, left: 1, cursor: "grab" }}
+                    sx={{ position: 'absolute', top: 1, left: 1, cursor: "grab", color: theme.palette.secondary.dark }}
                 />
 
                 <IconButton
@@ -96,13 +97,13 @@ export const DraggableCard = (
                     onClick={(e) => onMenuClick(e, card)}
                     sx={{ position: 'absolute', top: 1, right: 1 }}
                 >
-                    <GridMoreVertIcon />
+                    <GridMoreVertIcon sx={{ color: theme.palette.secondary.dark }} />
                 </IconButton>
 
                 <IconButton size="small"
                     onClick={(e) => onOpenCardMoveMenuClick(e)}
                     sx={{ position: 'absolute', top: 45, right: 1 }}>
-                    <ChevronRight />
+                    <ChevronRight sx={{ color: theme.palette.secondary.dark }} />
                 </IconButton>
 
                 <Menu
