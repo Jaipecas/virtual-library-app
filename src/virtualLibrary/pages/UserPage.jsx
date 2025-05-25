@@ -10,14 +10,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateUserThunk } from "../../store/thunks/authThunks";
 import { setError } from "../../store/slices/authSlice";
 
-//TODO: cambiar la forma en la que se manejan los logos
 const logos = [profileMan, profileWoman];
 const logosNames = ["profileMan", "profileWoman"];
 
 export const UserPage = () => {
   const { user, error } = useSelector(state => state.auth);
   const dispatch = useDispatch();
-  const [selectedLogo, setSelectedLogo] = useState(0);
+  const [selectedLogo, setSelectedLogo] = useState(logosNames.indexOf(user.logo));
   const [showPassword, setShowPassword] = useState(false);
   const { formState, onInputChange, onFormSubmitted } = useForm(
     {
@@ -74,7 +73,7 @@ export const UserPage = () => {
   }, [error])
 
   useEffect(() => {
-    
+
     return () => {
       dispatch(setError(null));
     }

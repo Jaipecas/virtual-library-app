@@ -206,7 +206,7 @@ export const RoomChatPage = () => {
             }} >
                 {connectedUsers?.map(user => (
                     <Tooltip title={user.userName} key={user.id}>
-                        <Avatar src={profileMan} sx={{ width: 100, height: 100, margin: 1 }} />
+                        <Avatar src={user.logo == 'profileMan' ? profileMan : profileWoman} sx={{ width: 100, height: 100, margin: 1 }} />
                     </Tooltip>
                 ))}
             </Grid2>

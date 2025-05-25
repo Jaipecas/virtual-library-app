@@ -24,6 +24,7 @@ export const RegisterPage = () => {
       userName: formState.userName,
       email: formState.email,
       password: formState.password,
+      logo: "profileMan"
     }));
   };
 

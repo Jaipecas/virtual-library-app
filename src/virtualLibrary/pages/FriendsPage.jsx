@@ -2,6 +2,7 @@ import { Alert, Avatar, Box, Card, CardHeader, IconButton, InputAdornment, Menu,
 import SearchIcon from "@mui/icons-material/Search";
 import { useState } from 'react';
 import profileMan from "../../assets/images/profileMan.png";
+import profileWoman from "../../assets/images/profileWoman.png";
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteFriendThunk, getUserData } from '../../store/thunks/userThunks';
 import { useEffect } from 'react';
@@ -88,8 +89,7 @@ export const FriendsPage = () => {
                 {userData.friends.map(friend => (
                     <Box position={"relative"}>
                         <Card key={friend.id} sx={{ paddingX: 3 }}>
-                            {/* TODO repasar la forma en que se manejan los logos */}
-                            <CardHeader avatar={<Avatar src={friend.logo !== null ? friend.logo : profileMan} alt="logo" />}
+                            <CardHeader avatar={<Avatar src={friend.logo == "profileMan" ? profileMan : profileWoman} alt="logo" />}
                                 title={friend.userName}
                                 subheader={friend.email} />
                         </Card>
