@@ -74,7 +74,7 @@ export const StudyRoomDashboard = () => {
             <ListItemButton onClick={() => onMenuItemClick(text)}>
               <ListItemIcon>{icon}</ListItemIcon>
               <ListItemText primary={text} sx={{
-                color: theme.palette.primary.dark,
+                color: "white",
               }} />
             </ListItemButton>
           </ListItem>
@@ -121,7 +121,7 @@ export const StudyRoomDashboard = () => {
               boxSizing: "border-box",
               width: drawerWidth,
               mt: `${marginTop}px`,
-              backgroundColor:  theme.palette.secondary.light
+              backgroundColor: theme.palette.secondary.main
             }
           }}
           slotProps={{
@@ -140,7 +140,9 @@ export const StudyRoomDashboard = () => {
               boxSizing: "border-box",
               width: drawerWidth,
               mt: `${marginTop}px`,
-              backgroundColor:  theme.palette.secondary.light
+              borderRight: '1px solid',
+              borderColor: theme.palette.primary.main,
+              backgroundColor: theme.palette.secondary.main
             },
           }}
           open
