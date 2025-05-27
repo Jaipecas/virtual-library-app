@@ -1,6 +1,6 @@
 
-const API_BASE_URL = "https://localhost:44347/api";
-const API_CHAT_BASE_URL = "https://localhost:7013";
+const API_BASE_URL = "https://virtuallibraryapi2025.azurewebsites.net/api";
+const API_CHAT_BASE_URL = "https://roomchatapi2025.azurewebsites.net";
 
 export const AuthRoutes = {
   signIn: `${API_BASE_URL}/Auth/signIn`,
